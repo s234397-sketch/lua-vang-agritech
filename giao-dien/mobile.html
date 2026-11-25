@@ -10,7 +10,6 @@
     <style>
         :root {
             --primary: #064e3b;
-            --primary-light: #10b981;
             --accent: #d97706;
             --bg: #f2f4f1;
             --card: #ffffff;
@@ -21,23 +20,20 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); padding-bottom: 76px; max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
 
-        /* HEADER */
         .app-header { position: sticky; top: 0; z-index: 50; background: var(--primary); color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-        .brand { display: flex; align-items: center; gap: 10px; }
-        .brand-logo { width: 36px; height: 36px; border-radius: 10px; background: #fff; padding: 4px; display: flex; align-items: center; justify-content: center; }
+        .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .brand-logo { width: 36px; height: 36px; border-radius: 10px; background: #fff; padding: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
-        .brand-title { font-size: 16px; font-weight: 800; letter-spacing: 0.3px; display: flex; align-items: center; gap: 6px; }
-        .brand-badge { background: #fbbf24; color: #064e3b; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px; }
-        .brand-sub { font-size: 11px; color: #a7f3d0; margin-top: 1px; }
-        .cart-btn { position: relative; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .brand-title { font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+        .brand-badge { background: #fbbf24; color: #064e3b; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 6px; }
+        .brand-sub { font-size: 11px; color: #a7f3d0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cart-btn { position: relative; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
         .cart-badge { position: absolute; top: -3px; right: -3px; background: #f59e0b; color: #064e3b; font-size: 10px; font-weight: 800; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
 
-        /* TAB VIEWS */
         .tab-view { display: none; padding: 14px; }
         .tab-view.active { display: block; }
 
-        /* BANNER */
-        .hero-card { background: linear-gradient(135deg, #064e3b, #047857); color: #fff; border-radius: 18px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(6,78,59,0.2); }
+        .hero-card { background: linear-gradient(135deg, #064e3b, #047857); color: #fff; border-radius: 18px; padding: 16px; margin-bottom: 14px; }
         .hero-tag { display: inline-block; background: rgba(251,191,36,0.2); color: #fde68a; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
         .hero-card h2 { font-size: 17px; font-weight: 800; line-height: 1.35; margin-bottom: 6px; }
         .hero-card p { font-size: 12px; color: #d1fae5; line-height: 1.4; margin-bottom: 14px; }
@@ -45,7 +41,6 @@
         .btn-hero-white { background: #fff; color: var(--primary); border: none; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
         .btn-hero-outline { background: rgba(0,0,0,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
 
-        /* SEARCH & FILTER */
         .search-box { position: relative; margin-bottom: 10px; }
         .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 13px; }
         .search-box input { width: 100%; padding: 10px 12px 10px 34px; border-radius: 12px; border: 1px solid var(--border); background: #fff; font-size: 13px; outline: none; }
@@ -54,12 +49,10 @@
         .pill { white-space: nowrap; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: #fff; color: var(--muted); cursor: pointer; }
         .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-        /* SECTION HEADER */
         .sec-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .sec-head h3 { font-size: 13px; font-weight: 800; text-transform: uppercase; color: #374151; }
+        .sec-head h3 { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: #374151; }
         .sec-head span { font-size: 11px; color: var(--muted); }
 
-        /* PRODUCT GRID 2 CỘT */
         .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .prod-card { background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; }
         .prod-img { width: 100%; height: 120px; object-fit: cover; background: #f9fafb; }
@@ -70,7 +63,6 @@
         .prod-price { font-size: 13px; font-weight: 800; color: var(--accent); }
         .btn-add { width: 30px; height: 30px; border-radius: 9px; background: var(--primary); color: #fff; border: none; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* MACHINE & EVENT CARDS */
         .info-banner { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #92400e; display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
         .list-card { background: #fff; border-radius: 16px; border: 1px solid var(--border); padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; }
         .list-img { width: 86px; height: 86px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: #f3f4f6; }
@@ -86,14 +78,19 @@
         .event-meta { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
         .btn-reg-event { width: 100%; margin-top: 10px; padding: 9px; border-radius: 10px; border: 1px solid #a7f3d0; background: #ecfdf5; color: var(--primary); font-size: 12px; font-weight: 700; cursor: pointer; }
 
-        /* CART & FORMS */
         .box-card { background: #fff; border-radius: 16px; border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; }
         .box-title { font-size: 12px; font-weight: 800; text-transform: uppercase; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid #f3f4f6; }
-        .cart-row { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size: 12px; }
+        .cart-row { background: #f9fafb; padding: 10px; border-radius: 12px; margin-bottom: 8px; font-size: 12px; border: 1px solid #f3f4f6; }
+        .qty-box { display: inline-flex; align-items: center; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; background: #fff; }
+        .qty-box button { border: none; background: #f3f4f6; padding: 4px 9px; font-weight: 800; cursor: pointer; }
+        .qty-box span { padding: 0 8px; font-weight: 700; }
         .btn-del { width: 28px; height: 28px; border-radius: 8px; background: #fee2e2; color: #dc2626; border: none; cursor: pointer; }
-        .input-field { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; margin-top: 4px; margin-bottom: 10px; background: #f9fafb; }
+        .input-field { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 12.5px; margin-top: 4px; margin-bottom: 8px; background: #f9fafb; }
         .btn-primary { width: 100%; padding: 11px; border-radius: 12px; background: var(--primary); color: #fff; border: none; font-size: 13px; font-weight: 700; cursor: pointer; }
         .btn-amber { width: 100%; padding: 11px; border-radius: 12px; background: #f59e0b; color: #fff; border: none; font-size: 13px; font-weight: 700; cursor: pointer; }
+        .btn-mini-qr { background: var(--primary); color: #fff; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .btn-mini-cod { background: #d97706; color: #fff; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .btn-mini-cancel { background: #fff; color: #dc2626; border: 1px solid #fecaca; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
 
         /* CHAT */
         #view-chat.active { display: flex; flex-direction: column; height: calc(100vh - 134px); padding: 0; }
@@ -101,8 +98,8 @@
         .chat-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
         .msg-row { display: flex; }
         .msg-row.user { justify-content: flex-end; }
-        .msg-bubble { max-width: 82%; padding: 10px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.45; }
-        .msg-row.user .msg-bubble { background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+        .msg-bubble { max-width: 84%; padding: 10px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.45; }
+        .msg-row.user .msg-bubble { background: #d1fae5; color: #064e3b; border-bottom-right-radius: 4px; }
         .msg-row.bot .msg-bubble { background: #fff; color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
         .chat-quick { background: #fff; padding: 6px 10px; border-top: 1px solid var(--border); display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
         .quick-chip { white-space: nowrap; font-size: 11px; padding: 5px 10px; border-radius: 14px; border: 1px solid #d1fae5; background: #ecfdf5; color: var(--primary); cursor: pointer; }
@@ -110,21 +107,18 @@
         .chat-form input { flex: 1; padding: 9px 14px; border-radius: 20px; border: 1px solid var(--border); font-size: 13px; outline: none; }
         .chat-form button { width: 38px; height: 38px; border-radius: 50%; background: var(--primary); color: #fff; border: none; cursor: pointer; }
 
-        /* BOTTOM NAV CỐ ĐỊNH */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; background: #fff; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 0 8px; z-index: 50; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px; color: #9ca3af; font-size: 10px; font-weight: 700; cursor: pointer; }
         .nav-btn i { font-size: 17px; }
         .nav-btn.active { color: var(--primary); }
 
-        /* MODAL */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 80; display: none; align-items: flex-end; justify-content: center; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.58); z-index: 80; display: none; align-items: center; justify-content: center; padding: 14px; }
         .modal-overlay.open { display: flex; }
-        .modal-sheet { background: #fff; width: 100%; max-width: 480px; border-radius: 22px 22px 0 0; padding: 18px; max-height: 88vh; overflow-y: auto; }
+        .modal-sheet { background: #fff; width: 100%; max-width: 440px; border-radius: 20px; padding: 18px; max-height: 90vh; overflow-y: auto; }
         .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 12px; }
         .slot-item { padding: 9px; border: 1px solid var(--border); border-radius: 10px; background: #fff; font-size: 11.5px; font-weight: 700; text-align: left; cursor: pointer; }
         .slot-item.selected { background: #ecfdf5; border-color: var(--primary); color: var(--primary); }
 
-        /* TOAST */
         .toast { position: fixed; top: 14px; left: 14px; right: 14px; max-width: 452px; margin: 0 auto; background: #111827; color: #fff; padding: 12px 14px; border-radius: 12px; font-size: 12.5px; font-weight: 600; z-index: 100; display: none; align-items: center; gap: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
         .toast.show { display: flex; }
         .hidden { display: none !important; }
@@ -143,7 +137,7 @@
             <div class="brand-logo">
                 <img src="/hinh-anh/logo-lua-vang.png" alt="Logo" onerror="this.outerHTML='<i class=\'fas fa-seedling\' style=\'color:#064e3b;font-size:18px;\'></i>'">
             </div>
-            <div>
+            <div style="min-width:0;">
                 <div class="brand-title">LÚA VÀNG <span class="brand-badge">MOBILE</span></div>
                 <div id="header-subtitle" class="brand-sub">Đồng hành cùng nhà nông</div>
             </div>
@@ -159,7 +153,7 @@
         <div class="hero-card">
             <span class="hero-tag">AgriTech Đồng Bằng Sông Cửu Long</span>
             <h2>Vật tư chính hãng &amp; Cơ giới hóa tận ruộng</h2>
-            <p>Đặt phân bón, giống lúa &amp; chốt ca máy gặt, drone minh bạch 24/7.</p>
+            <p>Đặt phân bón, giống lúa &amp; chốt ca máy gặt, drone cọc QR SePay tự động 24/7.</p>
             <div class="hero-actions">
                 <button class="btn-hero-white" onclick="switchTab('machines')"><i class="fas fa-tractor" style="color:#d97706;"></i> Đặt lịch máy</button>
                 <button class="btn-hero-outline" onclick="switchTab('chat')"><i class="fas fa-robot" style="color:#fde68a;"></i> Hỏi Trợ lý AI</button>
@@ -183,7 +177,7 @@
     <main id="view-machines" class="tab-view">
         <div class="info-banner">
             <i class="fas fa-info-circle" style="font-size:16px;color:#d97706;"></i>
-            <span>Hệ thống tự động kiểm tra ca trống theo ngày để tránh trùng lịch.</span>
+            <span>Hệ thống kiểm tra trùng ca tự động, giữ chỗ 10 phút &amp; duyệt cọc QR SePay.</span>
         </div>
         <div id="machine-list"></div>
     </main>
@@ -197,7 +191,7 @@
         <div id="event-list"></div>
     </main>
 
-    <!-- TAB 4: GIỎ HÀNG -->
+    <!-- TAB 4: GIỎ HÀNG & ĐƠN HÀNG -->
     <main id="view-cart" class="tab-view">
         <div class="sec-head">
             <h3>Giỏ hàng &amp; Lịch đã đặt</h3>
@@ -207,60 +201,79 @@
         <div id="cart-login-notice" class="box-card hidden" style="text-align:center;padding:28px 16px;">
             <i class="fas fa-user-lock" style="font-size:32px;color:#d1d5db;margin-bottom:8px;"></i>
             <p style="font-size:13px;font-weight:700;margin-bottom:4px;">Bạn chưa đăng nhập tài khoản</p>
-            <p style="font-size:12px;color:#6b7280;margin-bottom:14px;">Đăng nhập bằng Số điện thoại để xem giỏ hàng và đơn đã đặt.</p>
+            <p style="font-size:12px;color:#6b7280;margin-bottom:14px;">Đăng nhập bằng Số điện thoại để quản lý giỏ hàng, quét QR và đơn đã đặt.</p>
             <button class="btn-primary" style="width:auto;padding:9px 20px;" onclick="switchTab('account')">Đăng nhập ngay</button>
         </div>
 
         <div id="cart-content" class="hidden">
-            <div class="box-card">
-                <div class="box-title" style="color:#064e3b;">Vật tư trong giỏ</div>
-                <div id="cart-sp-list"></div>
-                <div id="checkout-sp-box" class="hidden" style="margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6;">
-                    <input type="text" id="checkout-address" class="input-field" placeholder="Địa chỉ giao hàng tận nhà...">
-                    <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:10px;">
-                        <span>Tổng tiền vật tư:</span>
-                        <span id="cart-sp-total" style="color:#dc2626;">0đ</span>
-                    </div>
-                    <button class="btn-primary" onclick="submitOrderSP()">Đặt mua vật tư ngay</button>
-                </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;">
+                <button id="subtab-sp" onclick="switchCartSubTab('sp')" style="padding:8px;border-radius:10px;border:none;background:#064e3b;color:#fff;font-size:11.5px;font-weight:700;">Vật tư (<span id="badge-sp">0</span>)</button>
+                <button id="subtab-may" onclick="switchCartSubTab('may')" style="padding:8px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;color:#4b5563;font-size:11.5px;font-weight:700;">Thuê máy (<span id="badge-may">0</span>)</button>
+                <button id="subtab-sk" onclick="switchCartSubTab('sk')" style="padding:8px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;color:#4b5563;font-size:11.5px;font-weight:700;">Sự kiện (<span id="badge-sk">0</span>)</button>
             </div>
 
-            <div class="box-card">
-                <div class="box-title" style="color:#b45309;">Ca thuê máy chờ xác nhận</div>
-                <div id="cart-may-list"></div>
-                <div id="checkout-may-box" class="hidden" style="margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6;">
-                    <input type="text" id="checkout-may-address" class="input-field" placeholder="Vị trí ruộng (Ấp, Xã, Huyện)...">
-                    <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:10px;">
-                        <span>Tổng tiền thuê máy:</span>
-                        <span id="cart-may-total" style="color:#b45309;">0đ</span>
+            <!-- KHOẢNG 1: SẢN PHẨM -->
+            <div id="cart-sec-sp">
+                <div class="box-card">
+                    <div class="box-title" style="color:#064e3b;">Vật tư đang trong giỏ</div>
+                    <div id="cart-sp-list"></div>
+                    <div id="checkout-sp-box" class="hidden" style="margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6;">
+                        <div id="cart-sp-total" style="font-size:14px;font-weight:800;color:#d97706;margin-bottom:10px;">0đ</div>
+                        <button class="btn-primary" onclick="submitOrderSP()"><i class="fas fa-qrcode"></i> Xác nhận đặt mua &amp; Cọc 30%</button>
                     </div>
-                    <button class="btn-amber" onclick="submitOrderMay()">Xác nhận đặt lịch máy</button>
                 </div>
+                <div class="sec-head"><h3 style="font-size:11.5px;">Sản phẩm đã lên đơn &amp; Thanh toán</h3></div>
+                <div id="order-sp-history"></div>
             </div>
 
-            <div class="sec-head" style="margin-top:14px;">
-                <h3>Lịch sử đơn hàng &amp; Thuê máy</h3>
+            <!-- KHOẢNG 2: THUÊ MÁY -->
+            <div id="cart-sec-may" class="hidden">
+                <div class="box-card">
+                    <div class="box-title" style="color:#b45309;">Ca thuê máy đang trong giỏ</div>
+                    <div id="cart-may-list"></div>
+                    <div id="checkout-may-box" class="hidden" style="margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6;">
+                        <div id="cart-may-total" style="font-size:14px;font-weight:800;color:#b45309;margin-bottom:10px;">0đ</div>
+                        <button class="btn-amber" onclick="submitOrderMay()"><i class="fas fa-qrcode"></i> Xác nhận lịch thuê &amp; Cọc 30%</button>
+                    </div>
+                </div>
+                <div class="sec-head"><h3 style="font-size:11.5px;">Lịch thuê máy đã lên đơn</h3></div>
+                <div id="order-may-history"></div>
             </div>
-            <div id="order-history-list"></div>
+
+            <!-- KHOẢNG 3: SỰ KIỆN ĐÃ ĐĂNG KÝ -->
+            <div id="cart-sec-sk" class="hidden">
+                <div id="order-sk-history"></div>
+            </div>
         </div>
     </main>
 
-    <!-- TAB 5: TƯ VẤN AI -->
+    <!-- TAB 5: TƯ VẤN AI (BẮT BUỘC ĐĂNG NHẬP) -->
     <main id="view-chat" class="tab-view">
-        <div class="chat-head">
-            <span><i class="fas fa-circle" style="color:#10b981;font-size:8px;margin-right:6px;"></i>Trợ lý AI &amp; Kỹ sư Lúa Vàng 24/7</span>
-            <button onclick="loadChatMessages()" style="background:none;border:none;color:#6b7280;"><i class="fas fa-redo"></i></button>
+        <div id="chat-login-gate" class="hidden" style="padding:24px 16px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div class="box-card" style="width:100%;padding:24px 16px;">
+                <i class="fas fa-lock" style="font-size:32px;color:#d97706;margin-bottom:10px;"></i>
+                <h3 style="font-size:14px;font-weight:800;color:#064e3b;margin-bottom:6px;">Vui lòng đăng nhập để trò chuyện</h3>
+                <p style="font-size:12px;color:#6b7280;margin-bottom:14px;line-height:1.45;">Lịch sử tư vấn là riêng tư của từng tài khoản. Hãy đăng nhập để chat với Trợ lý AI và Admin Lúa Vàng.</p>
+                <button class="btn-primary" onclick="switchTab('account')">Đăng nhập ngay</button>
+            </div>
         </div>
-        <div id="chat-messages" class="chat-body"></div>
-        <div class="chat-quick">
-            <button class="quick-chip" onclick="sendQuickChat('Tư vấn giống lúa chịu mặn tốt nhất?')">Giống lúa chịu mặn</button>
-            <button class="quick-chip" onclick="sendQuickChat('Giá thuê máy gặt đập tính như thế nào?')">Giá thuê máy gặt</button>
-            <button class="quick-chip" onclick="sendQuickChat('Lúa bị đạo ôn lá nên phun thuốc gì?')">Trị bệnh đạo ôn</button>
+
+        <div id="chat-active-box" style="display:flex;flex-direction:column;height:100%;">
+            <div class="chat-head">
+                <span><i class="fas fa-circle" style="color:#10b981;font-size:8px;margin-right:6px;"></i>Trợ lý AI &amp; Kỹ sư Lúa Vàng 24/7</span>
+                <button onclick="loadChatMessages()" style="background:none;border:none;color:#6b7280;"><i class="fas fa-redo"></i></button>
+            </div>
+            <div id="chat-messages" class="chat-body"></div>
+            <div class="chat-quick">
+                <button class="quick-chip" onclick="sendQuickChat('Lúa bị vàng lá đầu ngọn là thiếu chất gì?')">Vàng lá thiếu chất gì?</button>
+                <button class="quick-chip" onclick="sendQuickChat('Cách phòng trừ bệnh đạo ôn cổ bông trên lúa?')">Trị đạo ôn cổ bông</button>
+                <button class="quick-chip" onclick="sendQuickChat('Tư vấn bón phân đón đòng giúp lúa trổ đều?')">Bón phân đón đòng</button>
+            </div>
+            <form class="chat-form" onsubmit="handleSendChat(event)">
+                <input type="text" id="chat-input" placeholder="Nhập câu hỏi về cây lúa, vật tư..." required>
+                <button id="btn-send-chat" type="submit"><i class="fas fa-paper-plane"></i></button>
+            </form>
         </div>
-        <form class="chat-form" onsubmit="handleSendChat(event)">
-            <input type="text" id="chat-input" placeholder="Nhập câu hỏi về cây lúa, vật tư..." required>
-            <button type="submit"><i class="fas fa-paper-plane"></i></button>
-        </form>
     </main>
 
     <!-- TAB 6: TÀI KHOẢN & ADMIN -->
@@ -273,21 +286,21 @@
 
             <form id="form-login" onsubmit="handleLogin(event)">
                 <label style="font-size:11px;font-weight:700;color:#4b5563;">Số điện thoại / Tài khoản</label>
-                <input type="text" id="login-phone" class="input-field" required placeholder="Nhập SĐT hoặc admin">
+                <input type="text" id="login-username" class="input-field" required placeholder="Nhập số điện thoại đã đăng ký...">
                 <label style="font-size:11px;font-weight:700;color:#4b5563;">Mật khẩu</label>
-                <input type="password" id="login-pass" class="input-field" required placeholder="••••••••">
+                <input type="password" id="login-password" class="input-field" required placeholder="Nhập mật khẩu...">
                 <button type="submit" class="btn-primary">Đăng nhập hệ thống</button>
             </form>
 
             <form id="form-register" onsubmit="handleRegister(event)" class="hidden">
                 <label style="font-size:11px;font-weight:700;color:#4b5563;">Họ và tên nông dân</label>
-                <input type="text" id="reg-name" class="input-field" required placeholder="Nguyễn Văn A">
+                <input type="text" id="reg-fullname" class="input-field" required placeholder="Nguyễn Văn A">
                 <label style="font-size:11px;font-weight:700;color:#4b5563;">Số điện thoại</label>
                 <input type="tel" id="reg-phone" class="input-field" required placeholder="09xxxxxxxx">
                 <label style="font-size:11px;font-weight:700;color:#4b5563;">Địa chỉ ruộng / Nơi ở</label>
                 <input type="text" id="reg-address" class="input-field" required placeholder="Xã..., Huyện..., Tỉnh...">
                 <label style="font-size:11px;font-weight:700;color:#4b5563;">Mật khẩu</label>
-                <input type="password" id="reg-pass" class="input-field" required placeholder="Tối thiểu 6 ký tự">
+                <input type="password" id="reg-password" class="input-field" required placeholder="Tối thiểu 6 ký tự">
                 <button type="submit" class="btn-amber">Tạo tài khoản ngay</button>
             </form>
         </div>
@@ -313,7 +326,6 @@
                 <button onclick="updateProfileAddress()" class="btn-primary" style="background:#1f2937;">Lưu thay đổi địa chỉ</button>
             </div>
 
-            <!-- ADMIN PANEL MOBILE -->
             <div id="admin-mobile-panel" class="hidden">
                 <div class="sec-head">
                     <h3 style="color:#b91c1c;"><i class="fas fa-shield-alt"></i> Quản trị nhanh (Admin)</h3>
@@ -362,10 +374,10 @@
 
             <label style="font-size:11px;font-weight:700;">Chọn ca làm việc</label>
             <div class="slot-grid">
-                <button type="button" class="slot-item" onclick="selectTimeSlot('Sáng sớm (05h-08h)', this)">Sáng sớm (05h-08h)</button>
-                <button type="button" class="slot-item" onclick="selectTimeSlot('Buổi sáng (08h-11h30)', this)">Buổi sáng (08h-11h30)</button>
-                <button type="button" class="slot-item" onclick="selectTimeSlot('Buổi chiều (13h30-17h)', this)">Buổi chiều (13h30-17h)</button>
-                <button type="button" class="slot-item" onclick="selectTimeSlot('Cả ngày', this)">Cả ngày</button>
+                <button type="button" class="slot-item" onclick="selectTimeSlot('Sáng sớm (06:00 - 09:00)', this)">Sáng sớm (06:00 - 09:00)</button>
+                <button type="button" class="slot-item" onclick="selectTimeSlot('Buổi sáng (09:00 - 12:00)', this)">Buổi sáng (09:00 - 12:00)</button>
+                <button type="button" class="slot-item" onclick="selectTimeSlot('Buổi chiều (13:30 - 16:30)', this)">Buổi chiều (13:30 - 16:30)</button>
+                <button type="button" class="slot-item" onclick="selectTimeSlot('Cả ngày (06:00 - 16:30)', this)">Cả ngày (06:00 - 16:30)</button>
             </div>
             <input type="hidden" id="booking-slot" value="">
 
@@ -375,6 +387,33 @@
             </div>
 
             <button class="btn-primary" onclick="submitMachineBooking()">Thêm ca thuê vào giỏ hàng</button>
+        </div>
+    </div>
+
+    <!-- MODAL QR SEPAY (CỌC 30% & TRẢ NỐT 70%) -->
+    <div id="modal-qr" class="modal-overlay">
+        <div class="modal-sheet" style="text-align:center;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid #f3f4f6;margin-bottom:12px;">
+                <h3 id="qr-title" style="font-size:13px;font-weight:800;color:#064e3b;text-transform:uppercase;">Quét QR SePay</h3>
+                <button onclick="closeQRModal()" style="width:30px;height:30px;border-radius:50%;border:none;background:#f3f4f6;"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="qr-status-box" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:10px;font-size:11.5px;font-weight:700;margin-bottom:12px;">
+                <div>Đang chờ chuyển khoản... Tự động cập nhật khi SePay nhận tiền!</div>
+                <div id="qr-countdown-wrap" style="color:#b91c1c;margin-top:4px;">Giữ chỗ còn: <span id="qr-countdown">10:00</span></div>
+            </div>
+
+            <img id="qr-img" src="" alt="QR VietQR" style="width:210px;height:210px;object-fit:contain;margin:0 auto 12px;border:1px solid #e5e7eb;border-radius:14px;padding:8px;">
+
+            <div style="background:#f9fafb;border-radius:12px;padding:10px 12px;text-align:left;font-size:12px;margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Ngân hàng:</span><strong>VietinBank</strong></div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>STK:</span><strong>101886851153</strong></div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Chủ TK:</span><strong>NGUYEN MINH KHOA</strong></div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Số tiền:</span><strong id="qr-amount" style="color:#d97706;">0đ</strong></div>
+                <div style="display:flex;justify-content:space-between;border-top:1px solid #e5e7eb;padding-top:6px;"><span>Nội dung CK:</span><strong id="qr-content" style="color:#064e3b;"></strong></div>
+            </div>
+
+            <button class="btn-primary" onclick="closeQRModal()">Đóng cửa sổ QR</button>
         </div>
     </div>
 
@@ -388,23 +427,40 @@
     </nav>
 
     <script>
+        var DANH_SACH_KHUNG_GIO = [
+            'Sáng sớm (06:00 - 09:00)',
+            'Buổi sáng (09:00 - 12:00)',
+            'Buổi chiều (13:30 - 16:30)',
+            'Cả ngày (06:00 - 16:30)'
+        ];
+
         var allProducts = [];
         var selectedCategory = 'ALL';
         var currentUser = JSON.parse(sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser') || 'null');
+        var duLieuGioHang = { sanPham: [], thueMay: [], suKien: [] };
+        var dangChoAI = false;
         var chatPollInterval = null;
+        var qrPollInterval = null;
+        var qrCdInterval = null;
+        var qrEndTimeMs = 0;
 
         function escAttr(str) {
             return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
         }
-        function getUserPhone() { return currentUser ? (currentUser.phone || currentUser.SoDienThoai || currentUser.soDienThoai || '') : ''; }
-        function getUserName() { return currentUser ? (currentUser.name || currentUser.HoTen || currentUser.hoTen || 'Nông dân') : 'Nông dân'; }
+        function getUserPhone() { return currentUser ? (currentUser.phone || currentUser.SoDienThoai || '') : ''; }
+        function getUserName() { return currentUser ? (currentUser.name || currentUser.HoTen || 'Nông dân') : 'Nông dân'; }
+
+        function formatMMSS(sec) {
+            var s = Math.max(0, Math.floor(Number(sec) || 0));
+            return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthUI();
             loadStoreData();
             loadMachinesData();
             loadEventsData();
-            if (currentUser) loadCartData();
+            if (currentUser && getUserPhone()) loadCartData();
         });
 
         function showToast(msg, isError) {
@@ -429,16 +485,25 @@
 
             if (tabName === 'cart') loadCartData();
             if (tabName === 'chat') {
-                loadChatMessages();
-                if (!chatPollInterval) chatPollInterval = setInterval(loadChatMessages, 4000);
+                updateChatGate();
+                if (currentUser && getUserPhone()) {
+                    loadChatMessages();
+                    if (!chatPollInterval) chatPollInterval = setInterval(loadChatMessages, 3500);
+                }
             } else if (chatPollInterval) {
                 clearInterval(chatPollInterval);
                 chatPollInterval = null;
             }
-            if (tabName === 'account' && currentUser && (currentUser.role === 'admin' || currentUser.Quyen === 'Admin')) {
+            if (tabName === 'account' && currentUser && currentUser.role === 'admin') {
                 loadAdminStats();
             }
             window.scrollTo(0, 0);
+        }
+
+        function updateChatGate() {
+            var loggedIn = !!(currentUser && getUserPhone());
+            document.getElementById('chat-login-gate').classList.toggle('hidden', loggedIn);
+            document.getElementById('chat-active-box').classList.toggle('hidden', !loggedIn);
         }
 
         // 1. CỬA HÀNG
@@ -446,7 +511,7 @@
             try {
                 var res = await fetch('/api/san-pham');
                 var result = await res.json();
-                allProducts = result.success ? (result.data || []) : (Array.isArray(result) ? result : []);
+                allProducts = result.success ? (result.data || []) : [];
 
                 var cats = {};
                 for (var i = 0; i < allProducts.length; i++) {
@@ -482,7 +547,7 @@
             for (var i = 0; i < filtered.length; i++) {
                 var p = filtered[i];
                 var dm = p.TenDanhMucChuan || p.DanhMuc || 'Vật tư';
-                var gia = Number(p.GiaTien || p.GiaBan || 0).toLocaleString('vi-VN') + 'đ';
+                var gia = Number(p.GiaTien || 0).toLocaleString('vi-VN') + 'đ';
                 var imgSrc = (p.HinhAnh && p.HinhAnh.trim() !== '' && p.HinhAnh !== 'default.jpg') ? ('/hinh-anh/' + p.HinhAnh) : 'https://placehold.co/300x200?text=Lua+Vang';
                 html += '<div class="prod-card">' +
                     '<img class="prod-img" src="' + imgSrc + '" onerror="this.src=\'https://placehold.co/300x200?text=Lua+Vang\'">' +
@@ -495,7 +560,7 @@
         }
 
         async function addToCartProduct(maSanPham, tenSanPham) {
-            if (!currentUser) { showToast('Vui lòng đăng nhập để thêm vào giỏ!', true); return switchTab('account'); }
+            if (!currentUser || !getUserPhone()) { showToast('Vui lòng đăng nhập để thêm vào giỏ!', true); return switchTab('account'); }
             try {
                 var res = await fetch('/api/gio-hang/san-pham', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -512,7 +577,7 @@
             try {
                 var res = await fetch('/api/thue-may');
                 var result = await res.json();
-                var machines = result.success ? (result.data || []) : (Array.isArray(result) ? result : []);
+                var machines = result.success ? (result.data || []) : [];
                 var html = '';
                 for (var i = 0; i < machines.length; i++) {
                     var m = machines[i];
@@ -535,7 +600,7 @@
         }
 
         function openBookingModal(id, name) {
-            if (!currentUser) { showToast('Đăng nhập để đặt lịch thuê máy!', true); return switchTab('account'); }
+            if (!currentUser || !getUserPhone()) { showToast('Đăng nhập để đặt lịch thuê máy!', true); return switchTab('account'); }
             document.getElementById('booking-machine-id').value = id;
             document.getElementById('modal-machine-name').textContent = name;
             var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
@@ -561,11 +626,11 @@
             try {
                 var res = await fetch('/api/thue-may/' + maMay + '/lich-da-dat?ngay=' + ngay);
                 var result = await res.json();
-                var booked = result.data || (Array.isArray(result) ? result : []);
-                if (!booked || booked.length === 0) listEl.innerHTML = '<span style="color:#064e3b;font-weight:600;">Tất cả ca trong ngày đều còn trống.</span>';
+                var booked = result.data || [];
+                if (!booked.length) listEl.innerHTML = '<span style="color:#064e3b;font-weight:600;">Tất cả ca trong ngày đều còn trống.</span>';
                 else {
                     var html = '';
-                    for (var i = 0; i < booked.length; i++) html += '<div style="color:#dc2626;font-weight:600;">• Đã đặt: ' + (booked[i].KhungGio || booked[i].CaThue) + ' (' + booked[i].TrangThai + ')</div>';
+                    for (var i = 0; i < booked.length; i++) html += '<div style="color:#dc2626;font-weight:600;">• Đã đặt: ' + booked[i].KhungGio + ' (' + booked[i].TrangThai + ')</div>';
                     listEl.innerHTML = html;
                 }
             } catch (e) { listEl.textContent = 'Không tải được lịch máy.'; }
@@ -575,12 +640,12 @@
             var maMay = document.getElementById('booking-machine-id').value;
             var ngayThue = document.getElementById('booking-date').value;
             var khungGio = document.getElementById('booking-slot').value;
-            var dienTich = parseFloat(document.getElementById('booking-area').value) || 1;
+            var soCong = parseFloat(document.getElementById('booking-area').value) || 1;
             if (!khungGio) return showToast('Vui lòng chọn ca làm việc!', true);
             try {
                 var res = await fetch('/api/gio-hang/thue-may', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ soDienThoai: getUserPhone(), maMay: maMay, ngayThue: ngayThue, khungGio: khungGio, dienTich: dienTich, soLuong: dienTich })
+                    body: JSON.stringify({ soDienThoai: getUserPhone(), maMay: maMay, ngayThue: ngayThue, khungGio: khungGio, soCong: soCong })
                 });
                 var data = await res.json();
                 if (data.success) { closeModal('modal-booking'); showToast('Đã thêm ca thuê máy vào giỏ hàng!'); loadCartData(); }
@@ -593,18 +658,17 @@
             try {
                 var res = await fetch('/api/su-kien');
                 var result = await res.json();
-                var events = result.success ? (result.data || []) : (Array.isArray(result) ? result : []);
+                var events = result.success ? (result.data || []) : [];
                 var html = '';
                 for (var i = 0; i < events.length; i++) {
                     var ev = events[i];
-                    var title = ev.TieuDe || ev.TenSuKien || 'Hội thảo kỹ thuật nhà nông';
-                    var timeStr = ev.ThoiGian || (ev.NgayToChuc ? new Date(ev.NgayToChuc).toLocaleDateString('vi-VN') : 'Đang cập nhật');
+                    var title = ev.TieuDe || 'Hội thảo kỹ thuật nhà nông';
                     var imgSrc = (ev.HinhAnh && ev.HinhAnh.trim() !== '' && ev.HinhAnh !== 'default.jpg') ? ('/hinh-anh/' + ev.HinhAnh) : 'https://placehold.co/400x180?text=Hoi+Thao+Lua+Vang';
                     html += '<div class="event-card">' +
                         '<img class="event-img" src="' + imgSrc + '" onerror="this.src=\'https://placehold.co/400x180?text=Hoi+Thao+Lua+Vang\'">' +
-                        '<div class="event-body"><div class="event-meta"><i class="far fa-clock"></i> ' + timeStr + ' • <i class="fas fa-map-marker-alt" style="color:#d97706;"></i> ' + (ev.DiaDiem || 'Tại địa phương') + '</div>' +
+                        '<div class="event-body"><div class="event-meta"><i class="far fa-clock"></i> ' + (ev.ThoiGian || 'Đang cập nhật') + ' • <i class="fas fa-map-marker-alt" style="color:#d97706;"></i> ' + (ev.DiaDiem || 'Tại địa phương') + '</div>' +
                         '<h3 style="font-size:14px;font-weight:800;margin-bottom:4px;">' + title + '</h3>' +
-                        '<p style="font-size:12px;color:#6b7280;">' + (ev.MoTa || ev.NoiDung || '') + '</p>' +
+                        '<p style="font-size:12px;color:#6b7280;">' + (ev.MoTa || '') + '</p>' +
                         '<button class="btn-reg-event" onclick="registerEvent(' + ev.MaSuKien + ', \'' + escAttr(title) + '\')">Đăng ký tham gia ngay</button></div></div>';
                 }
                 document.getElementById('event-list').innerHTML = html;
@@ -612,155 +676,323 @@
         }
 
         async function registerEvent(id, title) {
-            if (!currentUser) { showToast('Vui lòng đăng nhập để đăng ký hội thảo!', true); return switchTab('account'); }
+            if (!currentUser || !getUserPhone()) { showToast('Vui lòng đăng nhập để đăng ký hội thảo!', true); return switchTab('account'); }
             try {
                 var res = await fetch('/api/dang-ky-su-kien', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ maSuKien: id, hoTen: getUserName(), soDienThoai: getUserPhone(), diaChi: currentUser.address || currentUser.DiaChi || 'ĐBSCL' })
+                    body: JSON.stringify({ maSuKien: id, hoTen: getUserName(), soDienThoai: getUserPhone(), diaChi: currentUser.address || 'ĐBSCL' })
                 });
                 var data = await res.json();
                 showToast(data.message || ('Đăng ký thành công: ' + title), !data.success);
+                if (data.success) loadCartData();
             } catch (e) { showToast('Lỗi đăng ký sự kiện', true); }
         }
 
-        // 4. GIỎ HÀNG
+        // 4. GIỎ HÀNG & QR SEPAY
+        function switchCartSubTab(sub) {
+            ['sp', 'may', 'sk'].forEach(function(k) {
+                document.getElementById('cart-sec-' + k).classList.toggle('hidden', k !== sub);
+                var btn = document.getElementById('subtab-' + k);
+                if (k === sub) { btn.style.background = '#064e3b'; btn.style.color = '#fff'; btn.style.border = 'none'; }
+                else { btn.style.background = '#fff'; btn.style.color = '#4b5563'; btn.style.border = '1px solid #e5e7eb'; }
+            });
+        }
+
         async function loadCartData() {
-            if (!currentUser) {
+            if (!currentUser || !getUserPhone()) {
                 document.getElementById('cart-login-notice').classList.remove('hidden');
                 document.getElementById('cart-content').classList.add('hidden');
                 return;
             }
             document.getElementById('cart-login-notice').classList.add('hidden');
             document.getElementById('cart-content').classList.remove('hidden');
-            var defaultAddr = currentUser.address || currentUser.DiaChi || '';
-            document.getElementById('checkout-address').value = defaultAddr;
-            document.getElementById('checkout-may-address').value = defaultAddr;
 
             try {
-                var res = await fetch('/api/gio-hang/' + getUserPhone());
-                var result = await res.json();
-                var data = result.data || result;
+                var res = await fetch('/api/gio-hang/' + encodeURIComponent(getUserPhone()));
+                var data = await res.json();
+                if (!data.success) return;
+                duLieuGioHang = data;
+
                 var dsSP = data.sanPham || [];
                 var dsMay = data.thueMay || [];
+                var dsSK = data.suKien || [];
 
-                var spInCart = dsSP.filter(function(i) { return i.TrangThai === 'Trong giỏ'; });
-                var mayInCart = dsMay.filter(function(i) { return i.TrangThai === 'Trong giỏ'; });
-                var historyAll = dsSP.filter(function(i) { return i.TrangThai !== 'Trong giỏ'; }).concat(dsMay.filter(function(i) { return i.TrangThai !== 'Trong giỏ'; }));
+                document.getElementById('badge-sp').textContent = dsSP.length;
+                document.getElementById('badge-may').textContent = dsMay.length;
+                document.getElementById('badge-sk').textContent = dsSK.length;
 
+                var spGio = dsSP.filter(function(i) { return i.TrangThai === 'Trong giỏ'; });
+                var spDon = dsSP.filter(function(i) { return i.TrangThai !== 'Trong giỏ'; });
+                var mayGio = dsMay.filter(function(i) { return i.TrangThai === 'Chờ xác nhận'; });
+                var mayDon = dsMay.filter(function(i) { return i.TrangThai !== 'Chờ xác nhận'; });
+
+                var totalBadge = spGio.length + mayGio.length;
                 var badge = document.getElementById('cart-badge');
-                var totalBadge = spInCart.length + mayInCart.length;
                 if (totalBadge > 0) { badge.textContent = totalBadge; badge.classList.remove('hidden'); }
                 else badge.classList.add('hidden');
 
-                var spListEl = document.getElementById('cart-sp-list');
+                // Render SP giỏ
                 var spBox = document.getElementById('checkout-sp-box');
-                if (spInCart.length === 0) { spListEl.innerHTML = '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:8px;">Chưa có vật tư nào trong giỏ.</p>'; spBox.classList.add('hidden'); }
-                else {
+                if (!spGio.length) {
+                    document.getElementById('cart-sp-list').innerHTML = '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:8px;">Chưa có vật tư nào trong giỏ.</p>';
+                    spBox.classList.add('hidden');
+                } else {
                     spBox.classList.remove('hidden');
-                    var totalSP = 0, spHtml = '';
-                    for (var i = 0; i < spInCart.length; i++) {
-                        var item = spInCart[i];
-                        var sub = Number(item.GiaTien || item.DonGia || 0) * Number(item.SoLuong || 1);
-                        totalSP += sub;
-                        spHtml += '<div class="cart-row"><div><strong>' + item.TenSanPham + '</strong><div style="color:#064e3b;font-weight:700;margin-top:2px;">' + sub.toLocaleString('vi-VN') + 'đ (x' + item.SoLuong + ')</div></div><button class="btn-del" onclick="deleteCartSP(' + item.MaGioHangSP + ')"><i class="fas fa-trash"></i></button></div>';
+                    var tongSP = 0, htmlSP = '';
+                    for (var i = 0; i < spGio.length; i++) {
+                        var item = spGio[i], sub = Number(item.GiaTien) * Number(item.SoLuong);
+                        tongSP += sub;
+                        htmlSP += '<div class="cart-row" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
+                            '<div style="min-width:0;flex:1;"><strong>' + item.TenSanPham + '</strong><div style="color:#d97706;font-weight:800;margin-top:2px;">' + sub.toLocaleString('vi-VN') + 'đ</div></div>' +
+                            '<div class="qty-box"><button onclick="doiSoLuongSP(' + item.MaGH + ',' + (item.SoLuong - 1) + ')">-</button><span>' + item.SoLuong + '</span><button onclick="doiSoLuongSP(' + item.MaGH + ',' + (item.SoLuong + 1) + ')">+</button></div>' +
+                            '<button class="btn-del" onclick="xoaSP(' + item.MaGH + ')"><i class="fas fa-trash"></i></button></div>';
                     }
-                    spListEl.innerHTML = spHtml;
-                    document.getElementById('cart-sp-total').textContent = totalSP.toLocaleString('vi-VN') + 'đ';
+                    document.getElementById('cart-sp-list').innerHTML = htmlSP;
+                    document.getElementById('cart-sp-total').textContent = 'Tổng: ' + tongSP.toLocaleString('vi-VN') + 'đ (Cọc 30%: ' + Math.round(tongSP * 0.3).toLocaleString('vi-VN') + 'đ)';
                 }
 
-                var mayListEl = document.getElementById('cart-may-list');
+                // Render SP đã đặt
+                var htmlSPDon = '';
+                for (var j = 0; j < spDon.length; j++) {
+                    var d = spDon[j], tt = Number(d.GiaTien) * Number(d.SoLuong), coc = Number(d.TienCoc || 0), conLai = Number(d.TongConLaiDon || Math.max(0, tt - coc));
+                    var acts = '';
+                    if (d.TrangThai === 'Chờ thanh toán') acts += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + d.MaThanhToan + '\',\'COC\',\'SP\')">QR cọc 30%</button> <button class="btn-mini-cancel" onclick="huyDonSP(' + d.MaGH + ')">Hủy</button>';
+                    else if (d.TrangThai === 'Đã đặt hàng' || d.TrangThai === 'Đã đặt cọc (30%)') {
+                        if (d.MaThanhToan && conLai > 0) acts += '<button class="btn-mini-cod" onclick="moLaiQR(\'' + d.MaThanhToan + '\',\'COD\',\'SP\')">QR trả nốt (' + conLai.toLocaleString('vi-VN') + 'đ)</button> ';
+                        acts += '<button class="btn-mini-cancel" onclick="huyDonSP(' + d.MaGH + ')">Hủy đơn</button>';
+                    } else if (d.TrangThai === 'Đang giao hàng' && d.MaThanhToan && conLai > 0) {
+                        acts += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + d.MaThanhToan + '\',\'COD\',\'SP\')">QR trả nốt (' + conLai.toLocaleString('vi-VN') + 'đ)</button>';
+                    }
+                    htmlSPDon += '<div class="box-card" style="padding:11px;margin-bottom:8px;font-size:12px;">' +
+                        '<div style="display:flex;justify-content:space-between;font-weight:800;"><span>#SP' + d.MaGH + ' • ' + d.TenSanPham + '</span><span style="color:#d97706;">' + tt.toLocaleString('vi-VN') + 'đ</span></div>' +
+                        '<div style="font-size:11px;color:#064e3b;font-weight:700;margin:4px 0;">Trạng thái: ' + d.TrangThai + (d.GiayConLai > 0 ? ' (' + formatMMSS(d.GiayConLai) + ')' : '') + '</div>' +
+                        (acts ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">' + acts + '</div>' : '') + '</div>';
+                }
+                document.getElementById('order-sp-history').innerHTML = htmlSPDon || '<p style="font-size:12px;color:#9ca3af;text-align:center;">Chưa có đơn vật tư nào.</p>';
+
+                // Render Máy giỏ
                 var mayBox = document.getElementById('checkout-may-box');
-                if (mayInCart.length === 0) { mayListEl.innerHTML = '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:8px;">Chưa có ca thuê máy nào trong giỏ.</p>'; mayBox.classList.add('hidden'); }
-                else {
+                if (!mayGio.length) {
+                    document.getElementById('cart-may-list').innerHTML = '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:8px;">Chưa có ca thuê máy nào trong giỏ.</p>';
+                    mayBox.classList.add('hidden');
+                } else {
                     mayBox.classList.remove('hidden');
-                    var totalMay = 0, mayHtml = '';
-                    for (var j = 0; j < mayInCart.length; j++) {
-                        var mItem = mayInCart[j];
-                        var dt = mItem.DienTich || mItem.SoLuong || 1;
-                        var mSub = Number(mItem.GiaThue || mItem.DonGia || 0) * Number(dt);
-                        totalMay += mSub;
-                        var dStr = mItem.NgayThue ? new Date(mItem.NgayThue).toLocaleDateString('vi-VN') : '';
-                        mayHtml += '<div class="cart-row" style="background:#fffbeb;"><div><strong>' + mItem.TenMay + '</strong><div style="font-size:11px;color:#b45309;">' + dStr + ' • ' + (mItem.KhungGio || '') + ' (' + dt + ' công)</div><div style="color:#064e3b;font-weight:700;">' + mSub.toLocaleString('vi-VN') + 'đ</div></div><button class="btn-del" onclick="deleteCartMay(' + mItem.MaGioHangMay + ')"><i class="fas fa-trash"></i></button></div>';
+                    var tongMay = 0, htmlMay = '';
+                    for (var mIdx = 0; mIdx < mayGio.length; mIdx++) {
+                        var mItem = mayGio[mIdx], mSub = Number(mItem.GiaThue) * Number(mItem.SoCong);
+                        tongMay += mSub;
+                        var opts = '<option value="">-- Chọn ca --</option>' + DANH_SACH_KHUNG_GIO.map(function(kg) {
+                            return '<option value="' + escAttr(kg) + '"' + (mItem.KhungGio === kg ? ' selected' : '') + '>' + kg + '</option>';
+                        }).join('');
+                        htmlMay += '<div class="cart-row" style="background:#fffbeb;">' +
+                            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><strong>' + mItem.TenMay + '</strong><button class="btn-del" onclick="xoaMay(' + mItem.MaDatMay + ')"><i class="fas fa-trash"></i></button></div>' +
+                            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div class="qty-box"><button onclick="capNhatMay(' + mItem.MaDatMay + ',{soCong:' + (mItem.SoCong - 1) + '})">-</button><span>' + mItem.SoCong + '</span><button onclick="capNhatMay(' + mItem.MaDatMay + ',{soCong:' + (mItem.SoCong + 1) + '})">+</button></div><strong style="color:#b45309;">' + mSub.toLocaleString('vi-VN') + 'đ</strong></div>' +
+                            '<input type="date" class="input-field" style="margin-bottom:6px;" value="' + (mItem.NgayThue || '') + '" onchange="capNhatMay(' + mItem.MaDatMay + ',{ngayThue:this.value})">' +
+                            '<select class="input-field" style="margin-bottom:6px;background:#fff;" onchange="capNhatMay(' + mItem.MaDatMay + ',{khungGio:this.value})">' + opts + '</select>' +
+                            '<input type="text" class="input-field" style="margin-bottom:0;background:#fff;" placeholder="Địa chỉ ruộng / Ghi chú..." value="' + escAttr(mItem.GhiChu || '') + '" onblur="capNhatMay(' + mItem.MaDatMay + ',{ghiChu:this.value})"></div>';
                     }
-                    mayListEl.innerHTML = mayHtml;
-                    document.getElementById('cart-may-total').textContent = totalMay.toLocaleString('vi-VN') + 'đ';
+                    document.getElementById('cart-may-list').innerHTML = htmlMay;
+                    document.getElementById('cart-may-total').textContent = 'Tổng: ' + tongMay.toLocaleString('vi-VN') + 'đ (Cọc 30%: ' + Math.round(tongMay * 0.3).toLocaleString('vi-VN') + 'đ)';
                 }
 
-                var histEl = document.getElementById('order-history-list');
-                if (historyAll.length === 0) histEl.innerHTML = '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:12px;">Chưa có đơn hàng nào.</p>';
-                else {
-                    var histHtml = '';
-                    for (var k = 0; k < historyAll.length; k++) {
-                        var h = historyAll[k];
-                        var hTitle = h.TenSanPham || h.TenMay || 'Dịch vụ';
-                        var hGia = Number(h.TongTien || ((h.GiaTien || h.GiaThue || 0) * (h.SoLuong || h.DienTich || 1))).toLocaleString('vi-VN');
-                        histHtml += '<div class="box-card" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;margin-bottom:8px;"><div><strong style="font-size:12.5px;">' + hTitle + '</strong><div style="font-size:11px;color:#6b7280;margin-top:2px;">' + hGia + 'đ</div></div><span style="font-size:10px;font-weight:800;background:#d1fae5;color:#064e3b;padding:4px 8px;border-radius:12px;">' + h.TrangThai + '</span></div>';
+                // Render Máy đã đặt
+                var htmlMayDon = '';
+                for (var n = 0; n < mayDon.length; n++) {
+                    var md = mayDon[n], mtt = Number(md.GiaThue) * Number(md.SoCong), mcoc = Number(md.TienCoc || 0), mConLai = Number(md.TongConLaiDon || Math.max(0, mtt - mcoc));
+                    var mActs = '';
+                    if (md.TrangThai === 'Chờ thanh toán') mActs += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + md.MaThanhToan + '\',\'COC\',\'MAY\')">QR cọc 30%</button> <button class="btn-mini-cancel" onclick="huyDonMay(' + md.MaDatMay + ')">Hủy</button>';
+                    else if (md.TrangThai === 'Đang thuê / Đã đặt lịch' || md.TrangThai === 'Đã đặt cọc (30%)') {
+                        if (md.MaThanhToan && mConLai > 0) mActs += '<button class="btn-mini-cod" onclick="moLaiQR(\'' + md.MaThanhToan + '\',\'COD\',\'MAY\')">QR trả nốt (' + mConLai.toLocaleString('vi-VN') + 'đ)</button> ';
+                        mActs += '<button class="btn-mini-cancel" onclick="huyDonMay(' + md.MaDatMay + ')">Hủy lịch</button>';
+                    } else if (md.TrangThai === 'Đang thực hiện' && md.MaThanhToan && mConLai > 0) {
+                        mActs += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + md.MaThanhToan + '\',\'COD\',\'MAY\')">QR trả nốt (' + mConLai.toLocaleString('vi-VN') + 'đ)</button>';
                     }
-                    histEl.innerHTML = histHtml;
+                    htmlMayDon += '<div class="box-card" style="padding:11px;margin-bottom:8px;font-size:12px;">' +
+                        '<div style="display:flex;justify-content:space-between;font-weight:800;"><span>#TM' + md.MaDatMay + ' • ' + md.TenMay + '</span><span style="color:#b45309;">' + mtt.toLocaleString('vi-VN') + 'đ</span></div>' +
+                        '<div style="font-size:11px;color:#6b7280;margin-top:2px;">' + (md.NgayThue || '') + ' • ' + (md.KhungGio || '') + ' (' + md.SoCong + ' công)</div>' +
+                        '<div style="font-size:11px;color:#064e3b;font-weight:700;margin:4px 0;">Trạng thái: ' + md.TrangThai + (md.GiayConLai > 0 ? ' (' + formatMMSS(md.GiayConLai) + ')' : '') + '</div>' +
+                        (mActs ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">' + mActs + '</div>' : '') + '</div>';
                 }
+                document.getElementById('order-may-history').innerHTML = htmlMayDon || '<p style="font-size:12px;color:#9ca3af;text-align:center;">Chưa có lịch thuê máy nào.</p>';
+
+                // Render Sự kiện đã đăng ký
+                var htmlSK = '';
+                for (var s = 0; s < dsSK.length; s++) {
+                    var sk = dsSK[s];
+                    htmlSK += '<div class="box-card" style="padding:12px;margin-bottom:8px;font-size:12px;"><div style="display:flex;justify-content:space-between;align-items:start;gap:8px;"><div><strong>' + sk.TieuDeSuKien + '</strong><div style="font-size:11px;color:#6b7280;margin-top:3px;">' + (sk.ThoiGian || '') + ' • ' + (sk.DiaDiem || '') + '</div></div><button class="btn-mini-cancel" onclick="huySuKien(' + sk.MaDK + ')">Hủy</button></div></div>';
+                }
+                document.getElementById('order-sk-history').innerHTML = htmlSK || '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:16px;">Chưa đăng ký sự kiện nào.</p>';
             } catch (e) { console.error(e); }
         }
 
-        async function deleteCartSP(id) { await fetch('/api/gio-hang/san-pham/' + id, { method: 'DELETE' }); showToast('Đã xóa vật tư'); loadCartData(); }
-        async function deleteCartMay(id) { await fetch('/api/gio-hang/thue-may/' + id, { method: 'DELETE' }); showToast('Đã xóa ca thuê máy'); loadCartData(); }
-        async function submitOrderSP() {
-            var diaChi = document.getElementById('checkout-address').value;
-            if (!diaChi) return showToast('Vui lòng nhập địa chỉ giao hàng!', true);
-            var res = await fetch('/api/gio-hang/san-pham/dat-mua', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ soDienThoai: getUserPhone(), diaChiGiao: diaChi, phuongThucThanhToan: 'COD' }) });
-            var data = await res.json();
-            showToast(data.message || 'Đặt mua thành công!', !data.success); loadCartData();
+        async function doiSoLuongSP(maGH, soLuong) {
+            await fetch('/api/gio-hang/san-pham', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ maGH: maGH, soLuong: soLuong }) });
+            loadCartData();
         }
-        async function submitOrderMay() {
-            var diaChi = document.getElementById('checkout-may-address').value;
-            if (!diaChi) return showToast('Vui lòng nhập vị trí đồng ruộng!', true);
-            var res = await fetch('/api/gio-hang/thue-may/xac-nhan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ soDienThoai: getUserPhone(), diaChiRuong: diaChi, phuongThucThanhToan: 'COD' }) });
+        async function xoaSP(maGH) {
+            if (!confirm('Xóa sản phẩm này khỏi giỏ hàng?')) return;
+            await fetch('/api/gio-hang/san-pham/' + maGH, { method: 'DELETE' });
+            showToast('Đã xóa sản phẩm'); loadCartData();
+        }
+        async function submitOrderSP() {
+            var res = await fetch('/api/gio-hang/san-pham/dat-mua', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ soDienThoai: getUserPhone() }) });
             var data = await res.json();
-            showToast(data.message || 'Đặt lịch thuê máy thành công!', !data.success); loadCartData();
+            if (data.success) { await loadCartData(); openQRModal(data.tienCoc, data.qrUrl, data.maThanhToan, 'COC', data.giayConLai || 600); }
+            else showToast(data.message || 'Không thể tạo đơn đặt cọc!', true);
+        }
+        async function huyDonSP(maGH) {
+            if (!confirm('Hủy đơn này và trả sản phẩm về giỏ hàng?')) return;
+            var res = await fetch('/api/admin/don-hang/san-pham', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ maGH: maGH, trangThai: 'Trong giỏ' }) });
+            var data = await res.json();
+            showToast(data.message || 'Đã trả về giỏ hàng', !data.success); loadCartData();
         }
 
-        // 5. CHAT AI
+        async function capNhatMay(maDatMay, changes) {
+            var cur = (duLieuGioHang.thueMay || []).find(function(x) { return Number(x.MaDatMay) === Number(maDatMay); });
+            if (!cur) return;
+            await fetch('/api/gio-hang/thue-may', {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    maDatMay: maDatMay,
+                    soCong: changes.soCong !== undefined ? changes.soCong : cur.SoCong,
+                    ngayThue: changes.ngayThue !== undefined ? changes.ngayThue : (cur.NgayThue || ''),
+                    khungGio: changes.khungGio !== undefined ? changes.khungGio : (cur.KhungGio || ''),
+                    ghiChu: changes.ghiChu !== undefined ? changes.ghiChu : (cur.GhiChu || '')
+                })
+            });
+            loadCartData();
+        }
+        async function xoaMay(maDatMay) {
+            if (!confirm('Xóa ca thuê máy này khỏi giỏ?')) return;
+            await fetch('/api/gio-hang/thue-may/' + maDatMay, { method: 'DELETE' });
+            showToast('Đã xóa ca thuê máy'); loadCartData();
+        }
+        async function submitOrderMay() {
+            var res = await fetch('/api/gio-hang/thue-may/xac-nhan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ soDienThoai: getUserPhone() }) });
+            var data = await res.json();
+            if (data.success) { await loadCartData(); openQRModal(data.tienCoc, data.qrUrl, data.maThanhToan, 'COC', data.giayConLai || 600); }
+            else showToast(data.message || 'Không thể xác nhận lịch thuê!', true);
+        }
+        async function huyDonMay(maDatMay) {
+            if (!confirm('Hủy lịch thuê máy này và trả về giỏ hàng?')) return;
+            var res = await fetch('/api/admin/don-hang/thue-may', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ maDatMay: maDatMay, trangThai: 'Chờ xác nhận' }) });
+            var data = await res.json();
+            showToast(data.message || 'Đã trả về giỏ hàng', !data.success); loadCartData();
+        }
+        async function huySuKien(maDK) {
+            if (!confirm('Hủy đăng ký sự kiện này?')) return;
+            await fetch('/api/dang-ky-su-kien/' + maDK, { method: 'DELETE' });
+            showToast('Đã hủy đăng ký sự kiện'); loadCartData();
+        }
+
+        function moLaiQR(maTT, loaiQR, loaiDoiTuong) {
+            var list = loaiDoiTuong === 'MAY' ? (duLieuGioHang.thueMay || []) : (duLieuGioHang.sanPham || []);
+            var item = list.find(function(x) { return x.MaThanhToan === maTT; });
+            if (!item) return showToast('Không tìm thấy mã QR!', true);
+            if (loaiQR === 'COD') {
+                var donGia = loaiDoiTuong === 'MAY' ? Number(item.GiaThue) : Number(item.GiaTien);
+                var sl = loaiDoiTuong === 'MAY' ? Number(item.SoCong) : Number(item.SoLuong);
+                var conLai = item.TongConLaiDon || Math.max(0, donGia * sl - Number(item.TienCoc || 0));
+                openQRModal(conLai, item.QrUrlCOD, item.MaThanhToanCOD || (maTT + ' COD'), 'COD', 600);
+            } else {
+                openQRModal(item.TongCocDon || item.TienCoc, item.QrUrl, maTT, 'COC', item.GiayConLai || 600);
+            }
+        }
+
+        function openQRModal(amount, qrUrl, content, mode, secLeft) {
+            document.getElementById('qr-title').textContent = mode === 'COD' ? 'Quét QR Trả Nốt 70% (SePay)' : 'Quét QR Đặt Cọc 30% (SePay)';
+            document.getElementById('qr-img').src = qrUrl;
+            document.getElementById('qr-amount').textContent = Number(amount || 0).toLocaleString('vi-VN') + 'đ';
+            document.getElementById('qr-content').textContent = content;
+            document.getElementById('qr-countdown-wrap').style.display = mode === 'COD' ? 'none' : 'block';
+            qrEndTimeMs = Date.now() + Math.max(1, Number(secLeft) || 600) * 1000;
+            document.getElementById('qr-countdown').textContent = formatMMSS(secLeft || 600);
+            document.getElementById('modal-qr').classList.add('open');
+
+            if (qrPollInterval) clearInterval(qrPollInterval);
+            if (qrCdInterval) clearInterval(qrCdInterval);
+            qrPollInterval = setInterval(loadCartData, 3000);
+            if (mode !== 'COD') {
+                qrCdInterval = setInterval(function() {
+                    var rem = Math.ceil((qrEndTimeMs - Date.now()) / 1000);
+                    document.getElementById('qr-countdown').textContent = formatMMSS(rem);
+                    if (rem <= 0) { closeQRModal(); showToast('Hết 10 phút giữ chỗ!', true); }
+                }, 1000);
+            }
+        }
+        function closeQRModal() {
+            if (qrPollInterval) clearInterval(qrPollInterval);
+            if (qrCdInterval) clearInterval(qrCdInterval);
+            document.getElementById('modal-qr').classList.remove('open');
+            loadCartData();
+        }
+
+        // 5. CHAT AI (BẮT BUỘC ĐĂNG NHẬP)
         async function loadChatMessages() {
-            var phone = getUserPhone() || 'KHACH_MOBILE';
+            var phone = getUserPhone();
+            if (!phone) return updateChatGate();
             try {
-                var res = await fetch('/api/tin-nhan?soDienThoai=' + phone);
+                var res = await fetch('/api/tin-nhan?soDienThoai=' + encodeURIComponent(phone));
+                if (res.status === 401) { handleLogout(); return switchTab('account'); }
                 var result = await res.json();
-                var msgs = result.data || (Array.isArray(result) ? result : []);
+                var msgs = result.data || [];
                 var box = document.getElementById('chat-messages');
-                if (!msgs || msgs.length === 0) {
-                    box.innerHTML = '<div class="msg-row bot"><div class="msg-bubble">Xin chào bà con! Tôi là trợ lý AI của <strong>Lúa Vàng AgriTech</strong>. Bà con cần hỏi về lúa giống, phân bón hay đặt ca máy gặt cứ nhắn tại đây nhé!</div></div>';
+                if (!msgs.length) {
+                    box.innerHTML = '<div class="msg-row bot"><div class="msg-bubble">Chào bà con! Em là Trợ lý AI của <strong>Lúa Vàng</strong>. Bà con cần hỏi về lúa giống, phân bón hay đặt ca máy gặt cứ nhắn tại đây nhé!</div></div>';
                     return;
                 }
                 var html = '';
                 for (var i = 0; i < msgs.length; i++) {
-                    var m = msgs[i];
-                    var isUser = m.NguoiGui === 'NongDan' || m.NguoiGui === 'Khach' || m.VaiTro === 'NongDan';
-                    var label = !isUser ? '<div style="font-size:10px;font-weight:800;color:#d97706;margin-bottom:2px;">' + (m.NguoiGui === 'AI' ? 'Trợ lý AI Lúa Vàng' : 'Kỹ sư Lúa Vàng') + '</div>' : '';
-                    html += '<div class="msg-row ' + (isUser ? 'user' : 'bot') + '"><div class="msg-bubble">' + label + m.NoiDung + '</div></div>';
+                    var m = msgs[i], isUser = m.NguoiGui === 'nong-dan';
+                    var label = !isUser ? '<div style="font-size:10px;font-weight:800;color:#d97706;margin-bottom:2px;">' + (m.NoiDung.indexOf('[Trợ lý AI') !== -1 ? 'Trợ Lý AI Lúa Vàng' : 'Admin Lúa Vàng') + '</div>' : '';
+                    html += '<div class="msg-row ' + (isUser ? 'user' : 'bot') + '"><div class="msg-bubble">' + label + String(m.NoiDung || '').replace(/\n/g, '<br>') + '</div></div>';
+                }
+                if (dangChoAI) {
+                    html += '<div class="msg-row bot"><div class="msg-bubble" style="color:#6b7280;font-style:italic;"><i class="fas fa-spinner fa-spin"></i> Trợ lý AI đang phân tích câu hỏi...</div></div>';
                 }
                 box.innerHTML = html;
                 box.scrollTop = box.scrollHeight;
             } catch (e) { console.error(e); }
         }
-        function sendQuickChat(text) { document.getElementById('chat-input').value = text; handleSendChat(new Event('submit')); }
+
+        function sendQuickChat(text) {
+            if (dangChoAI) return;
+            document.getElementById('chat-input').value = text;
+            handleSendChat(new Event('submit'));
+        }
+
         async function handleSendChat(e) {
             e.preventDefault();
+            if (dangChoAI) return;
+            if (!currentUser || !getUserPhone()) { showToast('Vui lòng đăng nhập để gửi tin nhắn!', true); return switchTab('account'); }
             var input = document.getElementById('chat-input');
             var noiDung = input.value.trim();
             if (!noiDung) return;
+
+            dangChoAI = true;
             input.value = '';
-            var box = document.getElementById('chat-messages');
-            box.innerHTML += '<div class="msg-row user"><div class="msg-bubble">' + noiDung + '</div></div>';
-            box.scrollTop = box.scrollHeight;
+            input.disabled = true;
+            document.getElementById('btn-send-chat').disabled = true;
+            loadChatMessages();
+
             try {
-                await fetch('/api/tin-nhan', {
+                var res = await fetch('/api/tin-nhan', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ soDienThoai: getUserPhone() || 'KHACH_MOBILE', tenNguoiGui: getUserName(), nguoiGui: 'NongDan', noiDung: noiDung })
+                    body: JSON.stringify({ nguoiGui: 'nong-dan', hoTen: getUserName(), soDienThoai: getUserPhone(), noiDung: noiDung })
                 });
-                loadChatMessages();
+                if (res.status === 401) { handleLogout(); return switchTab('account'); }
+                await res.json();
             } catch (err) { showToast('Không gửi được tin nhắn', true); }
+            finally {
+                dangChoAI = false;
+                input.disabled = false;
+                document.getElementById('btn-send-chat').disabled = false;
+                input.focus();
+                loadChatMessages();
+            }
         }
 
-        // 6. TÀI KHOẢN & ADMIN
+        // 6. TÀI KHOẢN & ADMIN (ĐÚNG CHUẨN authController.js)
         function toggleAuthMode(mode) {
             var isLogin = mode === 'login';
             document.getElementById('form-login').classList.toggle('hidden', !isLogin);
@@ -770,85 +1002,127 @@
             document.getElementById('btn-show-register').style.background = !isLogin ? '#fff' : 'transparent';
             document.getElementById('btn-show-register').style.color = !isLogin ? '#064e3b' : '#6b7280';
         }
+
         async function handleLogin(e) {
             e.preventDefault();
-            var taiKhoan = document.getElementById('login-phone').value;
-            var matKhau = document.getElementById('login-pass').value;
+            var username = document.getElementById('login-username').value.trim();
+            var password = document.getElementById('login-password').value;
             try {
-                var res = await fetch('/api/dang-nhap', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ taiKhoan: taiKhoan, soDienThoai: taiKhoan, matKhau: matKhau }) });
+                var res = await fetch('/api/dang-nhap', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, password: password })
+                });
                 var data = await res.json();
-                if (data.success) {
-                    currentUser = data.user || data.data || data;
+                if (data.success && data.user) {
+                    currentUser = data.user;
                     localStorage.setItem('luaVangUser', JSON.stringify(currentUser));
                     sessionStorage.setItem('luaVangUser', JSON.stringify(currentUser));
-                    showToast('Đăng nhập thành công!'); checkAuthUI(); loadCartData();
+                    showToast(data.message || 'Đăng nhập thành công!');
+                    checkAuthUI();
+                    loadCartData();
                 } else showToast(data.message || 'Sai tài khoản hoặc mật khẩu!', true);
-            } catch (err) { showToast('Lỗi đăng nhập', true); }
+            } catch (err) { showToast('Không thể kết nối tới server!', true); }
         }
+
         async function handleRegister(e) {
             e.preventDefault();
-            var payload = { hoTen: document.getElementById('reg-name').value, soDienThoai: document.getElementById('reg-phone').value, diaChi: document.getElementById('reg-address').value, matKhau: document.getElementById('reg-pass').value };
+            var payload = {
+                fullname: document.getElementById('reg-fullname').value.trim(),
+                phone: document.getElementById('reg-phone').value.trim(),
+                address: document.getElementById('reg-address').value.trim(),
+                password: document.getElementById('reg-password').value
+            };
             try {
-                var res = await fetch('/api/dang-ky', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                var res = await fetch('/api/dang-ky', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
                 var data = await res.json();
-                if (data.success) { showToast('Đăng ký thành công! Vui lòng đăng nhập.'); toggleAuthMode('login'); document.getElementById('login-phone').value = payload.soDienThoai; }
-                else showToast(data.message || 'Đăng ký thất bại', true);
-            } catch (err) { showToast('Lỗi đăng ký', true); }
+                if (data.success) {
+                    showToast(data.message || 'Đăng ký thành công!');
+                    toggleAuthMode('login');
+                    document.getElementById('login-username').value = payload.phone;
+                } else showToast(data.message || 'Đăng ký thất bại!', true);
+            } catch (err) { showToast('Không thể kết nối tới server!', true); }
         }
-        function handleLogout() { localStorage.removeItem('luaVangUser'); sessionStorage.removeItem('luaVangUser'); currentUser = null; checkAuthUI(); showToast('Đã đăng xuất'); }
+
+        function handleLogout() {
+            localStorage.removeItem('luaVangUser');
+            sessionStorage.removeItem('luaVangUser');
+            currentUser = null;
+            checkAuthUI();
+            updateChatGate();
+            loadCartData();
+            showToast('Đã đăng xuất');
+        }
+
         function checkAuthUI() {
             var authForms = document.getElementById('auth-forms'), profileBox = document.getElementById('user-profile-box'), adminPanel = document.getElementById('admin-mobile-panel');
-            if (!currentUser) { authForms.classList.remove('hidden'); profileBox.classList.add('hidden'); document.getElementById('header-subtitle').textContent = 'Đồng hành cùng nhà nông'; return; }
+            if (!currentUser) {
+                authForms.classList.remove('hidden'); profileBox.classList.add('hidden');
+                document.getElementById('header-subtitle').textContent = 'Đồng hành cùng nhà nông';
+                return;
+            }
             authForms.classList.add('hidden'); profileBox.classList.remove('hidden');
-            var name = getUserName(), phone = getUserPhone() || currentUser.username || 'Admin';
-            document.getElementById('profile-name').textContent = name;
-            document.getElementById('profile-phone').textContent = phone;
-            document.getElementById('profile-address').value = currentUser.address || currentUser.DiaChi || '';
-            document.getElementById('header-subtitle').textContent = 'Xin chào, ' + name;
-            if (currentUser.role === 'admin' || currentUser.Quyen === 'Admin') {
+            document.getElementById('profile-name').textContent = getUserName();
+            document.getElementById('profile-phone').textContent = getUserPhone() || 'Admin';
+            document.getElementById('profile-address').value = currentUser.address || '';
+            document.getElementById('header-subtitle').textContent = 'Xin chào, ' + getUserName();
+            if (currentUser.role === 'admin') {
                 document.getElementById('profile-role-badge').textContent = 'Quản trị viên (Admin)';
                 document.getElementById('profile-role-badge').style.background = '#fee2e2';
                 document.getElementById('profile-role-badge').style.color = '#b91c1c';
                 adminPanel.classList.remove('hidden'); loadAdminStats();
             } else adminPanel.classList.add('hidden');
         }
+
         async function updateProfileAddress() {
             var diaChi = document.getElementById('profile-address').value;
             try {
-                var res = await fetch('/api/nong-dan/ho-so', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ soDienThoai: getUserPhone(), hoTen: getUserName(), diaChi: diaChi }) });
+                var res = await fetch('/api/nong-dan/ho-so', {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ soDienThoai: getUserPhone(), hoTen: getUserName(), diaChi: diaChi })
+                });
                 var data = await res.json();
-                if (data.success) { currentUser.address = diaChi; currentUser.DiaChi = diaChi; localStorage.setItem('luaVangUser', JSON.stringify(currentUser)); sessionStorage.setItem('luaVangUser', JSON.stringify(currentUser)); showToast('Đã cập nhật địa chỉ!'); }
+                if (data.success) {
+                    currentUser.address = diaChi;
+                    localStorage.setItem('luaVangUser', JSON.stringify(currentUser));
+                    sessionStorage.setItem('luaVangUser', JSON.stringify(currentUser));
+                    showToast('Đã cập nhật địa chỉ!');
+                }
             } catch (e) { showToast('Lỗi cập nhật', true); }
         }
+
         async function loadAdminStats() {
             try {
                 var results = await Promise.all([fetch('/api/admin/thong-ke'), fetch('/api/admin/don-hang')]);
-                var stats = (await results[0].json()).data || {};
-                var orderData = (await results[1].json()).data || {};
-                var allOrders = (orderData.donSanPham || []).concat(orderData.donThueMay || []);
-                var rev = stats.tongDoanhThu || (stats.tongQuan ? stats.tongQuan.tongDoanhThu : 0) || 0;
+                var statJson = await results[0].json();
+                var orderJson = await results[1].json();
+                var rev = (statJson.tongQuan && statJson.tongQuan.tongDoanhThu) || statJson.tongDoanhThu || 0;
+                var allOrders = (orderJson.donSanPham || []).concat(orderJson.donThueMay || []);
                 document.getElementById('admin-stat-revenue').textContent = Number(rev).toLocaleString('vi-VN') + 'đ';
                 document.getElementById('admin-stat-orders').textContent = allOrders.length;
 
                 var html = '', limit = Math.min(allOrders.length, 20);
                 for (var i = 0; i < limit; i++) {
-                    var o = allOrders[i], isMay = !!o.MaGioHangMay, id = isMay ? o.MaGioHangMay : o.MaGioHangSP;
+                    var o = allOrders[i], isMay = !!o.MaDatMay, id = isMay ? o.MaDatMay : o.MaGH;
                     var title = isMay ? o.TenMay : o.TenSanPham;
-                    var total = Number(o.TongTien || ((o.GiaTien || o.GiaThue || 0) * (o.SoLuong || o.DienTich || 1))).toLocaleString('vi-VN');
+                    var total = Number((isMay ? o.GiaThue : o.GiaTien) * (isMay ? o.SoCong : o.SoLuong)).toLocaleString('vi-VN');
                     html += '<div style="padding:10px;border-radius:10px;background:#f9fafb;border:1px solid #e5e7eb;margin-bottom:8px;font-size:12px;">' +
-                        '<div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px;"><span>' + (isMay ? '[Thuê máy] ' : '[Vật tư] ') + title + '</span><span style="color:#064e3b;">' + total + 'đ</span></div>' +
+                        '<div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px;"><span>' + (isMay ? '[Máy] ' : '[SP] ') + title + '</span><span style="color:#064e3b;">' + total + 'đ</span></div>' +
                         '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#6b7280;"><span>SĐT: ' + o.SoDienThoai + '</span>' +
-                        '<select onchange="adminUpdateStatus(' + isMay + ', ' + id + ', this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #d1d5db;font-weight:700;">' +
+                        '<select onchange="adminUpdateStatus(' + isMay + ',' + id + ',this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #d1d5db;font-weight:700;">' +
                             '<option value="' + o.TrangThai + '" selected>' + o.TrangThai + '</option>' +
-                            '<option value="Đã xác nhận">Đã xác nhận</option><option value="Đang giao hàng">Đang giao hàng</option><option value="Đang thực hiện">Đang thực hiện</option><option value="Hoàn thành">Hoàn thành</option>' +
+                            '<option value="Đã đặt cọc (30%)">Đã đặt cọc (30%)</option><option value="Đang giao hàng">Đang giao hàng</option><option value="Đang thực hiện">Đang thực hiện</option><option value="Đã thanh toán & Hoàn thành">Hoàn thành</option>' +
                         '</select></div></div>';
                 }
                 document.getElementById('admin-order-list').innerHTML = html || '<p style="font-size:12px;color:#9ca3af;text-align:center;">Chưa có đơn hàng nào.</p>';
             } catch (e) { console.error(e); }
         }
+
         async function adminUpdateStatus(isMay, id, trangThai) {
             var url = isMay ? '/api/admin/don-hang/thue-may' : '/api/admin/don-hang/san-pham';
-            var body = isMay ? { maGioHangMay: id, trangThai: trangThai } : { maGioHangSP: id, trangThai: trangThai };
+            var body = isMay ? { maDatMay: id, trangThai: trangThai } : { maGH: id, trangThai: trangThai };
             try { await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); showToast('Đã cập nhật: ' + trangThai); }
             catch (e) { showToast('Lỗi cập nhật', true); }
         }

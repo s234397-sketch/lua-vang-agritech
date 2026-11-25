@@ -137,13 +137,25 @@ async function hoiAI(lichSu, systemPrompt) {
 
 const layTinNhan = async (req, res) => {
     try {
+        const soDienThoai = String(req.query.soDienThoai || '').trim();
+        if (!soDienThoai || soDienThoai === 'khach') {
+            return res.status(401).json({
+                success: false,
+                requireLogin: true,
+                message: 'Vui lòng đăng nhập để xem lịch sử tư vấn của bạn!'
+            });
+        }
+
         let pool = await ketNoiDb();
-        let result = await pool.request().query(`
-            SELECT Id, NguoiGui, HoTen, SoDienThoai, NoiDung,
-                   CONVERT(varchar(19), NgayGui, 126) AS NgayGui
-            FROM TinNhanTuVan
-            ORDER BY Id ASC
-        `);
+        let result = await pool.request()
+            .input('soDienThoai', sql.VarChar, soDienThoai)
+            .query(`
+                SELECT Id, NguoiGui, HoTen, SoDienThoai, NoiDung,
+                       CONVERT(varchar(19), NgayGui, 126) AS NgayGui
+                FROM TinNhanTuVan
+                WHERE SoDienThoai = @soDienThoai
+                ORDER BY Id ASC
+            `);
         res.json({ success: true, data: result.recordset });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -153,12 +165,22 @@ const layTinNhan = async (req, res) => {
 const guiTinNhan = async (req, res) => {
     try {
         const { nguoiGui, hoTen, soDienThoai, noiDung } = req.body;
+        const sdtClean = String(soDienThoai || '').trim();
+
+        if (!sdtClean || sdtClean === 'khach') {
+            return res.status(401).json({
+                success: false,
+                requireLogin: true,
+                message: 'Vui lòng đăng nhập để gửi tin nhắn tư vấn!'
+            });
+        }
+
         let pool = await ketNoiDb();
 
         await pool.request()
             .input('nguoiGui', sql.VarChar, nguoiGui)
             .input('hoTen', sql.NVarChar, hoTen || 'Nông dân')
-            .input('soDienThoai', sql.VarChar, soDienThoai || 'khach')
+            .input('soDienThoai', sql.VarChar, sdtClean)
             .input('noiDung', sql.NVarChar, noiDung)
             .query(`INSERT INTO TinNhanTuVan (NguoiGui, HoTen, SoDienThoai, NoiDung, NgayGui) 
                     VALUES (@nguoiGui, @hoTen, @soDienThoai, @noiDung, GETDATE())`);
@@ -167,11 +189,10 @@ const guiTinNhan = async (req, res) => {
         if (nguoiGui === 'nong-dan' && !adminDangOnline()) {
             let noiDungPhanHoi = '';
             try {
-                // Lấy đồng thời dữ liệu hệ thống mới nhất và 6 tin nhắn gần nhất
                 const [systemPrompt, ketQua] = await Promise.all([
                     taoPromptHeThong(pool),
                     pool.request()
-                        .input('sdt', sql.VarChar, soDienThoai || 'khach')
+                        .input('sdt', sql.VarChar, sdtClean)
                         .query(`SELECT TOP 6 NguoiGui, NoiDung FROM TinNhanTuVan 
                                 WHERE SoDienThoai = @sdt ORDER BY NgayGui DESC, Id DESC`)
                 ]);
@@ -191,7 +212,7 @@ const guiTinNhan = async (req, res) => {
             await pool.request()
                 .input('nguoiGui', sql.VarChar, 'admin')
                 .input('hoTen', sql.NVarChar, hoTen || 'Nông dân')
-                .input('soDienThoai', sql.VarChar, soDienThoai || 'khach')
+                .input('soDienThoai', sql.VarChar, sdtClean)
                 .input('noiDung', sql.NVarChar, noiDungPhanHoi)
                 .query(`INSERT INTO TinNhanTuVan (NguoiGui, HoTen, SoDienThoai, NoiDung, NgayGui) 
                         VALUES (@nguoiGui, @hoTen, @soDienThoai, @noiDung, GETDATE())`);
