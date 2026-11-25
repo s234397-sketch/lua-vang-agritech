@@ -47,9 +47,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Phục vụ trang chủ và các file tĩnh
+// Phục vụ trang chủ và tự động chuyển hướng sang mobile khi truy cập bằng điện thoại
 app.get('/', (req, res) => {
+    const userAgent = req.headers['user-agent'] || '';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    if (isMobile) {
+        return res.sendFile(path.join(__dirname, 'giao-dien', 'mobile.html'));
+    }
     res.sendFile(path.join(__dirname, 'giao-dien', 'trang-chu.html'));
+});
+app.get('/mobile.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'giao-dien', 'mobile.html'));
 });
 app.use(express.static(path.join(__dirname, 'giao-dien')));
 app.use(express.static(path.join(__dirname)));
