@@ -209,10 +209,12 @@
 
         async function taiTatCaTinNhan() {
             try {
-                const res = await fetch('/api/tin-nhan');
+                const res = await fetch('/api/tin-nhan?admin=1');
                 const result = await res.json();
-                if (!result.success) throw new Error(result.error || 'Không tải được tin nhắn');
-                tatCaTinNhan = result.data;
+                if (!res.ok || !result.success) {
+                    throw new Error(result.message || result.error || 'Không tải được tin nhắn');
+                }
+                tatCaTinNhan = result.data || [];
 
                 if (!daKhoiTaoDaDoc) khoiTaoDaDoc();
 
@@ -225,6 +227,10 @@
                 if (sdtDangChon) renderNoiDungChat(false);
             } catch (err) {
                 console.error('Lỗi tải tin nhắn:', err);
+                if (!tatCaTinNhan.length) {
+                    document.getElementById('danh-sach-nong-dan').innerHTML =
+                        '<div class="p-6 text-center text-red-500 text-xs">Không tải được danh sách tin nhắn.</div>';
+                }
             }
         }
 
@@ -438,7 +444,7 @@
                 const result = await res.json();
 
                 if (!res.ok || !result.success) {
-                    throw new Error(result.error || ('Máy chủ trả về lỗi ' + res.status));
+                    throw new Error(result.message || result.error || ('Máy chủ trả về lỗi ' + res.status));
                 }
 
                 input.value = '';

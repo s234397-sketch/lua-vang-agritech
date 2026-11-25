@@ -163,17 +163,34 @@
 
         async function taiLichSuChat() {
             try {
-                let res = await fetch('/api/tin-nhan');
-                let result = await res.json();
-                if(result.success) {
-                    const container = document.getElementById('chat-messages-container');
-                    const loggedUser = layTaiKhoanTab();
-                    const myPhone = loggedUser.phone || 'khach';
+                const loggedUser = layTaiKhoanTab();
+                const myPhone = String(loggedUser.phone || loggedUser.SoDienThoai || '').trim();
+                const container = document.getElementById('chat-messages-container');
 
-                    const messages = result.data.filter(m => m.SoDienThoai === myPhone);
-                    
+                if (!myPhone || myPhone === 'khach') {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-500 py-16 text-sm">
+                            Vui lòng <b>đăng nhập tài khoản</b> để xem và gửi tin nhắn tư vấn.
+                        </div>
+                    `;
+                    return;
+                }
+
+                const res = await fetch('/api/tin-nhan?soDienThoai=' + encodeURIComponent(myPhone));
+                if (res.status === 401) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-500 py-16 text-sm">
+                            Phiên đăng nhập chưa hợp lệ. Vui lòng đăng nhập lại để sử dụng tư vấn.
+                        </div>
+                    `;
+                    return;
+                }
+
+                const result = await res.json();
+                if (result.success) {
+                    const messages = result.data || [];
                     let html = '';
-                    if(messages.length === 0) {
+                    if (messages.length === 0) {
                         html = `
                             <div class="flex items-start space-x-3">
                                 <div class="w-9 h-9 rounded-full bg-luaGreen text-white flex items-center justify-center text-xs flex-shrink-0">
@@ -188,10 +205,10 @@
                     } else {
                         messages.forEach(msg => {
                             let thoiGian = new Date(msg.NgayGui).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                            let noiDungFormatted = msg.NoiDung.replace(/\n/g, '<br>');
+                            let noiDungFormatted = String(msg.NoiDung || '').replace(/\n/g, '<br>');
 
-                            if(msg.NguoiGui === 'admin') {
-                                let isAI = msg.NoiDung.includes('[Trợ lý AI') || msg.NoiDung.includes('[Hệ thống]');
+                            if (msg.NguoiGui === 'admin') {
+                                let isAI = String(msg.NoiDung || '').includes('[Trợ lý AI') || String(msg.NoiDung || '').includes('[Hệ thống]');
                                 html += `
                                     <div class="flex items-start space-x-3">
                                         <div class="w-9 h-9 rounded-full ${isAI ? 'bg-amber-600' : 'bg-luaGreen'} text-white flex items-center justify-center text-xs flex-shrink-0 shadow-sm">
@@ -215,7 +232,7 @@
                                             <span class="text-[10px] text-gray-500 mt-1.5 block text-right">${thoiGian}</span>
                                         </div>
                                         <div class="w-9 h-9 rounded-full bg-emerald-200 text-luaGreen flex items-center justify-center text-xs flex-shrink-0 font-bold">
-                                            ${(msg.HoTen || 'ND').substring(0,2).toUpperCase()}
+                                            ${(msg.HoTen || 'ND').substring(0, 2).toUpperCase()}
                                         </div>
                                     </div>
                                 `;
@@ -239,7 +256,7 @@
                     container.innerHTML = html;
                     container.scrollTop = container.scrollHeight;
                 }
-            } catch(err) {
+            } catch (err) {
                 console.error("Lỗi tải chat:", err);
             }
         }
@@ -249,11 +266,16 @@
             const input = document.getElementById('chat-input');
             const btnSend = document.getElementById('btn-send-chat');
             const noiDung = input.value.trim();
-            if(!noiDung) return;
+            if (!noiDung) return;
 
             const loggedUser = layTaiKhoanTab();
             const hoTen = loggedUser.name || 'Nông dân khách';
-            const soDienThoai = loggedUser.phone || 'khach';
+            const soDienThoai = String(loggedUser.phone || loggedUser.SoDienThoai || '').trim();
+
+            if (!soDienThoai || soDienThoai === 'khach') {
+                alert('Vui lòng đăng nhập tài khoản để gửi tin nhắn tư vấn!');
+                return;
+            }
 
             dangChoAI = true;
             input.value = '';
@@ -263,24 +285,24 @@
             taiLichSuChat();
 
             try {
-                let res = await fetch('/api/tin-nhan', {
+                const res = await fetch('/api/tin-nhan', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nguoiGui: 'nong-dan', hoTen, soDienThoai, noiDung })
                 });
-                let result = await res.json();
-                if(result.success) {
-                    dangChoAI = false;
-                    taiLichSuChat();
+                const result = await res.json();
+                if (res.status === 401 || !result.success) {
+                    alert(result.message || 'Không gửi được tin nhắn');
                 }
-            } catch(err) {
+            } catch (err) {
                 console.error("Lỗi gửi tin nhắn:", err);
-                dangChoAI = false;
             } finally {
+                dangChoAI = false;
                 input.disabled = false;
                 btnSend.disabled = false;
                 btnSend.classList.remove('opacity-50');
                 input.focus();
+                taiLichSuChat();
             }
         }
     </script>

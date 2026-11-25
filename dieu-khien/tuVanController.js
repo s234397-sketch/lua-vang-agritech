@@ -6,7 +6,6 @@ const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
 });
 
-// Gemini là tùy chọn: chỉ bật khi có GEMINI_API_KEY trong .env
 let gemini = null;
 if (process.env.GEMINI_API_KEY) {
     const { GoogleGenAI } = require('@google/genai');
@@ -15,7 +14,6 @@ if (process.env.GEMINI_API_KEY) {
 
 const DANH_SACH_MODEL_GROQ = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
 
-// ---- Trạng thái admin online (lưu trong bộ nhớ server) ----
 let adminLastSeen = 0;
 const ADMIN_ONLINE_MS = 30 * 1000;
 
@@ -35,14 +33,12 @@ const adminOffline = (req, res) => {
     res.json({ success: true });
 };
 
-// Bỏ phần chữ thêm vào khi lưu để AI không đọc lại phần đó
 function lamSachTinAI(text) {
     return String(text || '')
         .replace(/^🤖 \[Trợ lý AI Lúa Vàng\]: /, '')
         .replace(/\n\n⏳ \(Hệ thống[\s\S]*$/, '');
 }
 
-// Truy vấn toàn bộ Sản phẩm, Thuê máy, Sự kiện từ SQL Server để nạp cho AI
 async function taoPromptHeThong(pool) {
     const [resSanPham, resThueMay, resSuKien] = await Promise.all([
         pool.request().query(`
@@ -103,7 +99,6 @@ QUY TẮC BẮT BUỘC:
 }
 
 async function hoiAI(lichSu, systemPrompt) {
-    // 1) Groq
     for (const model of DANH_SACH_MODEL_GROQ) {
         try {
             const completion = await groq.chat.completions.create({
@@ -117,7 +112,6 @@ async function hoiAI(lichSu, systemPrompt) {
         }
     }
 
-    // 2) Gemini (nếu có key)
     if (gemini) {
         try {
             const cauHoiCuoi = lichSu[lichSu.length - 1].content;
@@ -137,7 +131,21 @@ async function hoiAI(lichSu, systemPrompt) {
 
 const layTinNhan = async (req, res) => {
     try {
+        const isAdminView = String(req.query.admin || '').trim() === '1';
         const soDienThoai = String(req.query.soDienThoai || '').trim();
+
+        const pool = await ketNoiDb();
+
+        if (isAdminView) {
+            const result = await pool.request().query(`
+                SELECT Id, NguoiGui, HoTen, SoDienThoai, NoiDung,
+                       CONVERT(varchar(19), NgayGui, 126) AS NgayGui
+                FROM TinNhanTuVan
+                ORDER BY Id ASC
+            `);
+            return res.json({ success: true, data: result.recordset });
+        }
+
         if (!soDienThoai || soDienThoai === 'khach') {
             return res.status(401).json({
                 success: false,
@@ -146,8 +154,7 @@ const layTinNhan = async (req, res) => {
             });
         }
 
-        let pool = await ketNoiDb();
-        let result = await pool.request()
+        const result = await pool.request()
             .input('soDienThoai', sql.VarChar, soDienThoai)
             .query(`
                 SELECT Id, NguoiGui, HoTen, SoDienThoai, NoiDung,
@@ -175,7 +182,7 @@ const guiTinNhan = async (req, res) => {
             });
         }
 
-        let pool = await ketNoiDb();
+        const pool = await ketNoiDb();
 
         await pool.request()
             .input('nguoiGui', sql.VarChar, nguoiGui)
@@ -185,7 +192,6 @@ const guiTinNhan = async (req, res) => {
             .query(`INSERT INTO TinNhanTuVan (NguoiGui, HoTen, SoDienThoai, NoiDung, NgayGui) 
                     VALUES (@nguoiGui, @hoTen, @soDienThoai, @noiDung, GETDATE())`);
 
-        // Chỉ gọi AI khi nông dân nhắn VÀ admin không đang mở trang QL Tư vấn
         if (nguoiGui === 'nong-dan' && !adminDangOnline()) {
             let noiDungPhanHoi = '';
             try {
