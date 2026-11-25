@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Quản Lý Sản Phẩm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER ADMIN ĐỘNG -->
+    <div id="admin-header-container" class="bg-white shadow-sm sticky top-0 z-50"></div>
+    <script>
+        fetch('admin-header.html')
+            .then(res => res.text())
+            .then(data => {
+                const container = document.getElementById('admin-header-container');
+                container.innerHTML = data;
+                
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    newScript.text = oldScript.innerText;
+                    document.body.appendChild(newScript);
+                });
+
+                if (typeof window.capNhatAdminHeader === 'function') {
+                    window.capNhatAdminHeader();
+                }
+            });
+    </script>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-luaGreen uppercase tracking-wide">Quản lý sản phẩm nông nghiệp</h1>
+                <p class="text-gray-500 text-sm mt-1">Danh sách sản phẩm thực tế lưu trữ từ cơ sở dữ liệu SQL Server.</p>
+            </div>
+            <!-- Nút mở Modal thêm sản phẩm mới -->
+            <button onclick="moModalThem()" class="bg-luaGreen hover:bg-emerald-900 text-white font-semibold px-5 py-2.5 rounded-xl transition shadow flex items-center space-x-2 text-sm">
+                <i class="fa-solid fa-plus"></i>
+                <span>Thêm sản phẩm mới</span>
+            </button>
+        </div>
+
+        <div class="admin-table-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider border-b border-gray-100">
+                        <th class="p-4">Tên sản phẩm</th>
+                        <th class="p-4">Danh mục</th>
+                        <th class="p-4">Giá bán</th>
+                        <th class="p-4">Trạng thái</th>
+                        <th class="p-4 text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="bang-san-pham" class="divide-y divide-gray-100">
+                    <!-- Dữ liệu thật từ CSDL sẽ được đổ tự động vào đây -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- MODAL THÊM / SỬA SẢN PHẨM -->
+    <div id="modal-them-san-pham" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-emerald-100 transform transition-all">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
+                <div class="flex items-center space-x-2 text-luaGreen">
+                    <i id="modal-icon" class="fa-solid fa-circle-plus text-xl"></i>
+                    <h3 id="modal-title" class="text-lg font-bold uppercase tracking-wide">Thêm sản phẩm mới</h3>
+                </div>
+                <button onclick="dongModalThem()" class="text-gray-400 hover:text-gray-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="form-them-san-pham" onsubmit="guiFormSanPham(event)" class="space-y-4">
+                <input type="hidden" id="maSanPham">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Tên sản phẩm</label>
+                    <input type="text" id="tenSanPham" required placeholder="Nhập tên sản phẩm..." class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Danh mục</label>
+                        <select id="danhMuc" onchange="capNhatNhanGia()" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm bg-white">
+                            <option value="Thuốc">Thuốc</option>
+                            <option value="Phân">Phân</option>
+                            <option value="Giống">Giống</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label id="label-gia-tien" class="block text-xs font-bold text-gray-600 uppercase mb-1">Giá tiền (VNĐ / chai)</label>
+                        <input type="number" id="giaTien" required placeholder="Nhập giá..." class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Hình ảnh (Tên file)</label>
+                    <input type="text" id="hinhAnh" placeholder="Ví dụ: st25.webp" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Mô tả chi tiết</label>
+                    <textarea id="moTa" rows="3" placeholder="Nhập mô tả sản phẩm, công dụng..." class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="dongModalThem()" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-semibold transition">
+                        Hủy bỏ
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-luaGreen hover:bg-emerald-900 text-white text-sm font-semibold transition shadow">
+                        Lưu vào CSDL
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let danhSachSPGoc = [];
+
+        document.addEventListener('DOMContentLoaded', taiDanhSachSanPham);
+
+        async function taiDanhSachSanPham() {
+            try {
+                let response = await fetch('/api/san-pham');
+                let result = await response.json();
+                
+                if (result.success) {
+                    danhSachSPGoc = result.data;
+                    const tbody = document.getElementById('bang-san-pham');
+                    tbody.innerHTML = '';
+
+                    if (result.data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-400">Chưa có sản phẩm nào trong cơ sở dữ liệu.</td></tr>`;
+                        return;
+                    }
+
+                    result.data.forEach(sp => {
+                        let iconClass = 'fa-bottle-droplet text-luaGreen bg-emerald-50';
+                        if (sp.DanhMuc === 'Phân') iconClass = 'fa-sack-dollar text-amber-700 bg-amber-50';
+                        if (sp.DanhMuc === 'Giống') iconClass = 'fa-seedling text-luaGreen bg-emerald-50';
+
+                        let giaFormatted = Number(sp.GiaTien).toLocaleString('vi-VN') + ' đ / ' + (sp.DonViTinh ? sp.DonViTinh.toLowerCase() : 'chai');
+
+                        let row = `
+                            <tr class="hover:bg-gray-50/50 transition">
+                                <td class="p-4 font-bold text-gray-800 flex items-center space-x-3">
+                                    <div class="w-9 h-9 rounded-lg ${iconClass} flex items-center justify-center font-bold">
+                                        <i class="fa-solid ${iconClass.split(' ')[0]}"></i>
+                                    </div>
+                                    <span>${sp.TenSanPham}</span>
+                                </td>
+                                <td class="p-4 text-gray-600">${sp.DanhMuc}</td>
+                                <td class="p-4 font-bold text-luaYellow">${giaFormatted}</td>
+                                <td class="p-4"><span class="bg-emerald-100 text-luaGreen text-xs font-bold px-2.5 py-1 rounded-full">${sp.TrangThai || 'Đang bán'}</span></td>
+                                <td class="p-4 text-center space-x-2">
+                                    <button onclick="moModalSua(${sp.MaSanPham})" class="text-blue-600 hover:text-blue-800 p-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="xoaSanPham(${sp.MaSanPham})" class="text-red-600 hover:text-red-800 p-2"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+                }
+            } catch (err) {
+                console.error('Lỗi khi tải dữ liệu sản phẩm:', err);
+            }
+        }
+
+        // Mở Modal Thêm mới
+        function moModalThem() {
+            document.getElementById('modal-title').innerText = 'Thêm sản phẩm mới';
+            document.getElementById('modal-icon').className = 'fa-solid fa-circle-plus text-xl';
+            document.getElementById('form-them-san-pham').reset();
+            document.getElementById('maSanPham').value = '';
+            capNhatNhanGia();
+            document.getElementById('modal-them-san-pham').classList.remove('hidden');
+        }
+
+        // Mở Modal Sửa sản phẩm (Điền sẵn thông tin cũ)
+        function moModalSua(id) {
+            const sp = danhSachSPGoc.find(item => item.MaSanPham === id);
+            if (!sp) return;
+
+            document.getElementById('modal-title').innerText = 'Chỉnh sửa sản phẩm';
+            document.getElementById('modal-icon').className = 'fa-solid fa-pen-to-square text-xl';
+            
+            document.getElementById('maSanPham').value = sp.MaSanPham;
+            document.getElementById('tenSanPham').value = sp.TenSanPham;
+            document.getElementById('danhMuc').value = sp.DanhMuc;
+            document.getElementById('giaTien').value = sp.GiaTien;
+            document.getElementById('hinhAnh').value = sp.HinhAnh || '';
+            document.getElementById('moTa').value = sp.MoTa || '';
+
+            capNhatNhanGia();
+            document.getElementById('modal-them-san-pham').classList.remove('hidden');
+        }
+
+        function dongModalThem() {
+            document.getElementById('modal-them-san-pham').classList.add('hidden');
+            document.getElementById('form-them-san-pham').reset();
+        }
+
+        function capNhatNhanGia() {
+            const danhMuc = document.getElementById('danhMuc').value;
+            const labelGia = document.getElementById('label-gia-tien');
+            if (danhMuc === 'Thuốc') {
+                labelGia.innerText = 'Giá tiền (VNĐ / chai)';
+            } else if (danhMuc === 'Phân') {
+                labelGia.innerText = 'Giá tiền (VNĐ / bao)';
+            } else if (danhMuc === 'Giống') {
+                labelGia.innerText = 'Giá tiền (VNĐ / bao)';
+            }
+        }
+
+        // Xử lý submit chung cho cả Thêm và Sửa
+        async function guiFormSanPham(e) {
+            e.preventDefault();
+
+            const maSanPham = document.getElementById('maSanPham').value;
+            const data = {
+                tenSanPham: document.getElementById('tenSanPham').value,
+                danhMuc: document.getElementById('danhMuc').value,
+                giaTien: document.getElementById('giaTien').value,
+                hinhAnh: document.getElementById('hinhAnh').value,
+                moTa: document.getElementById('moTa').value
+            };
+
+            let url = '/api/them-san-pham';
+            let method = 'POST';
+
+            if (maSanPham) {
+                url = '/api/sua-san-pham';
+                method = 'PUT';
+                data.maSanPham = maSanPham;
+            }
+
+            try {
+                let response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                let result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    dongModalThem();
+                    taiDanhSachSanPham();
+                } else {
+                    alert('Lỗi: ' + result.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Không thể kết nối đến server!');
+            }
+        }
+
+        // Xóa sản phẩm
+        async function xoaSanPham(id) {
+            if (!await xacNhanThongBao('Bạn có chắc chắn muốn xóa sản phẩm này không?')) return;
+
+            try {
+                let response = await fetch(`/api/xoa-san-pham/${id}`, {
+                    method: 'DELETE'
+                });
+
+                let result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    taiDanhSachSanPham();
+                } else {
+                    alert('Lỗi: ' + result.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Không thể kết nối đến server!');
+            }
+        }
+    </script>
+
+</body>
+</html>

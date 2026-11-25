@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Sản Phẩm Nông Nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER DÙNG CHUNG -->
+    <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
+
+    <!-- MAIN -->
+    <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        <section class="agritech-hero relative overflow-hidden rounded-3xl text-white p-6 md:p-9 mb-7">
+            <div class="relative z-10 max-w-3xl">
+                <span class="glass-badge inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide">
+                    <i class="fa-solid fa-seedling text-amber-300"></i>
+                    Lựa chọn vật tư mùa vụ
+                </span>
+                <h1 class="mt-4 text-2xl md:text-4xl font-black tracking-tight">Vật tư nông nghiệp chất lượng</h1>
+                <p class="mt-2 max-w-2xl text-sm md:text-base leading-relaxed text-emerald-50/90">
+                    Giống lúa, phân bón và sản phẩm chăm sóc cây trồng được tuyển chọn, giúp bà con chuẩn bị mùa vụ thuận tiện hơn.
+                </p>
+            </div>
+            <i class="fa-solid fa-wheat-awn absolute -right-4 -bottom-12 text-[150px] md:text-[210px] text-white/10 pointer-events-none" aria-hidden="true"></i>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
+
+            <!-- DANH MỤC BÊN TRÁI -->
+            <aside class="md:col-span-1">
+                <div class="card-agritech p-6 sticky top-24">
+                    <h2 class="text-lg font-bold text-luaGreen uppercase tracking-wide mb-5">
+                        DANH MỤC SẢN PHẨM
+                    </h2>
+                    
+                    <ul class="space-y-2 text-sm font-medium">
+                        <li>
+                            <button onclick="locSanPham('Tất cả', this)" class="sidebar-item w-full flex items-center space-x-3 bg-luaGreen text-white font-bold px-4 py-3 rounded-xl shadow-md transition" data-category="Tất cả">
+                                <i class="fa-solid fa-list-ul w-5"></i>
+                                <span>Tất cả sản phẩm</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="locSanPham('Thuốc', this)" class="sidebar-item w-full flex items-center space-x-3 text-gray-600 hover:bg-emerald-50 hover:text-luaGreen px-4 py-3 rounded-xl transition" data-category="Thuốc">
+                                <i class="fa-solid fa-bottle-droplet w-5"></i>
+                                <span>Thuốc</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="locSanPham('Phân', this)" class="sidebar-item w-full flex items-center space-x-3 text-gray-600 hover:bg-emerald-50 hover:text-luaGreen px-4 py-3 rounded-xl transition" data-category="Phân">
+                                <i class="fa-solid fa-sack-dollar w-5"></i>
+                                <span>Phân bón</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="locSanPham('Giống', this)" class="sidebar-item w-full flex items-center space-x-3 text-gray-600 hover:bg-emerald-50 hover:text-luaGreen px-4 py-3 rounded-xl transition" data-category="Giống">
+                                <i class="fa-solid fa-seedling w-5"></i>
+                                <span>Giống lúa</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- DANH SÁCH SẢN PHẨM THẬT TỪ CSDL -->
+            <section id="danh-sach-san-pham" class="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dữ liệu sẽ được render tự động từ API -->
+            </section>
+        </div>
+    </main>
+
+    <!-- SCRIPT FETCH HEADER & DỮ LIỆU SẢN PHẨM THẬT -->
+    <script>
+        let tatCaSanPham = [];
+
+        function lamSachMoTa(text) {
+            return String(text || '')
+                .replace(/\$\s*\\ge\s*([^$]+)\$/g, '≥ $1')
+                .replace(/\$\s*\\le\s*([^$]+)\$/g, '≤ $1');
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Fetch header chung
+            fetch('/header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('site-header').innerHTML = data;
+
+                    const scripts = document.getElementById('site-header').getElementsByTagName('script');
+                    for (let script of scripts) {
+                        eval(script.innerText);
+                    }
+
+                    const currentPath = window.location.pathname;
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        if (currentPath.includes(link.getAttribute('data-target'))) {
+                            link.classList.add('bg-luaGreen', 'text-white', 'font-bold', 'shadow');
+                            link.classList.remove('text-gray-600', 'hover:text-luaGreen');
+                        } else {
+                            link.classList.add('text-gray-600', 'hover:text-luaGreen');
+                        }
+                    });
+                });
+
+            // Tải danh sách sản phẩm thật từ CSDL
+            taiDanhSachSanPham();
+        });
+
+        async function taiDanhSachSanPham() {
+            try {
+                let response = await fetch('/api/san-pham');
+                let result = await response.json();
+                if (result.success) {
+                    tatCaSanPham = result.data;
+                    hienThiSanPham(tatCaSanPham);
+                }
+            } catch (err) {
+                console.error('Lỗi khi tải sản phẩm:', err);
+            }
+        }
+
+        function xemChiTietSanPham(maSanPham) {
+            window.location.href = `/chi-tiet.html?loai=san-pham&id=${maSanPham}`;
+        }
+
+        function hienThiSanPham(danhSach) {
+            const container = document.getElementById('danh-sach-san-pham');
+            container.innerHTML = '';
+
+            if (danhSach.length === 0) {
+                container.innerHTML = `<div class="col-span-3 text-center py-16 text-gray-400 bg-white rounded-2xl border border-gray-100">Chưa có sản phẩm nào trong cơ sở dữ liệu.</div>`;
+                return;
+            }
+
+            danhSach.forEach(sp => {
+                let iconClass = 'fa-bottle-droplet text-emerald-600';
+                let bgClass = 'bg-emerald-50/60';
+                let badgeClass = 'bg-emerald-100 text-luaGreen';
+                let tagText = 'Thuốc bảo vệ lúa';
+
+                if (sp.DanhMuc === 'Phân') {
+                    iconClass = 'fa-sack-dollar text-amber-600';
+                    bgClass = 'bg-amber-50/60';
+                    badgeClass = 'bg-amber-100 text-amber-800';
+                    tagText = 'Phân bón';
+                } else if (sp.DanhMuc === 'Giống') {
+                    iconClass = 'fa-seedling text-emerald-600';
+                    bgClass = 'bg-emerald-50/60';
+                    badgeClass = 'bg-emerald-100 text-luaGreen';
+                    tagText = 'Giống lúa';
+                }
+
+                // Kiểm tra nếu sản phẩm có nhập tên file ảnh thì hiển thị ảnh từ thư mục /hinh-anh/
+                let hinhAnhHtml = `
+                    <div class="${bgClass} p-8 flex items-center justify-center h-48">
+                        <i class="fa-solid ${iconClass.split(' ')[0]} text-6xl ${iconClass.split(' ')[1]}"></i>
+                    </div>
+                `;
+
+                if (sp.HinhAnh && sp.HinhAnh.trim() !== '') {
+                    hinhAnhHtml = `
+                        <div class="h-48 overflow-hidden bg-gray-50 flex items-center justify-center">
+                            <img src="/hinh-anh/${sp.HinhAnh}" alt="${sp.TenSanPham}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.parentElement.innerHTML='<div class=\\'${bgClass} p-8 flex items-center justify-center h-full w-full\\'><i class=\\'fa-solid ${iconClass}\\' style=\\'font-size: 3.5rem;\\'></i></div>'">
+                        </div>
+                    `;
+                }
+
+                let giaFormatted = Number(sp.GiaTien).toLocaleString('vi-VN') + ' đ';
+                let donVi = sp.DonViTinh ? ` / ${sp.DonViTinh.toLowerCase()}` : '';
+                let tenAnToan = String(sp.TenSanPham || '').replace(/'/g, "\\'");
+
+                let card = `
+                    <div onclick="xemChiTietSanPham(${sp.MaSanPham})" class="product-card cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col justify-between group">
+                        ${hinhAnhHtml}
+                        <div class="p-5 flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="inline-block ${badgeClass} text-xs font-semibold px-2.5 py-1 rounded-md">${tagText}</span>
+                                    <span class="text-xs text-luaGreen font-semibold opacity-0 group-hover:opacity-100 transition">Chi tiết →</span>
+                                </div>
+                                <h3 class="font-bold text-gray-800 group-hover:text-luaGreen transition text-base mb-1">${sp.TenSanPham}</h3>
+                                <p class="text-xs text-gray-500 mb-3 line-clamp-2">${lamSachMoTa(sp.MoTa) || 'Sản phẩm nông nghiệp chất lượng cao.'}</p>
+                            </div>
+                            <div>
+                                <p class="text-luaYellow font-black text-lg mb-4">${giaFormatted}${donVi}</p>
+                                <button onclick="event.stopPropagation(); themVaoGio(${sp.MaSanPham}, '${tenAnToan}')" class="w-full bg-luaGreen hover:bg-emerald-900 text-white font-semibold py-2.5 rounded-xl transition shadow">Thêm vào giỏ</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+
+        // Lọc sản phẩm theo danh mục bên trái
+        function locSanPham(danhMuc, element) {
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(i => {
+                i.classList.remove('bg-luaGreen', 'text-white', 'font-bold', 'shadow-md');
+                i.classList.add('text-gray-600', 'hover:bg-emerald-50', 'hover:text-luaGreen');
+            });
+            element.classList.add('bg-luaGreen', 'text-white', 'font-bold', 'shadow-md');
+            element.classList.remove('text-gray-600', 'hover:bg-emerald-50', 'hover:text-luaGreen');
+
+            if (danhMuc === 'Tất cả') {
+                hienThiSanPham(tatCaSanPham);
+            } else {
+                let filtered = tatCaSanPham.filter(sp => sp.DanhMuc === danhMuc);
+                hienThiSanPham(filtered);
+            }
+        }
+
+        // Thêm sản phẩm vào giỏ hàng riêng của tài khoản đang đăng nhập
+        async function themVaoGio(maSanPham, tenSp) {
+            const userData = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+            if (!userData) {
+                await hienThongBao('Vui lòng đăng nhập tài khoản nông dân trước khi thêm sản phẩm vào giỏ!');
+                window.location.href = '/dang-nhap.html';
+                return;
+            }
+
+            const user = JSON.parse(userData);
+            try {
+                const res = await fetch('/api/gio-hang/san-pham', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        soDienThoai: user.phone,
+                        maSanPham: maSanPham,
+                        soLuong: 1
+                    })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert(`✅ Đã thêm "${tenSp}" vào giỏ hàng của ${user.name}!`);
+                    if (typeof window.capNhatSoLuongGioHang === 'function') {
+                        window.capNhatSoLuongGioHang();
+                    }
+                } else {
+                    alert('❌ ' + result.message);
+                }
+            } catch (err) {
+                alert('❌ Không thể kết nối đến server!');
+            }
+        }
+    </script>
+</body>
+</html>

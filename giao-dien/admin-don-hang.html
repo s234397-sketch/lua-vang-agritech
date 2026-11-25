@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng Admin - Quản Lý Đơn Hàng & Thuê Máy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER DÙNG CHUNG CỦA ADMIN -->
+    <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- TIÊU ĐỀ TRANG -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-black text-luaGreen uppercase tracking-wide">
+                    Quản Lý Thanh Toán, Đơn Hàng & Thuê Máy
+                </h1>
+                <p class="text-sm text-gray-500 mt-1">
+                    Theo dõi và xác nhận thanh toán các đơn vật tư, lịch thuê máy nông nghiệp của bà con nông dân
+                </p>
+            </div>
+
+            <button onclick="taiDuLieuAdmin()" class="self-start md:self-auto bg-white hover:bg-emerald-50 text-luaGreen border border-emerald-200 font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center space-x-2">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Làm mới dữ liệu</span>
+            </button>
+        </div>
+
+        <!-- 4 THẺ THỐNG KÊ TỔNG QUAN -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Đơn mua vật tư</p>
+                    <p id="stat-so-don-sp" class="text-2xl font-black text-luaGreen mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-luaGreen flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+            </div>
+
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Lịch thuê máy</p>
+                    <p id="stat-so-don-may" class="text-2xl font-black text-amber-700 mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-luaYellow flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-tractor"></i>
+                </div>
+            </div>
+
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Chờ xác nhận / Thu tiền</p>
+                    <p id="stat-cho-xu-ly" class="text-2xl font-black text-rose-600 mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Doanh thu đã nhận</p>
+                    <p id="stat-doanh-thu" class="text-xl font-black text-emerald-700 mt-1">0 đ</p>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-sack-dollar"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- THANH TÌM KIẾM & LỌC TRẠNG THÁI -->
+        <div class="admin-filter-panel bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+                <input type="text" id="input-tim-kiem" oninput="renderTatCa()" placeholder="Tìm theo tên nông dân, số điện thoại, mã LV..., tên sản phẩm hoặc tên máy..." class="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-luaGreen">
+            </div>
+
+            <div class="flex items-center gap-2">
+                <label class="text-xs font-bold text-gray-600 shrink-0">Lọc trạng thái:</label>
+                <select id="select-loc-trang-thai" onchange="renderTatCa()" class="text-sm border border-gray-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-luaGreen bg-gray-50 font-medium">
+                    <option value="DA_DAT">Tất cả đơn đã đặt (Ẩn giỏ tạm)</option>
+                    <option value="CHO_THANH_TOAN">Chờ xác nhận / Chưa thanh toán đủ</option>
+                    <option value="DA_THANH_TOAN">Đã thanh toán & Hoàn thành</option>
+                    <option value="DA_HUY">Đã hủy</option>
+                    <option value="TAT_CA">Hiển thị tất cả (Gồm cả giỏ chưa chốt)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 2 TAB CHUYỂN ĐỔI -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <button onclick="chuyenTabAdmin('san-pham')" id="btn-tab-sp" class="bg-luaGreen text-white p-4 rounded-2xl shadow-sm font-bold text-sm flex items-center justify-center space-x-2 transition">
+                <i class="fa-solid fa-seedling"></i>
+                <span>Đơn đặt mua Sản phẩm</span>
+                <span id="badge-tab-sp" class="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full">0</span>
+            </button>
+
+            <button onclick="chuyenTabAdmin('thue-may')" id="btn-tab-may" class="bg-white text-gray-600 hover:bg-emerald-50 p-4 rounded-2xl shadow-sm border border-gray-100 font-bold text-sm flex items-center justify-center space-x-2 transition">
+                <i class="fa-solid fa-tractor"></i>
+                <span>Đơn đặt Thuê máy</span>
+                <span id="badge-tab-may" class="bg-gray-100 text-gray-700 text-xs px-2.5 py-0.5 rounded-full">0</span>
+            </button>
+        </div>
+
+        <!-- BẢNG 1: QUẢN LÝ ĐƠN MUA SẢN PHẨM -->
+        <section id="section-don-sp" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-emerald-50/80 text-luaGreen text-xs uppercase font-bold border-b border-emerald-100">
+                            <th class="py-3.5 px-4">Mã đơn</th>
+                            <th class="py-3.5 px-4">Nông dân đặt mua</th>
+                            <th class="py-3.5 px-4">Sản phẩm</th>
+                            <th class="py-3.5 px-4 text-center">SL</th>
+                            <th class="py-3.5 px-4 text-right">Thành tiền / Cọc</th>
+                            <th class="py-3.5 px-4">Thời gian đặt</th>
+                            <th class="py-3.5 px-4">Trạng thái thanh toán</th>
+                            <th class="py-3.5 px-4 text-center">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-don-sp" class="divide-y divide-gray-100 text-sm"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- BẢNG 2: QUẢN LÝ ĐƠN THUÊ MÁY -->
+        <section id="section-don-may" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-amber-50/80 text-amber-900 text-xs uppercase font-bold border-b border-amber-100">
+                            <th class="py-3.5 px-4">Mã phiếu</th>
+                            <th class="py-3.5 px-4">Nông dân thuê</th>
+                            <th class="py-3.5 px-4">Thiết bị thuê</th>
+                            <th class="py-3.5 px-4">Lịch & Ruộng thuê</th>
+                            <th class="py-3.5 px-4 text-right">Tổng tiền / Cọc</th>
+                            <th class="py-3.5 px-4">Trạng thái điều máy / Thanh toán</th>
+                            <th class="py-3.5 px-4 text-center">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-don-may" class="divide-y divide-gray-100 text-sm"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let dsDonSP = [];
+        let dsDonMay = [];
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const rawUser = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+            if (!rawUser) {
+                await hienThongBao('Vui lòng đăng nhập bằng tài khoản Quản trị viên!');
+                window.location.href = '/dang-nhap.html';
+                return;
+            }
+            if (!sessionStorage.getItem('luaVangUser')) {
+                sessionStorage.setItem('luaVangUser', rawUser);
+            }
+
+            const user = JSON.parse(rawUser);
+            if (user.role !== 'admin') {
+                await hienThongBao('Bạn không có quyền truy cập trang Quản trị!');
+                window.location.href = '/trang-chu.html';
+                return;
+            }
+
+            fetch('/admin-header.html')
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('site-header').innerHTML = data;
+                    const scripts = document.getElementById('site-header').getElementsByTagName('script');
+                    for (let script of scripts) {
+                        eval(script.innerText);
+                    }
+                });
+
+            taiDuLieuAdmin();
+        });
+
+        function chuyenTabAdmin(tab) {
+            const secSP = document.getElementById('section-don-sp');
+            const secMay = document.getElementById('section-don-may');
+            const btnSP = document.getElementById('btn-tab-sp');
+            const btnMay = document.getElementById('btn-tab-may');
+
+            if (tab === 'san-pham') {
+                secSP.classList.remove('hidden');
+                secMay.classList.add('hidden');
+
+                btnSP.classList.add('bg-luaGreen', 'text-white');
+                btnSP.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-100');
+                btnSP.querySelector('span:last-child').className = 'bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full';
+
+                btnMay.classList.remove('bg-luaGreen', 'text-white');
+                btnMay.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-100');
+                btnMay.querySelector('span:last-child').className = 'bg-gray-100 text-gray-700 text-xs px-2.5 py-0.5 rounded-full';
+            } else {
+                secMay.classList.remove('hidden');
+                secSP.classList.add('hidden');
+
+                btnMay.classList.add('bg-luaGreen', 'text-white');
+                btnMay.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-100');
+                btnMay.querySelector('span:last-child').className = 'bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full';
+
+                btnSP.classList.remove('bg-luaGreen', 'text-white');
+                btnSP.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-100');
+                btnSP.querySelector('span:last-child').className = 'bg-gray-100 text-gray-700 text-xs px-2.5 py-0.5 rounded-full';
+            }
+        }
+
+        async function taiDuLieuAdmin() {
+            try {
+                const res = await fetch('/api/admin/don-hang');
+                const result = await res.json();
+                if (result.success) {
+                    dsDonSP = result.donSanPham || [];
+                    dsDonMay = result.donThueMay || [];
+                    capNhatThongKe();
+                    renderTatCa();
+                }
+            } catch (err) {
+                console.error('Lỗi tải dữ liệu đơn hàng:', err);
+            }
+        }
+
+        function capNhatThongKe() {
+            const spDaDat = dsDonSP.filter(x => x.TrangThai !== 'Trong giỏ');
+            const mayDaDat = dsDonMay.filter(x => x.TrangThai !== 'Chờ xác nhận');
+
+            const choXuLySP = dsDonSP.filter(x => ['Chờ thanh toán', 'Đã đặt cọc (30%)', 'Đã đặt hàng', 'Đang giao hàng'].includes(x.TrangThai)).length;
+            const choXuLyMay = dsDonMay.filter(x => ['Chờ thanh toán', 'Đã đặt cọc (30%)', 'Đang thuê / Đã đặt lịch', 'Đang thực hiện'].includes(x.TrangThai)).length;
+
+            let doanhThu = 0;
+            dsDonSP.forEach(x => {
+                if (x.TrangThai === 'Đã thanh toán & Hoàn thành') {
+                    doanhThu += Number(x.GiaTien) * Number(x.SoLuong);
+                } else if (['Đã đặt cọc (30%)', 'Đang giao hàng'].includes(x.TrangThai)) {
+                    doanhThu += Number(x.TienCoc || 0);
+                }
+            });
+            dsDonMay.forEach(x => {
+                if (x.TrangThai === 'Đã thanh toán & Hoàn thành') {
+                    doanhThu += Number(x.GiaThue) * Number(x.SoCong);
+                } else if (['Đã đặt cọc (30%)', 'Đang thực hiện', 'Đang thuê / Đã đặt lịch'].includes(x.TrangThai)) {
+                    doanhThu += Number(x.TienCoc || 0);
+                }
+            });
+
+            document.getElementById('stat-so-don-sp').innerText = spDaDat.length;
+            document.getElementById('stat-so-don-may').innerText = mayDaDat.length;
+            document.getElementById('stat-cho-xu-ly').innerText = choXuLySP + choXuLyMay;
+            document.getElementById('stat-doanh-thu').innerText = doanhThu.toLocaleString('vi-VN') + ' đ';
+        }
+
+        function locDanhSachChung(ds, loai) {
+            const tuKhoa = (document.getElementById('input-tim-kiem').value || '').toLowerCase().trim();
+            const boLoc = document.getElementById('select-loc-trang-thai').value;
+
+            return ds.filter(item => {
+                if (boLoc === 'DA_DAT') {
+                    if (loai === 'SP' && item.TrangThai === 'Trong giỏ') return false;
+                    if (loai === 'MAY' && item.TrangThai === 'Chờ xác nhận') return false;
+                } else if (boLoc === 'CHO_THANH_TOAN') {
+                    if (loai === 'SP' && !['Chờ thanh toán', 'Đã đặt cọc (30%)', 'Đã đặt hàng', 'Đang giao hàng'].includes(item.TrangThai)) return false;
+                    if (loai === 'MAY' && !['Chờ thanh toán', 'Đã đặt cọc (30%)', 'Đang thuê / Đã đặt lịch', 'Đang thực hiện'].includes(item.TrangThai)) return false;
+                } else if (boLoc === 'DA_THANH_TOAN') {
+                    if (item.TrangThai !== 'Đã thanh toán & Hoàn thành') return false;
+                } else if (boLoc === 'DA_HUY') {
+                    if (item.TrangThai !== 'Đã hủy') return false;
+                }
+
+                if (tuKhoa) {
+                    const tenND = (item.HoTen || '').toLowerCase();
+                    const sdt = (item.SoDienThoai || '').toLowerCase();
+                    const tenHang = (item.TenSanPham || item.TenMay || '').toLowerCase();
+                    const maTT = (item.MaThanhToan || '').toLowerCase();
+                    if (!tenND.includes(tuKhoa) && !sdt.includes(tuKhoa) && !tenHang.includes(tuKhoa) && !maTT.includes(tuKhoa)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
+        function mauSelectTrangThai(trangThai) {
+            if (trangThai === 'Đã thanh toán & Hoàn thành') return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            if (trangThai === 'Đã đặt cọc (30%)') return 'bg-teal-100 text-teal-800 border-teal-300';
+            if (trangThai === 'Đã hủy') return 'bg-red-100 text-red-700 border-red-300';
+            if (trangThai === 'Đang giao hàng' || trangThai === 'Đang thực hiện') return 'bg-sky-100 text-sky-800 border-sky-300';
+            return 'bg-amber-100 text-amber-800 border-amber-300';
+        }
+
+        function renderTatCa() {
+            const listSP = locDanhSachChung(dsDonSP, 'SP');
+            const listMay = locDanhSachChung(dsDonMay, 'MAY');
+
+            document.getElementById('badge-tab-sp').innerText = listSP.length;
+            document.getElementById('badge-tab-may').innerText = listMay.length;
+
+            renderBangSanPham(listSP);
+            renderBangThueMay(listMay);
+        }
+
+        function renderBangSanPham(ds) {
+            const tbody = document.getElementById('tbody-don-sp');
+            if (ds.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-12 text-gray-400">Không có đơn đặt mua sản phẩm nào phù hợp.</td></tr>`;
+                return;
+            }
+
+            const cacTrangThaiSP = [
+                'Chờ thanh toán',
+                'Đã đặt cọc (30%)',
+                'Đã đặt hàng',
+                'Đang giao hàng',
+                'Đã thanh toán & Hoàn thành',
+                'Đã hủy',
+                'Trong giỏ'
+            ];
+
+            tbody.innerHTML = ds.map(sp => {
+                const thanhTien = Number(sp.GiaTien) * Number(sp.SoLuong);
+                const tienCoc = Number(sp.TienCoc || 0);
+                const conThu = Math.max(0, thanhTien - tienCoc);
+                const thoiGian = sp.NgayThem ? new Date(sp.NgayThem).toLocaleString('vi-VN') : '--';
+                const selectCls = mauSelectTrangThai(sp.TrangThai);
+
+                const optionsHtml = cacTrangThaiSP.map(tt =>
+                    `<option value="${tt}" ${sp.TrangThai === tt ? 'selected' : ''}>${tt}</option>`
+                ).join('');
+
+                const cocBadgeHtml = tienCoc > 0
+                    ? `<span class="block text-[11px] text-teal-700 font-semibold mt-0.5">Cọc 30%: ${tienCoc.toLocaleString('vi-VN')} đ</span>
+                       <span class="block text-[11px] text-gray-500">Còn thu: ${conThu.toLocaleString('vi-VN')} đ</span>`
+                    : '';
+
+                return `
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="py-3.5 px-4 font-bold text-luaGreen">
+                            #SP${sp.MaGH}
+                            ${sp.MaThanhToan ? `<span class="block text-[11px] text-amber-700 font-extrabold">${sp.MaThanhToan}</span>` : ''}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <p class="font-bold text-gray-800">${sp.HoTen || 'Nông dân'}</p>
+                            <p class="text-xs text-luaGreen font-semibold">${sp.SoDienThoai}</p>
+                            <p class="text-xs text-gray-400">${sp.DiaChi || 'Chưa cập nhật địa chỉ'}</p>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="text-[11px] font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded">${sp.DanhMuc}</span>
+                            <p class="font-semibold text-gray-800 mt-1">${sp.TenSanPham}</p>
+                            <p class="text-xs text-gray-500">${Number(sp.GiaTien).toLocaleString('vi-VN')} đ / ${sp.DonViTinh}</p>
+                        </td>
+                        <td class="py-3.5 px-4 text-center font-bold">${sp.SoLuong}</td>
+                        <td class="py-3.5 px-4 text-right">
+                            <span class="font-black text-luaYellow">${thanhTien.toLocaleString('vi-VN')} đ</span>
+                            ${cocBadgeHtml}
+                        </td>
+                        <td class="py-3.5 px-4 text-xs text-gray-500">${thoiGian}</td>
+                        <td class="py-3.5 px-4">
+                            <select onchange="doiTrangThaiSP(${sp.MaGH}, this.value)" class="text-xs font-bold px-3 py-2 rounded-xl border cursor-pointer focus:outline-none ${selectCls}">
+                                ${optionsHtml}
+                            </select>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <button onclick="xoaDonSP(${sp.MaGH})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="Xóa đơn">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderBangThueMay(ds) {
+            const tbody = document.getElementById('tbody-don-may');
+            if (ds.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-gray-400">Không có lịch đặt thuê máy nào phù hợp.</td></tr>`;
+                return;
+            }
+
+            const cacTrangThaiMay = [
+                'Chờ thanh toán',
+                'Đã đặt cọc (30%)',
+                'Đang thuê / Đã đặt lịch',
+                'Đang thực hiện',
+                'Đã thanh toán & Hoàn thành',
+                'Đã hủy',
+                'Chờ xác nhận'
+            ];
+
+            tbody.innerHTML = ds.map(m => {
+                const tongTien = Number(m.GiaThue) * Number(m.SoCong);
+                const tienCoc = Number(m.TienCoc || 0);
+                const conThu = Math.max(0, tongTien - tienCoc);
+                const selectCls = mauSelectTrangThai(m.TrangThai);
+
+                const optionsHtml = cacTrangThaiMay.map(tt =>
+                    `<option value="${tt}" ${m.TrangThai === tt ? 'selected' : ''}>${tt}</option>`
+                ).join('');
+
+                const cocMayBadgeHtml = tienCoc > 0
+                    ? `<span class="block text-[11px] text-teal-700 font-semibold mt-0.5">Cọc 30%: ${tienCoc.toLocaleString('vi-VN')} đ</span>
+                       <span class="block text-[11px] text-gray-500">Còn thu: ${conThu.toLocaleString('vi-VN')} đ</span>`
+                    : '';
+
+                return `
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="py-3.5 px-4 font-bold text-amber-800">
+                            #TM${m.MaDatMay}
+                            ${m.MaThanhToan ? `<span class="block text-[11px] text-luaGreen font-extrabold">${m.MaThanhToan}</span>` : ''}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <p class="font-bold text-gray-800">${m.HoTen || 'Nông dân'}</p>
+                            <p class="text-xs text-luaGreen font-semibold">${m.SoDienThoai}</p>
+                            <p class="text-xs text-gray-400">${m.DiaChi || ''}</p>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="text-[11px] font-semibold bg-amber-50 text-amber-800 px-2 py-0.5 rounded">${m.LoaiMay}</span>
+                            <p class="font-semibold text-gray-800 mt-1">${m.TenMay}</p>
+                            <p class="text-xs text-gray-500">${Number(m.GiaThue).toLocaleString('vi-VN')} đ × <strong>${m.SoCong} ${m.DonViTinh || 'công'}</strong></p>
+                        </td>
+                        <td class="py-3.5 px-4 text-xs space-y-1">
+                            <p class="text-gray-700"><i class="fa-solid fa-calendar-days text-luaGreen mr-1"></i> Ngày thuê: <strong>${m.NgayThue || 'Chưa chọn ngày'}</strong></p>
+                            <p class="text-luaGreen font-semibold"><i class="fa-regular fa-clock text-luaGreen mr-1"></i> Ca thuê: <strong>${m.KhungGio || 'Chưa chọn ca'}</strong></p>
+                            <p class="text-gray-500"><i class="fa-solid fa-location-dot text-amber-600 mr-1"></i> ${m.GhiChu || 'Không có ghi chú'}</p>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <span class="font-black text-luaYellow">${tongTien.toLocaleString('vi-VN')} đ</span>
+                            ${cocMayBadgeHtml}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <select onchange="doiTrangThaiMay(${m.MaDatMay}, this.value)" class="text-xs font-bold px-3 py-2 rounded-xl border cursor-pointer focus:outline-none ${selectCls}">
+                                ${optionsHtml}
+                            </select>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <button onclick="xoaDonMay(${m.MaDatMay})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition" title="Xóa phiếu thuê">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function doiTrangThaiSP(maGH, trangThaiMoi) {
+            try {
+                const res = await fetch('/api/admin/don-hang/san-pham', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maGH, trangThai: trangThaiMoi })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    taiDuLieuAdmin();
+                } else {
+                    alert('❌ ' + result.message);
+                    taiDuLieuAdmin();
+                }
+            } catch (err) {
+                alert('❌ Lỗi kết nối server!');
+            }
+        }
+
+        async function doiTrangThaiMay(maDatMay, trangThaiMoi) {
+            try {
+                const res = await fetch('/api/admin/don-hang/thue-may', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maDatMay, trangThai: trangThaiMoi })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    taiDuLieuAdmin();
+                } else {
+                    alert('❌ ' + result.message);
+                    taiDuLieuAdmin();
+                }
+            } catch (err) {
+                alert('❌ Lỗi kết nối server!');
+            }
+        }
+
+        async function xoaDonSP(maGH) {
+            if (!await xacNhanThongBao('Xóa đơn sản phẩm này khỏi hệ thống?')) return;
+            await fetch(`/api/gio-hang/san-pham/${maGH}`, { method: 'DELETE' });
+            taiDuLieuAdmin();
+        }
+
+        async function xoaDonMay(maDatMay) {
+            if (!await xacNhanThongBao('Xóa phiếu thuê máy này khỏi hệ thống?')) return;
+            await fetch(`/api/gio-hang/thue-may/${maDatMay}`, { method: 'DELETE' });
+            taiDuLieuAdmin();
+        }
+    </script>
+</body>
+</html>

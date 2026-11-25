@@ -1,0 +1,180 @@
+<link rel="stylesheet" href="/nang-cap-ui.css">
+<script src="thong-bao-ui.js"></script>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-20">
+        
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+            <img src="/hinh-anh/logo-lua-vang.png" alt="Lúa Vàng AgriTech" class="h-14 w-auto object-contain shrink-0">
+            <div class="flex flex-col">
+                <span class="text-xl font-extrabold text-[#12523a] tracking-tight leading-none">Lúa Vàng</span>
+                <span class="text-[10px] font-bold tracking-[0.24em] text-[#d97706] uppercase mt-1">AGRITECH</span>
+            </div>
+        </div>
+
+        <!-- Menu điều hướng (Tự động đổi theo Role: Nông dân hoặc Admin) -->
+        <nav id="nav-menu" class="hidden md:flex items-center space-x-3 lg:space-x-5 font-medium text-gray-600 text-sm">
+            <a href="/trang-chu.html" class="nav-link px-3.5 py-2 rounded-full transition" data-target="trang-chu.html">Trang chủ</a>
+            <a href="/san-pham.html" class="nav-link px-3.5 py-2 rounded-full transition" data-target="san-pham.html">Sản phẩm</a>
+            <a href="/thue-may.html" class="nav-link px-3.5 py-2 rounded-full transition" data-target="thue-may.html">Thuê máy</a>
+            <a href="/su-kien.html" class="nav-link px-3.5 py-2 rounded-full transition" data-target="su-kien.html">Sự kiện</a>
+            <a href="/tu-van.html" class="nav-link px-3.5 py-2 rounded-full transition" data-target="tu-van.html">Tư vấn & Hỗ trợ</a>
+        </nav>
+
+        <!-- Giỏ hàng & Nút Đăng nhập / Đăng ký hoặc Tên tài khoản -->
+        <div class="flex items-center space-x-4" id="header-auth-area">
+            <!-- Giỏ hàng (Nông dân) -->
+            <a id="header-cart-link" href="/gio-hang.html" class="relative text-gray-700 hover:text-luaGreen transition" title="Giỏ hàng & Hoạt động của tôi">
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+                <span id="cart-badge" class="absolute -top-2 -right-2 bg-luaGreen text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
+            </a>
+
+            <!-- Giao diện khi CHƯA ĐĂNG NHẬP -->
+            <div id="auth-guest" class="flex items-center space-x-3">
+                <a href="/dang-nhap.html" class="px-4 py-2 rounded-xl border-2 border-luaGreen text-luaGreen hover:bg-emerald-50 text-sm font-bold transition shadow-sm">
+                    Đăng nhập
+                </a>
+                <a href="/dang-ky.html" class="px-4 py-2 rounded-xl border-2 border-luaGreen text-luaGreen hover:bg-emerald-50 text-sm font-bold transition shadow-sm">
+                    Đăng ký
+                </a>
+            </div>
+
+            <!-- Giao diện khi ĐÃ ĐĂNG NHẬP (Bấm vào tên để mở Hồ sơ cá nhân) -->
+            <div id="auth-user" class="hidden flex items-center space-x-3">
+                <a id="header-profile-link" href="/ho-so.html" class="flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-full border border-emerald-200 transition" title="Hồ sơ cá nhân, Địa chỉ ruộng & Đổi mật khẩu">
+                    <div class="w-7 h-7 rounded-full bg-emerald-200 text-luaGreen flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <span id="user-name-display" class="text-sm font-semibold text-luaGreen">Nông dân</span>
+                </a>
+                
+                <!-- NÚT ĐĂNG XUẤT -->
+                <button onclick="dangXuatHeader()" class="text-xs text-red-600 hover:text-red-800 font-semibold px-2 py-1 border border-red-200 rounded-lg transition" title="Đăng xuất">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    window.layTaiKhoanHeader = function() {
+        const raw = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+        if (raw && !sessionStorage.getItem('luaVangUser')) {
+            sessionStorage.setItem('luaVangUser', raw);
+        }
+        return raw;
+    };
+
+    window.dangXuatHeader = function() {
+        sessionStorage.removeItem('luaVangUser');
+        localStorage.removeItem('luaVangUser');
+        window.location.href = '/trang-chu.html';
+    };
+
+    window.capNhatSoLuongGioHang = async function() {
+        const badge = document.getElementById('cart-badge');
+        const loggedUser = window.layTaiKhoanHeader();
+        if (!badge) return;
+
+        if (!loggedUser) {
+            badge.innerText = '0';
+            return;
+        }
+
+        try {
+            const user = JSON.parse(loggedUser);
+            if (!user.phone || user.role === 'admin') {
+                badge.innerText = '0';
+                return;
+            }
+            const res = await fetch(`/api/gio-hang/${encodeURIComponent(user.phone)}`);
+            const data = await res.json();
+            if (data.success) {
+                const tongMuc = (data.sanPham?.length || 0) + (data.thueMay?.length || 0) + (data.suKien?.length || 0);
+                badge.innerText = tongMuc;
+            }
+        } catch (e) {
+            console.error('Lỗi cập nhật badge giỏ hàng:', e);
+        }
+    };
+
+    window.toXanhMenuHienTai = function() {
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('#nav-menu .nav-link').forEach(link => {
+            const target = link.getAttribute('data-target') || '';
+            const slug = target.replace('.html', '');
+            const isHome = (currentPath === '/' || currentPath === '') && target === 'trang-chu.html';
+            const isActive = isHome || (slug && currentPath.includes(slug));
+
+            if (isActive) {
+                link.classList.add('bg-luaGreen', 'text-white', 'font-bold', 'shadow');
+                link.classList.remove('text-gray-600', 'hover:text-luaGreen');
+            } else {
+                link.classList.remove('bg-luaGreen', 'text-white', 'font-bold', 'shadow');
+                link.classList.add('text-gray-600', 'hover:text-luaGreen');
+            }
+        });
+    };
+
+    window.capNhatHeader = function() {
+        const loggedUser = window.layTaiKhoanHeader();
+        const authGuest = document.getElementById('auth-guest');
+        const authUser = document.getElementById('auth-user');
+        const userNameDisplay = document.getElementById('user-name-display');
+        const navMenu = document.getElementById('nav-menu');
+        const cartLink = document.getElementById('header-cart-link');
+        const profileLink = document.getElementById('header-profile-link');
+
+        if (!authGuest || !authUser) return;
+
+        if (loggedUser) {
+            try {
+                const user = JSON.parse(loggedUser);
+                authGuest.style.setProperty('display', 'none', 'important');
+                authUser.style.setProperty('display', 'flex', 'important');
+                if (userNameDisplay) userNameDisplay.innerText = user.name;
+
+                if (user.role === 'admin' && navMenu) {
+                    if (cartLink) cartLink.style.display = 'none';
+                    if (profileLink) profileLink.href = '/admin-trang-chu.html';
+                    const currentPath = window.location.pathname;
+                    const adminLinks = [
+                        { href: '/admin-trang-chu.html', text: 'Trang chủ Admin' },
+                        { href: '/admin-san-pham.html', text: 'QL Sản phẩm' },
+                        { href: '/admin-thue-may.html', text: 'QL Thuê máy' },
+                        { href: '/admin-don-hang.html', text: 'QL Đơn hàng' },
+                        { href: '/admin-nong-dan.html', text: 'QL Nông dân' },
+                        { href: '/admin-su-kien.html', text: 'QL Sự kiện' },
+                        { href: '/admin-tu-van.html', text: 'QL Tư vấn' }
+                    ];
+
+                    navMenu.innerHTML = adminLinks.map(item => {
+                        const isActive = currentPath.includes(item.href);
+                        const cls = isActive
+                            ? 'bg-luaGreen text-white font-bold shadow'
+                            : 'text-gray-600 hover:text-luaGreen';
+                        return `<a href="${item.href}" class="nav-link px-3 py-2 rounded-xl transition ${cls}">${item.text}</a>`;
+                    }).join('');
+                } else {
+                    window.toXanhMenuHienTai();
+                    if (window.location.pathname.includes('ho-so.html') && profileLink) {
+                        profileLink.classList.remove('bg-emerald-50', 'border-emerald-200');
+                        profileLink.classList.add('bg-amber-100', 'border-amber-300', 'ring-2', 'ring-amber-200');
+                    }
+                    window.capNhatSoLuongGioHang();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        } else {
+            authGuest.style.setProperty('display', 'flex', 'important');
+            authUser.style.setProperty('display', 'none', 'important');
+            window.toXanhMenuHienTai();
+            window.capNhatSoLuongGioHang();
+        }
+    };
+
+    window.capNhatHeader();
+</script>

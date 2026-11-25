@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Quản Lý Sự Kiện</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER ADMIN ĐỘNG -->
+    <div id="admin-header-container" class="bg-white shadow-sm sticky top-0 z-50"></div>
+    <script>
+        fetch('admin-header.html')
+            .then(res => res.text())
+            .then(data => {
+                const container = document.getElementById('admin-header-container');
+                container.innerHTML = data;
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    newScript.text = oldScript.innerText;
+                    document.body.appendChild(newScript);
+                });
+                if (typeof window.capNhatAdminHeader === 'function') {
+                    window.capNhatAdminHeader();
+                }
+            });
+    </script>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <!-- TIÊU ĐỀ & NÚT TẠO MỚI -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-luaGreen">Quản Lý Sự Kiện & Nông Dân Tham Gia</h1>
+                <p class="text-sm text-gray-500 mt-1">Theo dõi chi tiết danh sách nông dân đăng ký theo từng sự kiện riêng biệt.</p>
+            </div>
+            <button onclick="moModalThem()" class="bg-luaGreen hover:bg-emerald-900 text-white font-semibold px-5 py-2.5 rounded-xl transition shadow flex items-center justify-center space-x-2 text-sm">
+                <i class="fa-solid fa-plus"></i>
+                <span>Tạo sự kiện mới</span>
+            </button>
+        </div>
+
+        <!-- DANH SÁCH THẺ SỰ KIỆN KÈM NÔNG DÂN BÊN DƯỚI -->
+        <div id="danh-sach-su-kien-container" class="space-y-6">
+            <!-- Dữ liệu render tự động từ CSDL -->
+        </div>
+    </main>
+
+    <!-- MODAL THÊM / SỬA SỰ KIỆN -->
+    <div id="modalSuKien" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl relative">
+            <h3 id="modal-title" class="text-xl font-bold text-luaGreen mb-4">Tạo Sự Kiện Mới</h3>
+            <form id="formSuKien" onsubmit="luuSuKien(event)">
+                <input type="hidden" id="maSuKien">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Tiêu đề sự kiện</label>
+                        <input type="text" id="tieuDe" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Thời gian</label>
+                            <input type="text" id="thoiGian" placeholder="VD: 15/11/2026" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Địa điểm</label>
+                            <input type="text" id="diaDiem" placeholder="VD: Cần Thơ" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Mô tả chi tiết</label>
+                        <textarea id="moTa" rows="3" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen"></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="dongModal()" class="px-4 py-2 border rounded-xl text-sm font-semibold hover:bg-gray-50">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-luaGreen text-white rounded-xl text-sm font-semibold hover:bg-emerald-900">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let danhSachSuKienGoc = [];
+        let danhSachNongDanGoc = [];
+
+        async function taiTatCaDuLieu() {
+            try {
+                const [resSuKien, resDangKy] = await Promise.all([
+                    fetch('/api/su-kien'),
+                    fetch('/api/danh-sach-dang-ky')
+                ]);
+
+                const dataSuKien = await resSuKien.json();
+                const dataDangKy = await resDangKy.json();
+
+                if (dataSuKien.success) danhSachSuKienGoc = dataSuKien.data;
+                if (dataDangKy.success) danhSachNongDanGoc = dataDangKy.data;
+
+                renderGiaoDienSuKien();
+            } catch (err) {
+                console.error("Lỗi tải dữ liệu:", err);
+            }
+        }
+
+        function renderGiaoDienSuKien() {
+            const container = document.getElementById('danh-sach-su-kien-container');
+            container.innerHTML = '';
+
+            if (danhSachSuKienGoc.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-12 text-center text-gray-400 border border-gray-100 shadow-sm">
+                        Chưa có sự kiện nào được tạo. Hãy bấm "Tạo sự kiện mới" ở góc trên.
+                    </div>
+                `;
+                return;
+            }
+
+            danhSachSuKienGoc.forEach(sk => {
+                const nongDanCuaSuKien = danhSachNongDanGoc.filter(
+                    nd => nd.TieuDeSuKien && nd.TieuDeSuKien.trim() === sk.TieuDe.trim()
+                );
+
+                let bangNongDanHtml = '';
+                if (nongDanCuaSuKien.length === 0) {
+                    bangNongDanHtml = `
+                        <div class="py-6 text-center text-sm text-gray-400 italic bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                            Chưa có nông dân nào đăng ký tham gia sự kiện này.
+                        </div>
+                    `;
+                } else {
+                    let rowsHtml = nongDanCuaSuKien.map((nd, idx) => {
+                        let ngayDK = nd.NgayDangKy ? new Date(nd.NgayDangKy).toLocaleString('vi-VN') : '';
+                        return `
+                            <tr class="hover:bg-emerald-50/30 transition">
+                                <!-- STT tự động đều đặn từ 1, 2, 3... dù có xóa bất kỳ dòng nào -->
+                                <td class="py-3 px-4 text-gray-500 font-medium w-14">${idx + 1}</td>
+                                <td class="py-3 px-4 font-bold text-gray-800">${nd.HoTen}</td>
+                                <td class="py-3 px-4 text-luaGreen font-semibold">${nd.SoDienThoai}</td>
+                                <td class="py-3 px-4 text-gray-400 text-xs">${ngayDK}</td>
+                                <td class="py-3 px-4 text-center w-16">
+                                    <button onclick="xoaDangKySuKien(${nd.MaDK})" class="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition" title="Xóa nông dân khỏi sự kiện">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    bangNongDanHtml = `
+                        <div class="overflow-x-auto rounded-xl border border-gray-100">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50 text-gray-500 uppercase text-[11px] tracking-wider border-b border-gray-100">
+                                        <th class="py-2.5 px-4">STT</th>
+                                        <th class="py-2.5 px-4">Họ tên nông dân</th>
+                                        <th class="py-2.5 px-4">Số điện thoại</th>
+                                        <th class="py-2.5 px-4">Thời gian đăng ký</th>
+                                        <th class="py-2.5 px-4 text-center">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 bg-white">
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition hover:shadow-md">
+                        <!-- HEADER THẺ SỰ KIỆN -->
+                        <div class="p-6 bg-gradient-to-r from-white to-emerald-50/40 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="space-y-1.5">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="bg-emerald-100 text-luaGreen text-xs font-bold px-3 py-1 rounded-full">
+                                        <i class="fa-solid fa-calendar-days mr-1"></i> ${sk.ThoiGian}
+                                    </span>
+                                    <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">
+                                        <i class="fa-solid fa-location-dot mr-1"></i> ${sk.DiaDiem}
+                                    </span>
+                                    <span class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">
+                                        <i class="fa-solid fa-users mr-1"></i> ${nongDanCuaSuKien.length} nông dân
+                                    </span>
+                                </div>
+                                <h2 class="text-lg font-bold text-gray-800 pt-1">${sk.TieuDe}</h2>
+                            </div>
+
+                            <!-- CÁC NÚT THAO TÁC SỰ KIỆN -->
+                            <div class="flex items-center space-x-2 shrink-0">
+                                <button onclick="xuatCSVRieng('${sk.TieuDe.replace(/'/g, "\\'")}')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 font-semibold px-3.5 py-2 rounded-xl text-xs transition flex items-center space-x-1.5" title="Xuất danh sách nông dân của sự kiện này">
+                                    <i class="fa-solid fa-file-excel"></i>
+                                    <span>Xuất CSV</span>
+                                </button>
+                                <button onclick="moModalSua(${sk.MaSuKien})" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2.5 rounded-xl transition" title="Sửa sự kiện">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="xoaSuKien(${sk.MaSuKien})" class="bg-red-50 hover:bg-red-100 text-red-600 p-2.5 rounded-xl transition" title="Xóa sự kiện">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- PHẦN DANH SÁCH NÔNG DÂN ĐĂNG KÝ DƯỚI SỰ KIỆN -->
+                        <div class="p-6 bg-gray-50/30">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center">
+                                    <i class="fa-solid fa-user-check text-luaGreen mr-2"></i>
+                                    Danh sách nông dân tham gia (${nongDanCuaSuKien.length})
+                                </h3>
+                                <button onclick="toggleDanhSach(${sk.MaSuKien})" class="text-xs font-semibold text-luaGreen hover:underline flex items-center space-x-1">
+                                    <span id="text-toggle-${sk.MaSuKien}">Thu gọn</span>
+                                    <i id="icon-toggle-${sk.MaSuKien}" class="fa-solid fa-chevron-up text-[10px]"></i>
+                                </button>
+                            </div>
+                            
+                            <div id="list-nongdan-${sk.MaSuKien}" class="transition-all">
+                                ${bangNongDanHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Hàm xóa nông dân đăng ký sự kiện theo MaDK
+        async function xoaDangKySuKien(maDK) {
+            if (!await xacNhanThongBao("Bạn có chắc chắn muốn xóa nông dân này ra khỏi sự kiện không?")) {
+                return;
+            }
+
+            try {
+                let res = await fetch(`/api/dang-ky-su-kien/${maDK}`, {
+                    method: 'DELETE'
+                });
+                let result = await res.json();
+                
+                if (result.success) {
+                    alert("Đã xóa nông dân thành công!");
+                    taiTatCaDuLieu(); // Load lại toàn bộ dữ liệu để cập nhật bảng và STT
+                } else {
+                    alert("Lỗi khi xóa: " + result.message);
+                }
+            } catch (err) {
+                console.error("Lỗi kết nối:", err);
+                alert("Không thể kết nối đến máy chủ.");
+            }
+        }
+
+        function toggleDanhSach(maSuKien) {
+            const listEl = document.getElementById(`list-nongdan-${maSuKien}`);
+            const textEl = document.getElementById(`text-toggle-${maSuKien}`);
+            const iconEl = document.getElementById(`icon-toggle-${maSuKien}`);
+
+            if (listEl.classList.contains('hidden')) {
+                listEl.classList.remove('hidden');
+                textEl.innerText = 'Thu gọn';
+                iconEl.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            } else {
+                listEl.classList.add('hidden');
+                textEl.innerText = 'Xem danh sách';
+                iconEl.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            }
+        }
+
+        function xuatCSVRieng(tieuDeSuKien) {
+            const dsLoc = danhSachNongDanGoc.filter(
+                nd => nd.TieuDeSuKien && nd.TieuDeSuKien.trim() === tieuDeSuKien.trim()
+            );
+
+            if (dsLoc.length === 0) {
+                alert(`Sự kiện "${tieuDeSuKien}" chưa có nông dân nào đăng ký để xuất!`);
+                return;
+            }
+
+            let csvContent = "\uFEFFSTT,Họ Tên Nông Dân,Số Điện Thoại,Sự Kiện Tham Gia,Thời Gian Đăng Ký\n";
+            dsLoc.forEach((item, index) => {
+                let ngayDK = item.NgayDangKy ? new Date(item.NgayDangKy).toLocaleString('vi-VN').replace(',', '') : '';
+                let row = [
+                    index + 1,
+                    `"${item.HoTen}"`,
+                    `"${item.SoDienThoai}"`,
+                    `"${item.TieuDeSuKien}"`,
+                    `"${ngayDK}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            const safeName = tieuDeSuKien.substring(0, 30).replace(/[^a-zA-Z0-9\u00C0-\u1EF9]/g, '_');
+            link.download = `DanhSach_NongDan_${safeName}.csv`;
+            link.click();
+        }
+
+        function moModalThem() {
+            document.getElementById('modal-title').innerText = "Tạo Sự Kiện Mới";
+            document.getElementById('formSuKien').reset();
+            document.getElementById('maSuKien').value = '';
+            document.getElementById('modalSuKien').classList.remove('hidden');
+            document.getElementById('modalSuKien').classList.add('flex');
+        }
+
+        function moModalSua(id) {
+            let item = danhSachSuKienGoc.find(s => s.MaSuKien === id);
+            if(!item) return;
+            document.getElementById('modal-title').innerText = "Cập Nhật Sự Kiện";
+            document.getElementById('maSuKien').value = item.MaSuKien;
+            document.getElementById('tieuDe').value = item.TieuDe;
+            document.getElementById('thoiGian').value = item.ThoiGian;
+            document.getElementById('diaDiem').value = item.DiaDiem;
+            document.getElementById('moTa').value = item.MoTa || '';
+            document.getElementById('modalSuKien').classList.remove('hidden');
+            document.getElementById('modalSuKien').classList.add('flex');
+        }
+
+        function dongModal() {
+            document.getElementById('modalSuKien').classList.remove('flex');
+            document.getElementById('modalSuKien').classList.add('hidden');
+        }
+
+        async function luuSuKien(event) {
+            event.preventDefault();
+            let id = document.getElementById('maSuKien').value;
+            let data = {
+                tieuDe: document.getElementById('tieuDe').value,
+                thoiGian: document.getElementById('thoiGian').value,
+                diaDiem: document.getElementById('diaDiem').value,
+                moTa: document.getElementById('moTa').value
+            };
+
+            let url = '/api/them-su-kien';
+            let method = 'POST';
+            if(id) {
+                url = '/api/sua-su-kien';
+                method = 'PUT';
+                data.maSuKien = parseInt(id);
+            }
+
+            let res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            let result = await res.json();
+            if(result.success) {
+                alert(result.message);
+                dongModal();
+                taiTatCaDuLieu();
+            } else {
+                alert('Lỗi: ' + result.error);
+            }
+        }
+
+        async function xoaSuKien(id) {
+            if (!await xacNhanThongBao("Bạn có chắc muốn xóa sự kiện này?")) return;
+            let res = await fetch(`/api/xoa-su-kien/${id}`, { method: 'DELETE' });
+            let result = await res.json();
+            if(result.success) {
+                alert(result.message);
+                taiTatCaDuLieu();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', taiTatCaDuLieu);
+    </script>
+</body>
+</html>

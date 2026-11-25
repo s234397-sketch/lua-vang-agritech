@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Hệ Thống Vật Tư & Cơ Giới Hóa Nông Nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Be Vietnam Pro"', 'sans-serif']
+                    },
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans flex flex-col">
+
+    <!-- HEADER DÙNG CHUNG -->
+    <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
+
+    <main class="flex-1">
+        <!-- 1. HERO BANNER TỔNG QUAN HỆ THỐNG -->
+        <section class="max-w-7xl mx-auto px-4 pt-6 pb-4">
+            <div class="agritech-hero relative overflow-hidden rounded-3xl text-white p-7 md:p-12">
+                <!-- Họa tiết trang trí nền -->
+                <div class="absolute -right-12 -bottom-12 text-white/5 text-[220px] pointer-events-none select-none">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                </div>
+                <div class="absolute top-6 right-10 w-40 h-40 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 space-y-5">
+                        <div class="glass-badge inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold text-amber-300">
+                            <i class="fa-solid fa-seedling"></i>
+                            <span>Nền tảng Nông nghiệp Thông minh Đồng bằng Sông Cửu Long</span>
+                        </div>
+
+                        <h1 class="text-2xl sm:text-4xl lg:text-[40px] font-black leading-tight tracking-tight">
+                            Đồng Hành Cùng Nhà Nông <span class="text-amber-300">Vững Mùa Vàng</span>
+                        </h1>
+
+                        <p class="text-sm md:text-base text-emerald-100/90 leading-relaxed max-w-2xl">
+                            Giải pháp trọn gói từ cung ứng phân bón, hạt giống chuẩn chất lượng đến đặt lịch thuê máy cơ giới theo ca minh bạch, hội thảo kỹ thuật và trợ lý AI tư vấn 24/7.
+                        </p>
+
+                        <div class="flex flex-wrap items-center gap-3 pt-1">
+                            <a href="/san-pham.html" class="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs md:text-sm shadow-lg transition flex items-center gap-2">
+                                <i class="fa-solid fa-bag-shopping"></i>
+                                <span>Mua vật tư nông nghiệp</span>
+                            </a>
+                            <a href="/thue-may.html" class="px-5 py-3 rounded-xl bg-white text-luaGreen hover:bg-emerald-50 font-bold text-xs md:text-sm shadow transition flex items-center gap-2">
+                                <i class="fa-solid fa-tractor text-luaYellow"></i>
+                                <span>Đặt lịch thuê máy ngay</span>
+                            </a>
+                            <a href="/tu-van.html" class="px-4 py-3 rounded-xl border border-white/30 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition flex items-center gap-2">
+                                <i class="fa-solid fa-robot text-amber-300"></i>
+                                <span>Hỏi Trợ lý AI</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Thẻ thống kê trực tiếp từ CSDL -->
+                    <div class="lg:col-span-5 grid grid-cols-2 gap-3.5">
+                        <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center mb-2.5">
+                                <i class="fa-solid fa-flask-vial"></i>
+                            </div>
+                            <p id="hero-stat-sp" class="text-2xl font-black text-white">--</p>
+                            <p class="text-xs text-emerald-100/80 mt-0.5">Sản phẩm vật tư sẵn kho</p>
+                        </div>
+
+                        <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
+                            <div class="w-9 h-9 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center mb-2.5">
+                                <i class="fa-solid fa-tractor"></i>
+                            </div>
+                            <p id="hero-stat-may" class="text-2xl font-black text-white">--</p>
+                            <p class="text-xs text-emerald-100/80 mt-0.5">Thiết bị cơ giới phục vụ</p>
+                        </div>
+
+                        <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
+                            <div class="w-9 h-9 rounded-xl bg-sky-400/20 text-sky-300 flex items-center justify-center mb-2.5">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <p id="hero-stat-sk" class="text-2xl font-black text-white">--</p>
+                            <p class="text-xs text-emerald-100/80 mt-0.5">Hội thảo & tập huấn</p>
+                        </div>
+
+                        <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
+                            <div class="w-9 h-9 rounded-xl bg-rose-400/20 text-rose-300 flex items-center justify-center mb-2.5">
+                                <i class="fa-solid fa-qrcode"></i>
+                            </div>
+                            <p class="text-2xl font-black text-amber-300">24/7</p>
+                            <p class="text-xs text-emerald-100/80 mt-0.5">Duyệt cọc QR tự động SePay</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 4 PHÂN HỆ CHỨC NĂNG CHÍNH CỦA HỆ THỐNG -->
+        <section class="max-w-7xl mx-auto px-4 py-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <a href="/san-pham.html" class="card-agritech p-5 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-luaGreen group-hover:bg-luaGreen group-hover:text-white transition flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-base group-hover:text-luaGreen transition">Vật Tư Nông Nghiệp</h3>
+                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                        Phân bón, thuốc BVTV và giống lúa chất lượng cao. Đặt hàng nhanh, cọc trước 30% giữ giá tốt.
+                    </p>
+                </a>
+
+                <a href="/thue-may.html" class="card-agritech p-5 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-luaYellow group-hover:bg-luaYellow group-hover:text-white transition flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-helicopter"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-base group-hover:text-luaYellow transition">Thuê Máy Cơ Giới</h3>
+                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                        Drone phun thuốc, máy xạ phân, máy cắt lúa. Xem lịch trống theo từng ca và chốt lịch không trùng giờ.
+                    </p>
+                </a>
+
+                <a href="/su-kien.html" class="card-agritech p-5 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-users-line"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-base group-hover:text-blue-600 transition">Hội Thảo & Sự Kiện</h3>
+                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                        Cập nhật lịch tập huấn kỹ thuật canh tác mới, chuyển giao công nghệ và đăng ký tham gia trực tuyến.
+                    </p>
+                </a>
+
+                <a href="/tu-van.html" class="card-agritech p-5 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-base group-hover:text-purple-600 transition">Trợ Lý AI & Chuyên Gia</h3>
+                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                        Hỏi đáp sâu bệnh, liều lượng phân thuốc tức thì cùng Trợ lý AI và đội ngũ kỹ sư Lúa Vàng.
+                    </p>
+                </a>
+            </div>
+        </section>
+
+        <!-- 3. SẢN PHẨM VẬT TƯ NỔI BẬT (DỮ LIỆU ĐỘNG TỪ SQL) -->
+        <section class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex items-end justify-between mb-5">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-luaGreen bg-emerald-100/80 px-2.5 py-1 rounded-md">Kho vật tư chính hãng</span>
+                    <h2 class="text-xl md:text-2xl font-black text-gray-800 mt-2">Sản Phẩm Nông Nghiệp Nổi Bật</h2>
+                </div>
+                <a href="/san-pham.html" class="text-xs md:text-sm font-bold text-luaGreen hover:text-emerald-700 flex items-center gap-1.5">
+                    <span>Xem tất cả sản phẩm</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div id="home-san-pham-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="col-span-4 text-center py-10 text-xs text-gray-400 bg-white rounded-2xl border border-gray-100">
+                    Đang tải danh sách sản phẩm...
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. DỊCH VỤ THUÊ MÁY NÔNG NGHIỆP (DỮ LIỆU ĐỘNG TỪ SQL) -->
+        <section class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex items-end justify-between mb-5">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md">Cơ giới hóa đồng ruộng</span>
+                    <h2 class="text-xl md:text-2xl font-black text-gray-800 mt-2">Dịch Vụ Thuê Máy Phổ Biến</h2>
+                </div>
+                <a href="/thue-may.html" class="text-xs md:text-sm font-bold text-luaYellow hover:text-amber-700 flex items-center gap-1.5">
+                    <span>Xem toàn bộ đội máy</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div id="home-thue-may-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="col-span-3 text-center py-10 text-xs text-gray-400 bg-white rounded-2xl border border-gray-100">
+                    Đang tải danh sách thiết bị thuê máy...
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. QUY TRÌNH ĐẶT LỊCH & THANH TOÁN QR TỰ ĐỘNG SEPAY -->
+        <section class="max-w-7xl mx-auto px-4 py-6">
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+                <div class="text-center max-w-2xl mx-auto mb-8">
+                    <span class="text-xs font-bold uppercase tracking-wider text-luaGreen bg-emerald-50 px-3 py-1 rounded-full">Minh bạch & Tự động hóa</span>
+                    <h2 class="text-xl md:text-2xl font-black text-gray-800 mt-2">Quy Trình Đặt Hàng & Giữ Lịch Thông Minh</h2>
+                    <p class="text-xs md:text-sm text-gray-500 mt-1">
+                        Hệ thống kiểm tra trùng ca tự động, giữ chỗ trong 10 phút và đối soát chuyển khoản VietQR tức thì qua SePay
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-5 text-xs">
+                    <div class="bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 relative">
+                        <span class="w-7 h-7 rounded-full bg-luaGreen text-white font-black flex items-center justify-center mb-3">1</span>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">Chọn Vật Tư / Ca Thuê</h3>
+                        <p class="text-gray-500 leading-relaxed">Chọn sản phẩm hoặc xem lịch trống từng khung giờ của máy nông nghiệp theo ngày mong muốn.</p>
+                    </div>
+
+                    <div class="bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 relative">
+                        <span class="w-7 h-7 rounded-full bg-luaGreen text-white font-black flex items-center justify-center mb-3">2</span>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">Giữ Chỗ 10 Phút & Quét QR</h3>
+                        <p class="text-gray-500 leading-relaxed">Hệ thống tạm khóa lịch 10 phút và tạo mã VietQR tự động điền sẵn số tiền cọc 30% + mã đơn.</p>
+                    </div>
+
+                    <div class="bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 relative">
+                        <span class="w-7 h-7 rounded-full bg-luaYellow text-white font-black flex items-center justify-center mb-3">3</span>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">SePay Chốt Đơn Tự Động</h3>
+                        <p class="text-gray-500 leading-relaxed">Ngay khi chuyển khoản xong, Webhook SePay tự động xác nhận đơn mà không cần chờ duyệt tay.</p>
+                    </div>
+
+                    <div class="bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 relative">
+                        <span class="w-7 h-7 rounded-full bg-luaGreen text-white font-black flex items-center justify-center mb-3">4</span>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">Phục Vụ Tận Ruộng</h3>
+                        <p class="text-gray-500 leading-relaxed">Vật tư giao tận nhà, máy xuống đúng đồng ruộng. Thanh toán 70% còn lại khi nghiệm thu.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. SỰ KIỆN NHÀ NÔNG SẮP TỚI & KÊNH HỖ TRỢ TRỰC TIẾP -->
+        <section class="max-w-7xl mx-auto px-4 pt-4 pb-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Danh sách sự kiện sắp tới -->
+                <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-md">Chuyển giao kỹ thuật</span>
+                                <h2 class="text-lg font-black text-gray-800 mt-1">Sự Kiện & Hội Thảo Sắp Diễn Ra</h2>
+                            </div>
+                            <a href="/su-kien.html" class="text-xs font-bold text-luaGreen hover:underline">Xem tất cả →</a>
+                        </div>
+
+                        <div id="home-su-kien-list" class="space-y-3">
+                            <p class="text-xs text-gray-400 py-6 text-center">Đang tải danh sách sự kiện...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Khối hỗ trợ tư vấn kỹ thuật -->
+                <div class="lg:col-span-5 bg-gradient-to-br from-amber-50 to-emerald-50 rounded-3xl p-6 shadow-sm border border-amber-200/70 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-luaGreen text-amber-300 flex items-center justify-center text-2xl shadow">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <h2 class="text-lg font-black text-luaGreen">Cần Tư Vấn Kỹ Thuật Canh Tác?</h2>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Bà con gặp vấn đề về sâu cuốn lá, đạo ôn, vàng lá chín sớm hay cần tính toán lượng phân bón theo diện tích ruộng? Trò chuyện ngay với Trợ lý AI hoặc kỹ sư nông nghiệp của Lúa Vàng.
+                        </p>
+
+                        <div class="bg-white/90 rounded-2xl p-3.5 space-y-2 text-xs border border-white">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-500"><i class="fa-solid fa-phone text-luaGreen mr-1.5"></i>Hotline kỹ thuật:</span>
+                                <strong class="text-luaGreen font-black">1900 6868</strong>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-500"><i class="fa-solid fa-comment-dots text-blue-600 mr-1.5"></i>Zalo hỗ trợ nhanh:</span>
+                                <strong class="text-blue-700 font-black">0988 123 456</strong>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-500"><i class="fa-solid fa-envelope text-luaYellow mr-1.5"></i>Hòm thư góp ý:</span>
+                                <strong class="text-gray-700">hotro@luavang.vn</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <a href="/tu-van.html" class="w-full py-3 rounded-xl bg-luaGreen hover:bg-emerald-900 text-white font-bold text-xs shadow flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-robot text-amber-300"></i>
+                            <span>Mở Phòng Chat Trợ Lý AI & Chuyên Gia</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-luaGreen text-emerald-100 border-t border-emerald-800">
+        <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+            <div class="space-y-2">
+                <div class="flex items-center gap-3 bg-white/95 rounded-xl px-2 py-1.5">
+                    <img src="/hinh-anh/logo-lua-vang.png" alt="Lúa Vàng AgriTech" class="h-14 w-auto object-contain shrink-0">
+                    <div class="flex flex-col">
+                        <span class="text-xl font-extrabold text-[#12523a] tracking-tight leading-none">Lúa Vàng</span>
+                        <span class="text-[10px] font-bold tracking-[0.24em] text-[#d97706] uppercase mt-1">AGRITECH</span>
+                    </div>
+                </div>
+                <p class="text-emerald-200/80 leading-relaxed">
+                    Hệ thống quản lý cung ứng vật tư nông nghiệp, dịch vụ thuê máy cơ giới và hỗ trợ kỹ thuật canh tác lúa khu vực Đồng bằng Sông Cửu Long.
+                </p>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="text-white font-bold uppercase tracking-wider">Danh mục dịch vụ</h4>
+                <ul class="space-y-1.5 text-emerald-200/90">
+                    <li><a href="/san-pham.html" class="hover:text-amber-300 transition">• Phân bón, Thuốc BVTV & Hạt giống</a></li>
+                    <li><a href="/thue-may.html" class="hover:text-amber-300 transition">• Thuê Drone phun thuốc & Máy gặt đập</a></li>
+                    <li><a href="/su-kien.html" class="hover:text-amber-300 transition">• Hội thảo đầu bờ & Tập huấn kỹ thuật</a></li>
+                    <li><a href="/tu-van.html" class="hover:text-amber-300 transition">• Tư vấn kỹ thuật AI & Chuyên gia 24/7</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="text-white font-bold uppercase tracking-wider">Liên hệ hỗ trợ</h4>
+                <p><i class="fa-solid fa-location-dot text-amber-300 mr-1.5"></i>Khu vực Đồng bằng Sông Cửu Long, Việt Nam</p>
+                <p><i class="fa-solid fa-phone text-amber-300 mr-1.5"></i>Tổng đài: 1900 6868 — Zalo: 0988 123 456</p>
+                <p><i class="fa-solid fa-clock text-amber-300 mr-1.5"></i>Thời gian điều phối máy: 06:00 – 17:30 hằng ngày</p>
+            </div>
+        </div>
+        <div class="border-t border-emerald-800/80 py-3.5 text-center text-[11px] text-emerald-300/70">
+            © 2026 Hệ thống Nông nghiệp Lúa Vàng. Nền tảng hỗ trợ nhà nông hiện đại.
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Nạp Header dùng chung
+            fetch('/header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('site-header').innerHTML = data;
+                    const scripts = document.getElementById('site-header').getElementsByTagName('script');
+                    for (let script of scripts) {
+                        eval(script.innerText);
+                    }
+                    if (typeof window.toXanhMenuHienTai === 'function') {
+                        window.toXanhMenuHienTai();
+                    }
+                });
+
+            taiDuLieuTrangChu();
+        });
+
+        async function taiDuLieuTrangChu() {
+            try {
+                const [resSP, resMay, resSK] = await Promise.all([
+                    fetch('/api/san-pham').then(r => r.json()).catch(() => ({ success: false, data: [] })),
+                    fetch('/api/thue-may').then(r => r.json()).catch(() => ({ success: false, data: [] })),
+                    fetch('/api/su-kien').then(r => r.json()).catch(() => ({ success: false, data: [] }))
+                ]);
+
+                const dsSanPham = resSP.success ? (resSP.data || []) : [];
+                const dsThueMay = resMay.success ? (resMay.data || []) : [];
+                const dsSuKien = resSK.success ? (resSK.data || []) : [];
+
+                // Cập nhật số liệu trên Hero Banner
+                document.getElementById('hero-stat-sp').innerText = `${dsSanPham.length}+`;
+                document.getElementById('hero-stat-may').innerText = `${dsThueMay.length} máy`;
+                document.getElementById('hero-stat-sk').innerText = `${dsSuKien.length} lịch`;
+
+                renderSanPhamNoiBat(dsSanPham.slice(0, 4));
+                renderThueMayNoiBat(dsThueMay.slice(0, 3));
+                renderSuKienNoiBat(dsSuKien.slice(0, 3));
+            } catch (err) {
+                console.error('Lỗi tải dữ liệu trang chủ:', err);
+            }
+        }
+
+        function renderSanPhamNoiBat(ds) {
+            const container = document.getElementById('home-san-pham-list');
+            if (!ds || ds.length === 0) {
+                container.innerHTML = `<div class="col-span-4 text-center py-10 text-xs text-gray-400 bg-white rounded-2xl border border-gray-100">Chưa có sản phẩm nào trong kho.</div>`;
+                return;
+            }
+
+            container.innerHTML = ds.map(sp => {
+                const dm = sp.TenDanhMucChuan || sp.DanhMuc || 'Vật tư';
+                const gia = Number(sp.GiaTien || 0).toLocaleString('vi-VN') + ' đ';
+                const dvt = sp.DonViTinh ? ` / ${sp.DonViTinh}` : '';
+                const tenSafe = String(sp.TenSanPham || '').replace(/'/g, "\\'");
+
+                const imgHtml = (sp.HinhAnh && sp.HinhAnh.trim() !== '' && sp.HinhAnh !== 'default.jpg')
+                    ? `<div class="h-44 overflow-hidden bg-gray-50 flex items-center justify-center">
+                           <img src="/hinh-anh/${sp.HinhAnh}" alt="${sp.TenSanPham}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.parentElement.innerHTML='<div class=\\'bg-emerald-50/70 h-full w-full flex items-center justify-center\\'><i class=\\'fa-solid fa-seedling text-5xl text-emerald-600\\'></i></div>'">
+                       </div>`
+                    : `<div class="h-44 bg-emerald-50/70 flex items-center justify-center">
+                           <i class="fa-solid fa-seedling text-5xl text-emerald-600"></i>
+                       </div>`;
+
+                return `
+                    <div onclick="window.location.href='/chi-tiet.html?loai=san-pham&id=${sp.MaSanPham}'" class="cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col justify-between group">
+                        ${imgHtml}
+                        <div class="p-4 flex-1 flex flex-col justify-between">
+                            <div>
+                                <span class="inline-block bg-emerald-50 text-luaGreen text-[11px] font-bold px-2.5 py-0.5 rounded-md mb-2">${dm}</span>
+                                <h3 class="font-bold text-gray-800 group-hover:text-luaGreen transition text-sm line-clamp-2">${sp.TenSanPham}</h3>
+                            </div>
+                            <div class="pt-3 mt-3 border-t border-gray-100">
+                                <p class="text-luaYellow font-black text-base mb-2.5">${gia}<span class="text-xs font-normal text-gray-500">${dvt}</span></p>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="event.stopPropagation(); themNhanhVaoGio(${sp.MaSanPham}, '${tenSafe}')" class="bg-emerald-50 hover:bg-emerald-100 text-luaGreen font-bold py-2 rounded-xl text-xs transition">
+                                        + Thêm giỏ
+                                    </button>
+                                    <a href="/chi-tiet.html?loai=san-pham&id=${sp.MaSanPham}" onclick="event.stopPropagation()" class="bg-luaGreen hover:bg-emerald-900 text-white font-bold py-2 rounded-xl text-xs text-center transition">
+                                        Chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderThueMayNoiBat(ds) {
+            const container = document.getElementById('home-thue-may-list');
+            if (!ds || ds.length === 0) {
+                container.innerHTML = `<div class="col-span-3 text-center py-10 text-xs text-gray-400 bg-white rounded-2xl border border-gray-100">Chưa có thiết bị thuê máy nào.</div>`;
+                return;
+            }
+
+            container.innerHTML = ds.map(may => {
+                const loai = may.TenLoaiMayChuan || may.LoaiMay || 'Cơ giới hóa';
+                const gia = Number(may.GiaThue || 0).toLocaleString('vi-VN') + ' đ';
+                const dvt = may.DonViTinh ? ` / ${may.DonViTinh.toLowerCase()}` : ' / công';
+
+                const imgHtml = (may.HinhAnh && may.HinhAnh.trim() !== '' && may.HinhAnh !== 'default.jpg')
+                    ? `<div class="h-48 overflow-hidden bg-gray-50 flex items-center justify-center">
+                           <img src="/hinh-anh/${may.HinhAnh}" alt="${may.TenMay}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.parentElement.innerHTML='<div class=\\'bg-amber-50/70 h-full w-full flex items-center justify-center\\'><i class=\\'fa-solid fa-tractor text-5xl text-amber-600\\'></i></div>'">
+                       </div>`
+                    : `<div class="h-48 bg-amber-50/70 flex items-center justify-center">
+                           <i class="fa-solid fa-tractor text-5xl text-amber-600"></i>
+                       </div>`;
+
+                return `
+                    <div onclick="window.location.href='/chi-tiet.html?loai=thue-may&id=${may.MaMay}'" class="cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col justify-between group">
+                        ${imgHtml}
+                        <div class="p-5 flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-md">${loai}</span>
+                                    <span class="text-[11px] text-emerald-700 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i>Đặt lịch theo ca</span>
+                                </div>
+                                <h3 class="font-bold text-gray-800 group-hover:text-luaGreen transition text-base mb-1">${may.TenMay}</h3>
+                                <p class="text-xs text-gray-500 line-clamp-2">${may.MoTa || 'Thiết bị nông nghiệp hiện đại, điều phối đúng giờ.'}</p>
+                            </div>
+                            <div class="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between">
+                                <p class="text-luaYellow font-black text-base">${gia}<span class="text-xs font-normal text-gray-500">${dvt}</span></p>
+                                <a href="/thue-may.html" onclick="event.stopPropagation()" class="px-3.5 py-2 rounded-xl bg-luaGreen hover:bg-emerald-900 text-white font-bold text-xs shadow transition">
+                                    Đặt lịch thuê
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderSuKienNoiBat(ds) {
+            const container = document.getElementById('home-su-kien-list');
+            if (!ds || ds.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">Hiện chưa có sự kiện hoặc hội thảo nào được đăng tải.</p>`;
+                return;
+            }
+
+            container.innerHTML = ds.map(sk => `
+                <div class="p-3.5 rounded-2xl bg-luaBgKem/80 border border-gray-100 hover:border-emerald-200 transition flex items-start justify-between gap-3">
+                    <div class="space-y-1">
+                        <h3 class="font-bold text-gray-800 text-sm">${sk.TieuDe || 'Hội thảo kỹ thuật nhà nông'}</h3>
+                        <div class="flex flex-wrap items-center gap-3 text-[11px] text-gray-500">
+                            <span><i class="fa-regular fa-clock text-luaGreen mr-1"></i>${sk.ThoiGian || 'Đang cập nhật'}</span>
+                            <span><i class="fa-solid fa-location-dot text-luaYellow mr-1"></i>${sk.DiaDiem || 'Tại địa phương'}</span>
+                        </div>
+                    </div>
+                    <a href="/su-kien.html" class="shrink-0 px-3 py-1.5 rounded-xl bg-white border border-emerald-200 text-luaGreen hover:bg-luaGreen hover:text-white font-bold text-xs transition">
+                        Đăng ký
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        async function themNhanhVaoGio(maSanPham, tenSanPham) {
+            const rawUser = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+            if (!rawUser) {
+                await hienThongBao('Vui lòng đăng nhập tài khoản nông dân trước khi thêm sản phẩm vào giỏ!');
+                window.location.href = '/dang-nhap.html';
+                return;
+            }
+            const user = JSON.parse(rawUser);
+            try {
+                const res = await fetch('/api/gio-hang/san-pham', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        soDienThoai: user.phone,
+                        maSanPham,
+                        soLuong: 1
+                    })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert(`✅ Đã thêm "${tenSanPham}" vào giỏ hàng!`);
+                    if (typeof window.capNhatSoLuongGioHang === 'function') {
+                        window.capNhatSoLuongGioHang();
+                    }
+                } else {
+                    alert('❌ ' + (result.message || 'Không thể thêm vào giỏ hàng'));
+                }
+            } catch (err) {
+                alert('❌ Lỗi kết nối đến máy chủ!');
+            }
+        }
+    </script>
+</body>
+</html>

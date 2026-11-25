@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Đăng Nhập</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER DÙNG CHUNG -->
+    <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
+
+    <!-- FORM ĐĂNG NHẬP -->
+    <main class="max-w-md mx-auto px-4 py-12">
+        <div class="card-agritech p-8">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center gap-3 text-left mx-auto mb-4">
+                    <img src="/hinh-anh/logo-lua-vang.png" alt="Lúa Vàng AgriTech" class="h-16 w-auto object-contain shrink-0">
+                    <div class="flex flex-col">
+                        <span class="text-xl font-extrabold text-[#12523a] tracking-tight leading-none">Lúa Vàng</span>
+                        <span class="text-[10px] font-bold tracking-[0.24em] text-[#d97706] uppercase mt-1">AGRITECH</span>
+                    </div>
+                </div>
+                <h1 class="text-2xl font-black text-luaGreen uppercase">ĐĂNG NHẬP</h1>
+                <p class="text-gray-500 text-sm mt-1">Chào mừng bà con trở lại với Lúa Vàng</p>
+            </div>
+
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại</label>
+                    <input type="text" id="username" required placeholder="Nhập số điện thoại đã đăng ký..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Mật khẩu</label>
+                    <input type="password" id="password" required placeholder="Nhập mật khẩu..." class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm">
+                </div>
+
+                <button type="submit" class="w-full bg-luaGreen hover:bg-emerald-900 text-white font-bold py-3.5 rounded-xl transition shadow-md mt-2">
+                    Đăng nhập hệ thống
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-gray-500">
+                Bà con chưa có tài khoản? 
+                <a href="/dang-ky.html" class="text-luaGreen font-bold hover:underline">Đăng ký ngay</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Load header
+            fetch('/header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('site-header').innerHTML = data;
+                });
+
+            // Xử lý submit đăng nhập gọi API Backend
+            document.getElementById('login-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('/api/dang-nhap', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        await hienThongBao('✅ ' + result.message);
+                        
+                        const userInfo = JSON.stringify({
+                            name: result.user.name,
+                            phone: result.user.phone,
+                            role: result.user.role
+                        });
+
+                        // Lưu riêng cho tab hiện tại vào sessionStorage (không ghi đè phiên của tab khác)
+                        sessionStorage.setItem('luaVangUser', userInfo);
+                        localStorage.setItem('luaVangUser', userInfo);
+
+                        // Chuyển hướng về trang chủ
+                        window.location.href = '/trang-chu.html';
+                    } else {
+                        alert('❌ ' + result.message);
+                    }
+                } catch (err) {
+                    console.error('Lỗi kết nối:', err);
+                    alert('❌ Không thể kết nối tới server!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Quản Lý Thuê Máy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER ADMIN ĐỘNG -->
+    <div id="admin-header-container" class="bg-white shadow-sm sticky top-0 z-50"></div>
+    <script>
+        fetch('admin-header.html')
+            .then(res => res.text())
+            .then(data => {
+                const container = document.getElementById('admin-header-container');
+                container.innerHTML = data;
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    newScript.text = oldScript.innerText;
+                    document.body.appendChild(newScript);
+                });
+                if (typeof window.capNhatAdminHeader === 'function') {
+                    window.capNhatAdminHeader();
+                }
+            });
+    </script>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-2xl font-bold text-luaGreen">Quản Lý Danh Sách Thuê Máy</h1>
+            <button onclick="moModalThem()" class="bg-luaGreen hover:bg-emerald-900 text-white font-semibold px-5 py-2.5 rounded-xl transition shadow flex items-center space-x-2 text-sm">
+                <i class="fa-solid fa-plus"></i>
+                <span>Thêm loại máy mới</span>
+            </button>
+        </div>
+
+        <div class="admin-table-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider border-b border-gray-100">
+                        <th class="p-4">Tên thiết bị / Máy móc</th>
+                        <th class="p-4">Loại dịch vụ</th>
+                        <th class="p-4">Giá thuê</th>
+                        <th class="p-4">Trạng thái</th>
+                        <th class="p-4 text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="table-thue-may" class="divide-y divide-gray-100">
+                    <!-- Dữ liệu load tự động từ Database -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- MODAL THÊM / SỬA MÁY -->
+    <div id="modalThueMay" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl relative">
+            <h3 id="modal-title" class="text-xl font-bold text-luaGreen mb-4">Thêm Loại Máy Mới</h3>
+            <form id="formThueMay" onsubmit="luuThueMay(event)">
+                <input type="hidden" id="maMay">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Tên thiết bị</label>
+                        <input type="text" id="tenMay" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Loại dịch vụ (Danh mục)</label>
+                            <select id="loaiMay" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen bg-white">
+                                <option value="Máy xạ phân">Máy xạ phân</option>
+                                <option value="Máy phun thuốc">Máy phun thuốc</option>
+                                <option value="Máy xạ giống">Máy xạ giống</option>
+                                <option value="Máy cắt">Máy cắt</option>
+                                <option value="Máy kéo">Máy kéo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Đơn vị tính</label>
+                            <input type="text" id="donViTinh" value="công" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Giá thuê (VNĐ)</label>
+                            <input type="number" id="giaThue" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Trạng thái</label>
+                            <select id="trangThai" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen">
+                                <option value="Sẵn sàng">Sẵn sàng</option>
+                                <option value="Đang bận">Đang bận</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Tên file hình ảnh</label>
+                        <input type="text" id="hinhAnh" placeholder="VD: drone.jpg" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Mô tả chi tiết</label>
+                        <textarea id="moTa" rows="3" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-luaGreen"></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="dongModal()" class="px-4 py-2 border rounded-xl text-sm font-semibold hover:bg-gray-50">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-luaGreen text-white rounded-xl text-sm font-semibold hover:bg-emerald-900">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let danhSachThueMayGoc = [];
+
+        async function taiDanhSachThueMay() {
+            try {
+                let res = await fetch('/api/thue-may');
+                let result = await res.json();
+                if(result.success) {
+                    danhSachThueMayGoc = result.data;
+                    hienThiBang(danhSachThueMayGoc);
+                }
+            } catch(err) {
+                console.error("Lỗi tải dữ liệu:", err);
+            }
+        }
+
+        function hienThiBang(data) {
+            const tbody = document.getElementById('table-thue-may');
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                let badgeClass = item.TrangThai === 'Sẵn sàng' 
+                    ? 'bg-emerald-100 text-luaGreen' 
+                    : 'bg-amber-100 text-amber-800';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="p-4 font-bold text-gray-800 flex items-center space-x-3">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-50 text-luaGreen flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-tractor"></i>
+                            </div>
+                            <span>${item.TenMay}</span>
+                        </td>
+                        <td class="p-4 text-gray-600">${item.LoaiMay}</td>
+                        <td class="p-4 font-bold text-luaYellow">${Number(item.GiaThue).toLocaleString('vi-VN')} đ / ${item.DonViTinh || 'công'}</td>
+                        <td class="p-4"><span class="${badgeClass} text-xs font-bold px-2.5 py-1 rounded-full">${item.TrangThai}</span></td>
+                        <td class="p-4 text-center space-x-2">
+                            <button onclick="moModalSua(${item.MaMay})" class="text-blue-600 hover:text-blue-800 p-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="xoaThueMay(${item.MaMay})" class="text-red-600 hover:text-red-800 p-2"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function moModalThem() {
+            document.getElementById('modal-title').innerText = "Thêm Loại Máy Mới";
+            document.getElementById('formThueMay').reset();
+            document.getElementById('maMay').value = '';
+            document.getElementById('modalThueMay').classList.remove('hidden');
+            document.getElementById('modalThueMay').classList.add('flex');
+        }
+
+        function moModalSua(id) {
+            let item = danhSachThueMayGoc.find(m => m.MaMay === id);
+            if(!item) return;
+
+            document.getElementById('modal-title').innerText = "Cập Nhật Thiết Bị Thuê";
+            document.getElementById('maMay').value = item.MaMay;
+            document.getElementById('tenMay').value = item.TenMay;
+            document.getElementById('loaiMay').value = item.LoaiMay;
+            document.getElementById('giaThue').value = item.GiaThue;
+            document.getElementById('donViTinh').value = item.DonViTinh || 'công';
+            document.getElementById('trangThai').value = item.TrangThai || 'Sẵn sàng';
+            document.getElementById('hinhAnh').value = item.HinhAnh || '';
+            document.getElementById('moTa').value = item.MoTa || '';
+
+            document.getElementById('modalThueMay').classList.remove('hidden');
+            document.getElementById('modalThueMay').classList.add('flex');
+        }
+
+        function dongModal() {
+            document.getElementById('modalThueMay').classList.remove('flex');
+            document.getElementById('modalThueMay').classList.add('hidden');
+        }
+
+        async function luuThueMay(event) {
+            event.preventDefault();
+            let maMay = document.getElementById('maMay').value;
+            let data = {
+                tenMay: document.getElementById('tenMay').value,
+                loaiMay: document.getElementById('loaiMay').value,
+                giaThue: parseFloat(document.getElementById('giaThue').value),
+                donViTinh: document.getElementById('donViTinh').value,
+                trangThai: document.getElementById('trangThai').value,
+                hinhAnh: document.getElementById('hinhAnh').value,
+                moTa: document.getElementById('moTa').value
+            };
+
+            let url = '/api/them-thue-may';
+            let method = 'POST';
+
+            if(maMay) {
+                url = '/api/sua-thue-may';
+                method = 'PUT';
+                data.maMay = parseInt(maMay);
+            }
+
+            try {
+                let res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                let result = await res.json();
+                if(result.success) {
+                    alert(result.message);
+                    dongModal();
+                    taiDanhSachThueMay();
+                } else {
+                    alert('Lỗi: ' + result.error);
+                }
+            } catch(err) {
+                console.error("Lỗi lưu dữ liệu:", err);
+            }
+        }
+
+        async function xoaThueMay(id) {
+            if (!await xacNhanThongBao("Bạn có chắc chắn muốn xóa thiết bị này không?")) return;
+            try {
+                let res = await fetch(`/api/xoa-thue-may/${id}`, { method: 'DELETE' });
+                let result = await res.json();
+                if(result.success) {
+                    alert(result.message);
+                    taiDanhSachThueMay();
+                } else {
+                    alert('Lỗi: ' + result.error);
+                }
+            } catch(err) {
+                console.error("Lỗi xóa dữ liệu:", err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', taiDanhSachThueMay);
+    </script>
+</body>
+</html>

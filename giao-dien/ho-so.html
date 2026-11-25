@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Hồ Sơ Cá Nhân & Đổi Mật Khẩu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER NÔNG DÂN -->
+    <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <!-- THẺ CHÀO MỪNG & THỐNG KÊ HOẠT ĐỘNG CÁ NHÂN -->
+        <div class="card-agritech p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-luaGreen text-white flex items-center justify-center text-2xl font-black shadow">
+                    <i class="fa-solid fa-user-tie text-amber-300"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-luaGreen bg-emerald-50 px-2.5 py-0.5 rounded-full">Thành viên Nhà nông</span>
+                    <h1 id="profile-title-name" class="text-xl font-black text-gray-800 mt-1">--</h1>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                        Số điện thoại đăng nhập: <strong id="profile-title-phone" class="text-luaGreen">--</strong>
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div class="bg-emerald-50/70 rounded-2xl px-3.5 py-2.5 border border-emerald-100">
+                    <p class="text-[11px] text-gray-500 font-semibold">Đơn vật tư</p>
+                    <p id="stat-don-sp" class="text-base font-black text-luaGreen mt-0.5">0</p>
+                </div>
+                <div class="bg-blue-50/70 rounded-2xl px-3.5 py-2.5 border border-blue-100">
+                    <p class="text-[11px] text-gray-500 font-semibold">Lịch thuê máy</p>
+                    <p id="stat-lich-may" class="text-base font-black text-blue-700 mt-0.5">0</p>
+                </div>
+                <div class="bg-purple-50/70 rounded-2xl px-3.5 py-2.5 border border-purple-100">
+                    <p class="text-[11px] text-gray-500 font-semibold">Hội thảo</p>
+                    <p id="stat-su-kien" class="text-base font-black text-purple-700 mt-0.5">0</p>
+                </div>
+                <div class="bg-amber-50/70 rounded-2xl px-3.5 py-2.5 border border-amber-100">
+                    <p class="text-[11px] text-gray-500 font-semibold">Đã thanh toán</p>
+                    <p id="stat-chi-tieu" class="text-base font-black text-luaYellow mt-0.5">0 đ</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- FORM 1: THÔNG TIN CÁ NHÂN & ĐỊA CHỈ RUỘNG MẶC ĐỊNH -->
+            <section class="card-agritech p-6">
+                <div class="flex items-center gap-2.5 pb-4 mb-5 border-b border-gray-100">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-50 text-luaGreen flex items-center justify-center">
+                        <i class="fa-solid fa-address-card"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-black text-luaGreen uppercase">Thông tin cá nhân & Địa chỉ ruộng</h2>
+                        <p class="text-xs text-gray-400">Địa chỉ ruộng sẽ tự động điền khi bạn đặt thuê máy hoặc mua hàng</p>
+                    </div>
+                </div>
+
+                <form onsubmit="luuHoSoCaNhan(event)" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-bold text-gray-600 mb-1">Số điện thoại (Không thể thay đổi):</label>
+                        <input type="text" id="input-hs-sdt" readonly class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-100 font-bold text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1">Họ và tên nông dân <span class="text-red-500">*</span>:</label>
+                        <input type="text" id="input-hs-ten" required placeholder="Nhập họ tên của bạn" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 font-semibold focus:outline-none focus:border-luaGreen">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1">
+                            <i class="fa-solid fa-location-dot text-luaYellow mr-1"></i>Địa chỉ ruộng / Nơi nhận vật tư mặc định:
+                        </label>
+                        <textarea id="input-hs-diachi" rows="3" placeholder="VD: Ấp Mỹ Lợi, Xã Mỹ Phú, Huyện Châu Phú, An Giang (gần kênh 3, 6 công lúa)" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-luaGreen"></textarea>
+                        <p class="text-[11px] text-emerald-700 mt-1">
+                            <i class="fa-solid fa-circle-info mr-1"></i>Mẹo: Ghi rõ Ấp/Xã, vị trí bờ kênh và số công ruộng để đội máy nông nghiệp dễ tìm đường nhất.
+                        </p>
+                    </div>
+
+                    <button type="submit" class="w-full bg-luaGreen hover:bg-emerald-900 text-white font-bold py-3 rounded-xl transition shadow flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Lưu thông tin hồ sơ</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- FORM 2: ĐỔI MẬT KHẨU -->
+            <section class="card-agritech p-6">
+                <div class="flex items-center gap-2.5 pb-4 mb-5 border-b border-gray-100">
+                    <div class="w-9 h-9 rounded-xl bg-amber-50 text-luaYellow flex items-center justify-center">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-black text-amber-900 uppercase">Bảo mật & Đổi mật khẩu</h2>
+                        <p class="text-xs text-gray-400">Thay đổi mật khẩu đăng nhập tài khoản Lúa Vàng của bạn</p>
+                    </div>
+                </div>
+
+                <form onsubmit="doiMatKhauCaNhan(event)" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1">Mật khẩu hiện tại <span class="text-red-500">*</span>:</label>
+                        <div class="relative">
+                            <input type="password" id="input-mk-cu" required placeholder="Nhập mật khẩu đang sử dụng" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 pr-10 focus:outline-none focus:border-luaYellow">
+                            <button type="button" onclick="toggleMatKhau('input-mk-cu', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1">Mật khẩu mới (tối thiểu 6 ký tự) <span class="text-red-500">*</span>:</label>
+                        <div class="relative">
+                            <input type="password" id="input-mk-moi" required minlength="6" placeholder="Nhập mật khẩu mới" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 pr-10 focus:outline-none focus:border-luaYellow">
+                            <button type="button" onclick="toggleMatKhau('input-mk-moi', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-1">Xác nhận lại mật khẩu mới <span class="text-red-500">*</span>:</label>
+                        <div class="relative">
+                            <input type="password" id="input-mk-xac-nhan" required minlength="6" placeholder="Nhập lại mật khẩu mới" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 pr-10 focus:outline-none focus:border-luaYellow">
+                            <button type="button" onclick="toggleMatKhau('input-mk-xac-nhan', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-luaYellow hover:bg-amber-700 text-white font-bold py-3 rounded-xl transition shadow flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-key"></i>
+                        <span>Cập nhật mật khẩu mới</span>
+                    </button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const rawUser = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+            if (!rawUser) {
+                await hienThongBao('Vui lòng đăng nhập tài khoản nông dân để xem hồ sơ!');
+                window.location.href = '/dang-nhap.html';
+                return;
+            }
+            if (!sessionStorage.getItem('luaVangUser')) {
+                sessionStorage.setItem('luaVangUser', rawUser);
+            }
+
+            currentUser = JSON.parse(rawUser);
+
+            fetch('/header.html')
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('site-header').innerHTML = data;
+                    const scripts = document.getElementById('site-header').getElementsByTagName('script');
+                    for (let script of scripts) {
+                        eval(script.innerText);
+                    }
+                });
+
+            taiHoSoCaNhan();
+        });
+
+        function toggleMatKhau(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            const isPass = inp.type === 'password';
+            inp.type = isPass ? 'text' : 'password';
+            btn.innerHTML = isPass ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
+        }
+
+        async function taiHoSoCaNhan() {
+            try {
+                const res = await fetch(`/api/nong-dan/ho-so/${encodeURIComponent(currentUser.phone)}`);
+                const result = await res.json();
+                if (!result.success) return;
+
+                const d = result.data;
+                const tk = result.thongKe || {};
+
+                document.getElementById('profile-title-name').innerText = d.HoTen || currentUser.name;
+                document.getElementById('profile-title-phone').innerText = d.SoDienThoai;
+                document.getElementById('input-hs-sdt').value = d.SoDienThoai;
+                document.getElementById('input-hs-ten').value = d.HoTen || '';
+                document.getElementById('input-hs-diachi').value = d.DiaChi || '';
+
+                document.getElementById('stat-don-sp').innerText = tk.soDonSP || 0;
+                document.getElementById('stat-lich-may').innerText = tk.soLichMay || 0;
+                document.getElementById('stat-su-kien').innerText = tk.soSuKien || 0;
+                document.getElementById('stat-chi-tieu').innerText = Number(tk.tongChiTieu || 0).toLocaleString('vi-VN') + ' đ';
+
+                currentUser.name = d.HoTen;
+                currentUser.diaChi = d.DiaChi || '';
+                const serialized = JSON.stringify(currentUser);
+                sessionStorage.setItem('luaVangUser', serialized);
+                if (localStorage.getItem('luaVangUser')) {
+                    localStorage.setItem('luaVangUser', serialized);
+                }
+            } catch (err) {
+                console.error('Lỗi tải hồ sơ:', err);
+            }
+        }
+
+        async function luuHoSoCaNhan(e) {
+            e.preventDefault();
+            const hoTen = document.getElementById('input-hs-ten').value.trim();
+            const diaChi = document.getElementById('input-hs-diachi').value.trim();
+
+            const res = await fetch('/api/nong-dan/ho-so', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    soDienThoai: currentUser.phone,
+                    hoTen,
+                    diaChi
+                })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert('✅ ' + result.message);
+                const headerName = document.getElementById('user-name-display');
+                if (headerName) headerName.innerText = hoTen;
+                taiHoSoCaNhan();
+            } else {
+                alert('❌ ' + (result.message || 'Không thể cập nhật hồ sơ'));
+            }
+        }
+
+        async function doiMatKhauCaNhan(e) {
+            e.preventDefault();
+            const matKhauCu = document.getElementById('input-mk-cu').value;
+            const matKhauMoi = document.getElementById('input-mk-moi').value;
+            const xacNhan = document.getElementById('input-mk-xac-nhan').value;
+
+            if (matKhauMoi !== xacNhan) {
+                alert('⚠️ Mật khẩu mới và xác nhận mật khẩu không khớp!');
+                return;
+            }
+
+            const res = await fetch('/api/nong-dan/doi-mat-khau', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    soDienThoai: currentUser.phone,
+                    matKhauCu,
+                    matKhauMoi
+                })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert('✅ ' + result.message);
+                document.getElementById('input-mk-cu').value = '';
+                document.getElementById('input-mk-moi').value = '';
+                document.getElementById('input-mk-xac-nhan').value = '';
+            } else {
+                alert('❌ ' + (result.message || 'Đổi mật khẩu thất bại'));
+            }
+        }
+    </script>
+</body>
+</html>

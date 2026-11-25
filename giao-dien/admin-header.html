@@ -1,0 +1,85 @@
+<link rel="stylesheet" href="/nang-cap-ui.css">
+<script src="thong-bao-ui.js"></script>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-20">
+        
+        <!-- Logo Lúa Vàng & Badge Admin -->
+        <div class="flex items-center gap-3 shrink-0">
+            <img src="/hinh-anh/logo-lua-vang.png" alt="Lúa Vàng AgriTech" class="h-14 w-auto object-contain shrink-0">
+            <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl font-extrabold text-[#12523a] tracking-tight leading-none">Lúa Vàng</span>
+                    <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-[#064e3b] rounded-full">Admin</span>
+                </div>
+                <span class="text-[10px] font-bold tracking-[0.24em] text-[#d97706] uppercase mt-1">AGRITECH</span>
+            </div>
+        </div>
+
+        <!-- Menu điều hướng Admin -->
+        <nav id="admin-nav-menu" class="hidden md:flex items-center space-x-2 font-medium text-gray-600 text-sm whitespace-nowrap">
+            <a href="admin-trang-chu.html" class="nav-admin-link px-3 py-2 rounded-full transition hover:text-luaGreen" data-target="admin-trang-chu.html">Trang chủ Admin</a>
+            <a href="admin-san-pham.html" class="nav-admin-link px-3 py-2 rounded-full transition hover:text-luaGreen" data-target="admin-san-pham.html">QL Sản phẩm</a>
+            <a href="admin-thue-may.html" class="nav-admin-link px-3 py-2 rounded-full transition hover:text-luaGreen" data-target="admin-thue-may.html">QL Thuê máy</a>
+            <a href="admin-don-hang.html" class="nav-admin-link px-3 py-2 rounded-full transition hover:text-luaGreen" data-target="admin-don-hang.html">QL Đơn hàng</a>
+            <a href="admin-nong-dan.html" class="nav-admin-link px-3 py-2 rounded-full transition hover:text-luaGreen" data-target="admin-nong-dan.html">QL Nông dân</a>
+            <a href="admin-su-kien.html" class="nav-admin-link px-3 py-2 rounded-full transition hover:text-luaGreen" data-target="admin-su-kien.html">QL Sự kiện</a>
+            <a href="admin-tu-van.html" class="nav-admin-link px-3 py-2 rounded-full transition hover:text-luaGreen" data-target="admin-tu-van.html">QL Tư vấn</a>
+        </nav>
+
+        <!-- Góc phải: Tên Admin & Nút Đăng xuất -->
+        <div class="flex items-center space-x-3 shrink-0 whitespace-nowrap">
+            <div class="flex items-center space-x-2 bg-amber-50 px-3.5 py-2 rounded-full border border-amber-200 shadow-sm">
+                <div class="w-7 h-7 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center text-sm font-bold shrink-0">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <span id="admin-name-display" class="text-sm font-bold text-amber-900">Admin</span>
+            </div>
+
+            <button onclick="dangXuatAdmin()" class="px-3.5 py-2 border-2 border-red-500 text-red-600 hover:bg-red-50 rounded-xl text-sm font-bold transition flex items-center space-x-1.5 shadow-sm" title="Đăng xuất hệ thống">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Đăng xuất</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    window.capNhatAdminHeader = function() {
+        const loggedUser = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+        if (loggedUser && !sessionStorage.getItem('luaVangUser')) {
+            sessionStorage.setItem('luaVangUser', loggedUser);
+        }
+
+        const nameDisplay = document.getElementById('admin-name-display');
+
+        if (loggedUser && nameDisplay) {
+            try {
+                const user = JSON.parse(loggedUser);
+                nameDisplay.innerText = user.name || 'Admin';
+            } catch(e) {}
+        }
+
+        const currentPath = window.location.pathname.split('/').pop();
+        const navLinks = document.querySelectorAll('.nav-admin-link');
+
+        navLinks.forEach(link => {
+            const target = link.getAttribute('data-target');
+            if (target === currentPath || (currentPath === '' && target === 'admin-trang-chu.html')) {
+                link.classList.remove('hover:text-luaGreen', 'text-gray-600');
+                link.classList.add('bg-luaGreen', 'text-white', 'font-bold', 'shadow');
+            } else {
+                link.classList.remove('bg-luaGreen', 'text-white', 'font-bold', 'shadow');
+                link.classList.add('text-gray-600', 'hover:text-luaGreen');
+            }
+        });
+    };
+
+    window.dangXuatAdmin = function() {
+        sessionStorage.removeItem('luaVangUser');
+        localStorage.removeItem('luaVangUser');
+        window.location.href = '/dang-nhap.html';
+    };
+
+    window.capNhatAdminHeader();
+</script>

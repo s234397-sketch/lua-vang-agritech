@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Trang Chủ Quản Trị & Thống Kê</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Thư viện xuất file Excel (.xlsx) trực tiếp trên trình duyệt -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER DÙNG CHUNG CỦA ADMIN -->
+    <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+
+        <!-- TIÊU ĐỀ & BỘ LỌC THỜI GIAN (NGÀY / THÁNG / NĂM) + XUẤT BÁO CÁO -->
+        <div class="admin-filter-panel bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-xl md:text-2xl font-black text-luaGreen uppercase tracking-wide">
+                    Bảng Điều Khiển & Thống Kê Hoạt Động
+                </h1>
+                <p id="mo-ta-ky-thong-ke" class="text-xs md:text-sm text-gray-500 mt-1">
+                    Đang tải dữ liệu thống kê từ hệ thống...
+                </p>
+            </div>
+
+            <!-- CỤM CHỌN CHẾ ĐỘ LỌC & NÚT XUẤT FILE -->
+            <div class="flex flex-wrap items-center gap-2.5">
+                <div class="inline-flex rounded-xl bg-gray-100 p-1 text-xs font-bold">
+                    <button type="button" onclick="doiCheDoLoc('ngay')" id="btn-mode-ngay" class="mode-btn px-3 py-1.5 rounded-lg text-gray-600 transition">Theo Ngày</button>
+                    <button type="button" onclick="doiCheDoLoc('thang')" id="btn-mode-thang" class="mode-btn px-3 py-1.5 rounded-lg bg-luaGreen text-white shadow-xs transition">Theo Tháng</button>
+                    <button type="button" onclick="doiCheDoLoc('nam')" id="btn-mode-nam" class="mode-btn px-3 py-1.5 rounded-lg text-gray-600 transition">Theo Năm</button>
+                    <button type="button" onclick="doiCheDoLoc('tat-ca')" id="btn-mode-tat-ca" class="mode-btn px-3 py-1.5 rounded-lg text-gray-600 transition">Tất cả</button>
+                </div>
+
+                <!-- Ô CHỌN NGÀY -->
+                <div id="wrap-filter-ngay" class="hidden">
+                    <input type="date" id="input-filter-ngay" onchange="capNhatThongKe()" class="text-xs font-bold border border-gray-200 rounded-xl px-3 py-2 bg-gray-50 focus:outline-none focus:border-luaGreen">
+                </div>
+
+                <!-- Ô CHỌN THÁNG + NĂM -->
+                <div id="wrap-filter-thang" class="flex items-center gap-1.5">
+                    <select id="select-filter-thang" onchange="capNhatThongKe()" class="text-xs font-bold border border-gray-200 rounded-xl px-3 py-2 bg-gray-50 focus:outline-none focus:border-luaGreen"></select>
+                    <select id="select-filter-nam-thang" onchange="capNhatThongKe()" class="text-xs font-bold border border-gray-200 rounded-xl px-3 py-2 bg-gray-50 focus:outline-none focus:border-luaGreen"></select>
+                </div>
+
+                <!-- Ô CHỌN NĂM -->
+                <div id="wrap-filter-nam" class="hidden">
+                    <select id="select-filter-nam" onchange="capNhatThongKe()" class="text-xs font-bold border border-gray-200 rounded-xl px-3 py-2 bg-gray-50 focus:outline-none focus:border-luaGreen"></select>
+                </div>
+
+                <!-- NÚT LÀM MỚI -->
+                <button type="button" onclick="taiDuLieuThongKe()" class="bg-emerald-50 hover:bg-emerald-100 text-luaGreen font-bold text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-1.5" title="Làm mới số liệu">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Làm mới</span>
+                </button>
+
+                <!-- NÚT XUẤT FILE BÁO CÁO THEO NGÀY / THÁNG / NĂM -->
+                <button type="button" onclick="xuatFileBaoCao()" id="btn-xuat-bao-cao" class="bg-luaYellow hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition flex items-center gap-1.5" title="Xuất file Excel báo cáo theo kỳ đang chọn">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span id="txt-btn-xuat-bao-cao">Xuất báo cáo tháng</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 4 THẺ KPI TỔNG QUAN -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- KPI 1: DOANH THU -->
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p id="lbl-kpi-doanh-thu" class="text-xs font-bold text-gray-400 uppercase">Doanh thu đã nhận</p>
+                        <p id="val-kpi-doanh-thu" class="text-2xl font-black text-luaGreen mt-1.5">0 đ</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-luaGreen flex items-center justify-center text-lg shrink-0">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                </div>
+                <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                    <span>SP: <strong id="sub-dt-sp" class="text-gray-700">0 đ</strong></span>
+                    <span>Máy: <strong id="sub-dt-may" class="text-amber-700">0 đ</strong></span>
+                </div>
+            </div>
+
+            <!-- KPI 2: SẢN PHẨM -->
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase">Đơn hàng Sản phẩm</p>
+                        <p id="val-kpi-san-pham" class="text-2xl font-black text-luaYellow mt-1.5">0 đơn</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-amber-50 text-luaYellow flex items-center justify-center text-lg shrink-0">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                </div>
+                <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                    <span>Tổng SL: <strong id="sub-sp-sl" class="text-gray-700">0</strong></span>
+                    <span>Hoàn tất: <strong id="sub-sp-hoan-tat" class="text-emerald-700">0 đơn</strong></span>
+                </div>
+            </div>
+
+            <!-- KPI 3: THUÊ MÁY -->
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase">Lịch Thuê máy</p>
+                        <p id="val-kpi-thue-may" class="text-2xl font-black text-blue-600 mt-1.5">0 lịch</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0">
+                        <i class="fa-solid fa-tractor"></i>
+                    </div>
+                </div>
+                <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                    <span>Diện tích: <strong id="sub-may-cong" class="text-gray-700">0 công</strong></span>
+                    <span>Đang chạy: <strong id="sub-may-chay" class="text-blue-700">0 lịch</strong></span>
+                </div>
+            </div>
+
+            <!-- KPI 4: HỘI THẢO & SỰ KIỆN -->
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase">Hội thảo & Sự kiện</p>
+                        <p id="val-kpi-su-kien" class="text-2xl font-black text-purple-600 mt-1.5">0 lượt ĐK</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg shrink-0">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                </div>
+                <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                    <span>Sự kiện: <strong id="sub-sk-tong" class="text-purple-700">0 chương trình</strong></span>
+                    <span>Bà con: <strong id="sub-nong-dan" class="text-gray-700">0 TV</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KHU VỰC 2 BIỂU ĐỒ TRỰC QUAN -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- BIỂU ĐỒ CỘT DOANH THU THEO THỜI GIAN -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div>
+                        <h2 class="text-sm font-black text-luaGreen uppercase">Biểu đồ Doanh thu Sản phẩm & Thuê máy</h2>
+                        <p id="sub-chart-doanh-thu" class="text-xs text-gray-400">Phân bổ doanh thu đã thực nhận theo mốc thời gian</p>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        Tổng giá trị đơn phát sinh: <strong id="val-tong-gia-tri-don" class="text-gray-800">0 đ</strong>
+                    </div>
+                </div>
+                <div class="h-72">
+                    <canvas id="chart-doanh-thu"></canvas>
+                </div>
+            </div>
+
+            <!-- BIỂU ĐỒ TRÒN CƠ CẤU DOANH THU & HOẠT ĐỘNG -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-black text-luaGreen uppercase">Tỷ trọng Nguồn thu</h2>
+                    <p class="text-xs text-gray-400">So sánh doanh thu Vật tư nông nghiệp và Dịch vụ thuê máy</p>
+                </div>
+                <div class="h-56 my-2 flex items-center justify-center">
+                    <canvas id="chart-co-cau"></canvas>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-3 text-xs space-y-1.5 border border-gray-100">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Tiền cọc / Đơn đã thu:</span>
+                        <strong id="box-da-thu" class="text-emerald-700">0 đ</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Còn lại chờ thu (70% COD):</span>
+                        <strong id="box-con-thu" class="text-amber-700">0 đ</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 BẢNG THỐNG KÊ CHI TIẾT THEO MẢNG -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- BẢNG 1: THỐNG KÊ SẢN PHẨM -->
+            <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 bg-emerald-50/70 border-b border-emerald-100 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-seedling text-luaGreen"></i>
+                        <h3 class="text-sm font-black text-luaGreen uppercase">Thống kê Sản phẩm vật tư</h3>
+                    </div>
+                    <a href="/admin-don-hang.html" class="text-xs font-bold text-luaGreen hover:underline">Chi tiết đơn →</a>
+                </div>
+                <div class="overflow-x-auto max-h-80">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-gray-50 text-gray-500 uppercase font-bold sticky top-0">
+                            <tr>
+                                <th class="py-3 px-4">Sản phẩm</th>
+                                <th class="py-3 px-3 text-center">Số đơn</th>
+                                <th class="py-3 px-3 text-center">SL bán</th>
+                                <th class="py-3 px-4 text-right">Doanh thu nhận</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-tk-san-pham" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- BẢNG 2: THỐNG KÊ THUÊ MÁY -->
+            <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 bg-amber-50/70 border-b border-amber-100 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-tractor text-amber-700"></i>
+                        <h3 class="text-sm font-black text-amber-900 uppercase">Thống kê Dịch vụ Thuê máy</h3>
+                    </div>
+                    <a href="/admin-don-hang.html" class="text-xs font-bold text-amber-800 hover:underline">Quản lý lịch →</a>
+                </div>
+                <div class="overflow-x-auto max-h-80">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-gray-50 text-gray-500 uppercase font-bold sticky top-0">
+                            <tr>
+                                <th class="py-3 px-4">Thiết bị máy</th>
+                                <th class="py-3 px-3 text-center">Lượt đặt</th>
+                                <th class="py-3 px-3 text-center">Tổng công</th>
+                                <th class="py-3 px-4 text-right">Doanh thu nhận</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-tk-thue-may" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- BẢNG 3: THỐNG KÊ HỘI THẢO & SỰ KIỆN -->
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 bg-purple-50/70 border-b border-purple-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-purple-700"></i>
+                    <h3 class="text-sm font-black text-purple-900 uppercase">Thống kê Hội thảo & Sự kiện nông nghiệp</h3>
+                </div>
+                <a href="/admin-su-kien.html" class="text-xs font-bold text-purple-700 hover:underline">Quản lý sự kiện →</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-gray-50 text-gray-500 uppercase font-bold">
+                        <tr>
+                            <th class="py-3.5 px-4">Tên hội thảo / Sự kiện</th>
+                            <th class="py-3.5 px-4">Thời gian tổ chức</th>
+                            <th class="py-3.5 px-4">Địa điểm</th>
+                            <th class="py-3.5 px-4 text-center">Đăng ký trong kỳ lọc</th>
+                            <th class="py-3.5 px-4 text-center">Tổng tích lũy</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-tk-su-kien" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let rawData = {
+            donSanPham: [],
+            donThueMay: [],
+            danhSachSuKien: [],
+            dangKySuKien: [],
+            tongNongDan: 0
+        };
+
+        // Lưu lại kết quả đã lọc hiện tại để xuất file Excel chính xác theo kỳ
+        let duLieuHienTaiDeXuat = {
+            tieuDeBaoCao: '',
+            tenFile: 'Bao_Cao_Thong_Ke.xlsx',
+            donSPLoc: [],
+            donMayLoc: [],
+            dangKySKLoc: [],
+            tongHopSP: [],
+            tongHopMay: [],
+            tongHopSuKien: [],
+            kpi: {
+                dtSP: 0,
+                dtMay: 0,
+                tongDoanhThuNhan: 0,
+                tongGiaTriPhatSinh: 0,
+                conPhaiThu: 0,
+                soDonSP: 0,
+                tongSLSP: 0,
+                spHoanTat: 0,
+                soLichMay: 0,
+                tongCongMay: 0,
+                mayDangChay: 0,
+                soLuotDKSuKien: 0,
+                tongSuKien: 0,
+                tongNongDan: 0
+            }
+        };
+
+        let cheDoLoc = 'thang'; // 'ngay' | 'thang' | 'nam' | 'tat-ca'
+        let chartDoanhThuInstance = null;
+        let chartCoCauInstance = null;
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const rawUser = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+            if (!rawUser) {
+                await hienThongBao('Vui lòng đăng nhập bằng tài khoản Quản trị viên!');
+                window.location.href = '/dang-nhap.html';
+                return;
+            }
+            if (!sessionStorage.getItem('luaVangUser')) {
+                sessionStorage.setItem('luaVangUser', rawUser);
+            }
+
+            const user = JSON.parse(rawUser);
+            if (user.role !== 'admin') {
+                await hienThongBao('Bạn không có quyền truy cập trang Quản trị!');
+                window.location.href = '/trang-chu.html';
+                return;
+            }
+
+            fetch('/admin-header.html')
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('site-header').innerHTML = data;
+                    const scripts = document.getElementById('site-header').getElementsByTagName('script');
+                    for (let script of scripts) {
+                        eval(script.innerText);
+                    }
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        if (window.location.pathname.includes(link.getAttribute('data-target'))) {
+                            link.classList.add('bg-luaGreen', 'text-white', 'font-bold', 'shadow');
+                            link.classList.remove('text-gray-600', 'hover:text-luaGreen');
+                        }
+                    });
+                });
+
+            khoiTaoBoLocThoiGian();
+            taiDuLieuThongKe();
+        });
+
+        function khoiTaoBoLocThoiGian() {
+            const now = new Date();
+            const namHienTai = now.getFullYear();
+            const thangHienTai = now.getMonth() + 1;
+            const ngayHomNay = `${namHienTai}-${String(thangHienTai).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            document.getElementById('input-filter-ngay').value = ngayHomNay;
+
+            const selThang = document.getElementById('select-filter-thang');
+            selThang.innerHTML = Array.from({ length: 12 }, (_, i) => {
+                const m = i + 1;
+                return `<option value="${m}" ${m === thangHienTai ? 'selected' : ''}>Tháng ${m}</option>`;
+            }).join('');
+
+            const dsNam = [];
+            for (let y = namHienTai - 3; y <= namHienTai + 1; y++) dsNam.push(y);
+
+            const optionsNam = dsNam.map(y =>
+                `<option value="${y}" ${y === namHienTai ? 'selected' : ''}>Năm ${y}</option>`
+            ).join('');
+
+            document.getElementById('select-filter-nam-thang').innerHTML = optionsNam;
+            document.getElementById('select-filter-nam').innerHTML = optionsNam;
+        }
+
+        function doiCheDoLoc(mode) {
+            cheDoLoc = mode;
+
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('bg-luaGreen', 'text-white', 'shadow-xs');
+                btn.classList.add('text-gray-600');
+            });
+            const activeBtn = document.getElementById(`btn-mode-${mode}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-luaGreen', 'text-white', 'shadow-xs');
+                activeBtn.classList.remove('text-gray-600');
+            }
+
+            document.getElementById('wrap-filter-ngay').classList.toggle('hidden', mode !== 'ngay');
+            document.getElementById('wrap-filter-thang').classList.toggle('hidden', mode !== 'thang');
+            document.getElementById('wrap-filter-nam').classList.toggle('hidden', mode !== 'nam');
+
+            // Đổi nhãn nút xuất báo cáo tương ứng với chế độ đang chọn
+            const txtBtn = document.getElementById('txt-btn-xuat-bao-cao');
+            if (txtBtn) {
+                if (mode === 'ngay') txtBtn.innerText = 'Xuất báo cáo ngày';
+                else if (mode === 'thang') txtBtn.innerText = 'Xuất báo cáo tháng';
+                else if (mode === 'nam') txtBtn.innerText = 'Xuất báo cáo năm';
+                else txtBtn.innerText = 'Xuất báo cáo tổng hợp';
+            }
+
+            capNhatThongKe();
+        }
+
+        async function taiDuLieuThongKe() {
+            try {
+                const res = await fetch('/api/admin/thong-ke');
+                const result = await res.json();
+                if (result.success) {
+                    rawData = result;
+                    capNhatThongKe();
+                } else {
+                    alert('Không thể tải dữ liệu thống kê: ' + (result.message || ''));
+                }
+            } catch (err) {
+                console.error('Lỗi tải thống kê:', err);
+            }
+        }
+
+        function thuocKyLoc(dateStr) {
+            if (cheDoLoc === 'tat-ca') return true;
+            if (!dateStr) return false;
+
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return false;
+
+            const y = d.getFullYear();
+            const m = d.getMonth() + 1;
+            const day = String(d.getDate()).padStart(2, '0');
+            const monthStr = String(m).padStart(2, '0');
+            const isoDay = `${y}-${monthStr}-${day}`;
+
+            if (cheDoLoc === 'ngay') {
+                return isoDay === document.getElementById('input-filter-ngay').value;
+            }
+            if (cheDoLoc === 'thang') {
+                const targetM = parseInt(document.getElementById('select-filter-thang').value);
+                const targetY = parseInt(document.getElementById('select-filter-nam-thang').value);
+                return m === targetM && y === targetY;
+            }
+            if (cheDoLoc === 'nam') {
+                const targetY = parseInt(document.getElementById('select-filter-nam').value);
+                return y === targetY;
+            }
+            return true;
+        }
+
+        function tinhDoanhThuThucNhanSP(sp) {
+            const thanhTien = Number(sp.GiaTien || 0) * Number(sp.SoLuong || 0);
+            if (sp.TrangThai === 'Đã thanh toán & Hoàn thành') return thanhTien;
+            if (['Đã đặt cọc (30%)', 'Đang giao hàng'].includes(sp.TrangThai)) return Number(sp.TienCoc || 0);
+            return 0;
+        }
+
+        function tinhDoanhThuThucNhanMay(m) {
+            const thanhTien = Number(m.GiaThue || 0) * Number(m.SoCong || 0);
+            if (m.TrangThai === 'Đã thanh toán & Hoàn thành') return thanhTien;
+            if (['Đã đặt cọc (30%)', 'Đang thực hiện', 'Đang thuê / Đã đặt lịch'].includes(m.TrangThai)) return Number(m.TienCoc || 0);
+            return 0;
+        }
+
+        function capNhatThongKe() {
+            const moTaEl = document.getElementById('mo-ta-ky-thong-ke');
+            let tieuDeBaoCao = '';
+            let tenFile = '';
+
+            if (cheDoLoc === 'ngay') {
+                const val = document.getElementById('input-filter-ngay').value;
+                const ngayDep = val.split('-').reverse().join('/');
+                const ngayFile = val.split('-').reverse().join('-');
+                moTaEl.innerText = `Số liệu thống kê trong ngày ${ngayDep}`;
+                tieuDeBaoCao = `BÁO CÁO THỐNG KÊ HOẠT ĐỘNG NGÀY ${ngayDep}`;
+                tenFile = `Bao_Cao_Ngay_${ngayFile}.xlsx`;
+            } else if (cheDoLoc === 'thang') {
+                const m = String(document.getElementById('select-filter-thang').value).padStart(2, '0');
+                const y = document.getElementById('select-filter-nam-thang').value;
+                moTaEl.innerText = `Số liệu thống kê trong Tháng ${parseInt(m)}/${y}`;
+                tieuDeBaoCao = `BÁO CÁO THỐNG KÊ HOẠT ĐỘNG THÁNG ${m}/${y}`;
+                tenFile = `Bao_Cao_Thang_${m}-${y}.xlsx`;
+            } else if (cheDoLoc === 'nam') {
+                const y = document.getElementById('select-filter-nam').value;
+                moTaEl.innerText = `Tổng hợp hoạt động kinh doanh cả Năm ${y}`;
+                tieuDeBaoCao = `BÁO CÁO THỐNG KÊ HOẠT ĐỘNG NĂM ${y}`;
+                tenFile = `Bao_Cao_Nam_${y}.xlsx`;
+            } else {
+                moTaEl.innerText = `Tổng hợp toàn bộ dữ liệu từ trước đến nay trên hệ thống Lúa Vàng`;
+                tieuDeBaoCao = `BÁO CÁO THỐNG KÊ TỔNG HỢP TOÀN THỜI GIAN`;
+                tenFile = `Bao_Cao_Tong_Hop_Tat_Ca.xlsx`;
+            }
+
+            const donSPLoc = (rawData.donSanPham || []).filter(
+                x => !['Trong giỏ', 'Đã hủy'].includes(x.TrangThai) && thuocKyLoc(x.NgayThem)
+            );
+            const donMayLoc = (rawData.donThueMay || []).filter(
+                x => !['Chờ xác nhận', 'Đã hủy'].includes(x.TrangThai) && thuocKyLoc(x.NgayTao || x.NgayThue)
+            );
+            const dangKySKLoc = (rawData.dangKySuKien || []).filter(
+                x => thuocKyLoc(x.NgayDangKy)
+            );
+
+            let dtSP = 0, tongGiaTriSP = 0, tongSLSP = 0, spHoanTat = 0;
+            donSPLoc.forEach(sp => {
+                dtSP += tinhDoanhThuThucNhanSP(sp);
+                tongGiaTriSP += Number(sp.GiaTien || 0) * Number(sp.SoLuong || 0);
+                tongSLSP += Number(sp.SoLuong || 0);
+                if (sp.TrangThai === 'Đã thanh toán & Hoàn thành') spHoanTat++;
+            });
+
+            let dtMay = 0, tongGiaTriMay = 0, tongCongMay = 0, mayDangChay = 0;
+            donMayLoc.forEach(m => {
+                dtMay += tinhDoanhThuThucNhanMay(m);
+                tongGiaTriMay += Number(m.GiaThue || 0) * Number(m.SoCong || 0);
+                tongCongMay += Number(m.SoCong || 0);
+                if (['Đã đặt cọc (30%)', 'Đang thuê / Đã đặt lịch', 'Đang thực hiện'].includes(m.TrangThai)) mayDangChay++;
+            });
+
+            const tongDoanhThuNhan = dtSP + dtMay;
+            const tongGiaTriPhatSinh = tongGiaTriSP + tongGiaTriMay;
+            const conPhaiThu = Math.max(0, tongGiaTriPhatSinh - tongDoanhThuNhan);
+
+            document.getElementById('val-kpi-doanh-thu').innerText = tongDoanhThuNhan.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('sub-dt-sp').innerText = dtSP.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('sub-dt-may').innerText = dtMay.toLocaleString('vi-VN') + ' đ';
+
+            document.getElementById('val-kpi-san-pham').innerText = `${donSPLoc.length} đơn`;
+            document.getElementById('sub-sp-sl').innerText = tongSLSP.toLocaleString('vi-VN');
+            document.getElementById('sub-sp-hoan-tat').innerText = `${spHoanTat} đơn`;
+
+            document.getElementById('val-kpi-thue-may').innerText = `${donMayLoc.length} lịch`;
+            document.getElementById('sub-may-cong').innerText = `${tongCongMay.toLocaleString('vi-VN')} công`;
+            document.getElementById('sub-may-chay').innerText = `${mayDangChay} lịch`;
+
+            document.getElementById('val-kpi-su-kien').innerText = `${dangKySKLoc.length} lượt ĐK`;
+            document.getElementById('sub-sk-tong').innerText = `${(rawData.danhSachSuKien || []).length} chương trình`;
+            document.getElementById('sub-nong-dan').innerText = `${rawData.tongNongDan || 0} TV`;
+
+            document.getElementById('val-tong-gia-tri-don').innerText = tongGiaTriPhatSinh.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('box-da-thu').innerText = tongDoanhThuNhan.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('box-con-thu').innerText = conPhaiThu.toLocaleString('vi-VN') + ' đ';
+
+            const tongHopSP = renderBangChiTietSanPham(donSPLoc);
+            const tongHopMay = renderBangChiTietThueMay(donMayLoc);
+            const tongHopSuKien = renderBangChiTietSuKien(dangKySKLoc);
+
+            duLieuHienTaiDeXuat = {
+                tieuDeBaoCao,
+                tenFile,
+                donSPLoc,
+                donMayLoc,
+                dangKySKLoc,
+                tongHopSP,
+                tongHopMay,
+                tongHopSuKien,
+                kpi: {
+                    dtSP,
+                    dtMay,
+                    tongDoanhThuNhan,
+                    tongGiaTriPhatSinh,
+                    conPhaiThu,
+                    soDonSP: donSPLoc.length,
+                    tongSLSP,
+                    spHoanTat,
+                    soLichMay: donMayLoc.length,
+                    tongCongMay,
+                    mayDangChay,
+                    soLuotDKSuKien: dangKySKLoc.length,
+                    tongSuKien: (rawData.danhSachSuKien || []).length,
+                    tongNongDan: rawData.tongNongDan || 0
+                }
+            };
+
+            veBieuDoDoanhThu(donSPLoc, donMayLoc);
+            veBieuDoCoCau(dtSP, dtMay);
+        }
+
+        function veBieuDoDoanhThu(donSPLoc, donMayLoc) {
+            let labels = [];
+            let dataSP = [];
+            let dataMay = [];
+
+            if (cheDoLoc === 'ngay') {
+                labels = ['00h - 06h', '06h - 12h', '12h - 18h', '18h - 24h'];
+                dataSP = [0, 0, 0, 0];
+                dataMay = [0, 0, 0, 0];
+
+                donSPLoc.forEach(sp => {
+                    const h = new Date(sp.NgayThem).getHours();
+                    const idx = Math.min(3, Math.floor((isNaN(h) ? 8 : h) / 6));
+                    dataSP[idx] += tinhDoanhThuThucNhanSP(sp);
+                });
+                donMayLoc.forEach(m => {
+                    const h = new Date(m.NgayTao || m.NgayThue).getHours();
+                    const idx = Math.min(3, Math.floor((isNaN(h) ? 8 : h) / 6));
+                    dataMay[idx] += tinhDoanhThuThucNhanMay(m);
+                });
+            } else if (cheDoLoc === 'thang') {
+                const m = parseInt(document.getElementById('select-filter-thang').value);
+                const y = parseInt(document.getElementById('select-filter-nam-thang').value);
+                const soNgayTrongThang = new Date(y, m, 0).getDate();
+
+                labels = Array.from({ length: soNgayTrongThang }, (_, i) => `${i + 1}/${m}`);
+                dataSP = new Array(soNgayTrongThang).fill(0);
+                dataMay = new Array(soNgayTrongThang).fill(0);
+
+                donSPLoc.forEach(sp => {
+                    const d = new Date(sp.NgayThem).getDate();
+                    if (d >= 1 && d <= soNgayTrongThang) dataSP[d - 1] += tinhDoanhThuThucNhanSP(sp);
+                });
+                donMayLoc.forEach(mItem => {
+                    const d = new Date(mItem.NgayTao || mItem.NgayThue).getDate();
+                    if (d >= 1 && d <= soNgayTrongThang) dataMay[d - 1] += tinhDoanhThuThucNhanMay(mItem);
+                });
+            } else if (cheDoLoc === 'nam') {
+                labels = Array.from({ length: 12 }, (_, i) => `Tháng ${i + 1}`);
+                dataSP = new Array(12).fill(0);
+                dataMay = new Array(12).fill(0);
+
+                donSPLoc.forEach(sp => {
+                    const mIdx = new Date(sp.NgayThem).getMonth();
+                    if (mIdx >= 0 && mIdx < 12) dataSP[mIdx] += tinhDoanhThuThucNhanSP(sp);
+                });
+                donMayLoc.forEach(mItem => {
+                    const mIdx = new Date(mItem.NgayTao || mItem.NgayThue).getMonth();
+                    if (mIdx >= 0 && mIdx < 12) dataMay[mIdx] += tinhDoanhThuThucNhanMay(mItem);
+                });
+            } else {
+                const mapThang = {};
+                const themVaoMap = (dateStr, loai, tien) => {
+                    if (!dateStr) return;
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return;
+                    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    if (!mapThang[key]) mapThang[key] = { sp: 0, may: 0 };
+                    mapThang[key][loai] += tien;
+                };
+
+                donSPLoc.forEach(sp => themVaoMap(sp.NgayThem, 'sp', tinhDoanhThuThucNhanSP(sp)));
+                donMayLoc.forEach(m => themVaoMap(m.NgayTao || m.NgayThue, 'may', tinhDoanhThuThucNhanMay(m)));
+
+                const sortedKeys = Object.keys(mapThang).sort();
+                if (sortedKeys.length === 0) {
+                    labels = ['Chưa có dữ liệu'];
+                    dataSP = [0];
+                    dataMay = [0];
+                } else {
+                    labels = sortedKeys.map(k => {
+                        const [y, m] = k.split('-');
+                        return `T${parseInt(m)}/${y}`;
+                    });
+                    dataSP = sortedKeys.map(k => mapThang[k].sp);
+                    dataMay = sortedKeys.map(k => mapThang[k].may);
+                }
+            }
+
+            const ctx = document.getElementById('chart-doanh-thu').getContext('2d');
+            if (chartDoanhThuInstance) chartDoanhThuInstance.destroy();
+
+            chartDoanhThuInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Doanh thu Sản phẩm (đ)',
+                            data: dataSP,
+                            backgroundColor: '#064e3b',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Doanh thu Thuê máy (đ)',
+                            data: dataMay,
+                            backgroundColor: '#d97706',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 11, weight: 'bold' } } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => `${ctx.dataset.label}: ${Number(ctx.raw).toLocaleString('vi-VN')} đ`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { size: 10 },
+                                callback: val => Number(val).toLocaleString('vi-VN') + ' đ'
+                            }
+                        },
+                        x: { ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function veBieuDoCoCau(dtSP, dtMay) {
+            const ctx = document.getElementById('chart-co-cau').getContext('2d');
+            if (chartCoCauInstance) chartCoCauInstance.destroy();
+
+            const coDuLieu = (dtSP + dtMay) > 0;
+            chartCoCauInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: coDuLieu ? ['Sản phẩm vật tư', 'Dịch vụ thuê máy'] : ['Chưa có doanh thu'],
+                    datasets: [{
+                        data: coDuLieu ? [dtSP, dtMay] : [1],
+                        backgroundColor: coDuLieu ? ['#064e3b', '#d97706'] : ['#e5e7eb'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 11, weight: 'bold' } } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => coDuLieu
+                                    ? `${ctx.label}: ${Number(ctx.raw).toLocaleString('vi-VN')} đ`
+                                    : 'Chưa phát sinh giao dịch'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderBangChiTietSanPham(donSPLoc) {
+            const tbody = document.getElementById('tbody-tk-san-pham');
+            if (donSPLoc.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-400">Không có đơn sản phẩm nào trong kỳ đã chọn.</td></tr>`;
+                return [];
+            }
+
+            const gomNhom = {};
+            donSPLoc.forEach(sp => {
+                const key = sp.TenSanPham;
+                if (!gomNhom[key]) {
+                    gomNhom[key] = {
+                        ten: sp.TenSanPham,
+                        danhMuc: sp.DanhMuc,
+                        donVi: sp.DonViTinh,
+                        soDon: 0,
+                        soLuong: 0,
+                        doanhThu: 0
+                    };
+                }
+                gomNhom[key].soDon += 1;
+                gomNhom[key].soLuong += Number(sp.SoLuong || 0);
+                gomNhom[key].doanhThu += tinhDoanhThuThucNhanSP(sp);
+            });
+
+            const danhSach = Object.values(gomNhom).sort((a, b) => b.doanhThu - a.doanhThu);
+            tbody.innerHTML = danhSach.map(item => `
+                <tr class="hover:bg-gray-50">
+                    <td class="py-3 px-4">
+                        <p class="font-bold text-gray-800">${item.ten}</p>
+                        <span class="text-[11px] text-gray-400">${item.danhMuc}</span>
+                    </td>
+                    <td class="py-3 px-3 text-center font-semibold">${item.soDon}</td>
+                    <td class="py-3 px-3 text-center font-bold text-luaGreen">${item.soLuong} ${item.donVi}</td>
+                    <td class="py-3 px-4 text-right font-black text-luaYellow">${item.doanhThu.toLocaleString('vi-VN')} đ</td>
+                </tr>
+            `).join('');
+
+            return danhSach;
+        }
+
+        function renderBangChiTietThueMay(donMayLoc) {
+            const tbody = document.getElementById('tbody-tk-thue-may');
+            if (donMayLoc.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-400">Không có lịch thuê máy nào trong kỳ đã chọn.</td></tr>`;
+                return [];
+            }
+
+            const gomNhom = {};
+            donMayLoc.forEach(m => {
+                const key = m.TenMay;
+                if (!gomNhom[key]) {
+                    gomNhom[key] = {
+                        ten: m.TenMay,
+                        loai: m.LoaiMay,
+                        donVi: m.DonViTinh || 'công',
+                        soLuot: 0,
+                        soCong: 0,
+                        doanhThu: 0
+                    };
+                }
+                gomNhom[key].soLuot += 1;
+                gomNhom[key].soCong += Number(m.SoCong || 0);
+                gomNhom[key].doanhThu += tinhDoanhThuThucNhanMay(m);
+            });
+
+            const danhSach = Object.values(gomNhom).sort((a, b) => b.doanhThu - a.doanhThu);
+            tbody.innerHTML = danhSach.map(item => `
+                <tr class="hover:bg-gray-50">
+                    <td class="py-3 px-4">
+                        <p class="font-bold text-gray-800">${item.ten}</p>
+                        <span class="text-[11px] text-amber-700">${item.loai}</span>
+                    </td>
+                    <td class="py-3 px-3 text-center font-semibold">${item.soLuot}</td>
+                    <td class="py-3 px-3 text-center font-bold text-blue-700">${item.soCong} ${item.donVi}</td>
+                    <td class="py-3 px-4 text-right font-black text-luaYellow">${item.doanhThu.toLocaleString('vi-VN')} đ</td>
+                </tr>
+            `).join('');
+
+            return danhSach;
+        }
+
+        function renderBangChiTietSuKien(dangKySKLoc) {
+            const tbody = document.getElementById('tbody-tk-su-kien');
+            const dsSuKien = rawData.danhSachSuKien || [];
+            const tatCaDK = rawData.dangKySuKien || [];
+
+            if (dsSuKien.length === 0 && tatCaDK.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-400">Chưa có hội thảo hoặc sự kiện nào trong hệ thống.</td></tr>`;
+                return [];
+            }
+
+            const mapSK = {};
+            dsSuKien.forEach(sk => {
+                const tieuDe = (sk.TieuDe || '').trim();
+                if (!tieuDe) return;
+                mapSK[tieuDe.toLowerCase()] = {
+                    tieuDe,
+                    thoiGian: sk.ThoiGian || 'Theo lịch ban tổ chức',
+                    diaDiem: sk.DiaDiem || 'Đang cập nhật',
+                    trongKy: 0,
+                    tongTichLuy: 0
+                };
+            });
+
+            tatCaDK.forEach(dk => {
+                const tieuDe = (dk.TieuDeSuKien || '').trim();
+                const key = tieuDe.toLowerCase();
+                if (!mapSK[key]) {
+                    mapSK[key] = {
+                        tieuDe,
+                        thoiGian: 'Theo lịch ban tổ chức',
+                        diaDiem: 'Hội trường / Đồng ruộng',
+                        trongKy: 0,
+                        tongTichLuy: 0
+                    };
+                }
+                mapSK[key].tongTichLuy += 1;
+            });
+
+            dangKySKLoc.forEach(dk => {
+                const key = (dk.TieuDeSuKien || '').trim().toLowerCase();
+                if (mapSK[key]) mapSK[key].trongKy += 1;
+            });
+
+            const danhSach = Object.values(mapSK).sort((a, b) => b.trongKy - a.trongKy || b.tongTichLuy - a.tongTichLuy);
+            tbody.innerHTML = danhSach.map(sk => `
+                <tr class="hover:bg-gray-50">
+                    <td class="py-3.5 px-4 font-bold text-gray-800">${sk.tieuDe}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${sk.thoiGian}</td>
+                    <td class="py-3.5 px-4 text-gray-600">${sk.diaDiem}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <span class="bg-purple-100 text-purple-800 font-black px-2.5 py-1 rounded-full">${sk.trongKy} nông dân</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center font-bold text-gray-700">${sk.tongTichLuy} nông dân</td>
+                </tr>
+            `).join('');
+
+            return danhSach;
+        }
+
+        // ================= HÀM XUẤT FILE EXCEL BÁO CÁO THEO NGÀY / THÁNG / NĂM =================
+        function formatThoiGianVN(dateStr) {
+            if (!dateStr) return '--';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return String(dateStr);
+            return d.toLocaleString('vi-VN');
+        }
+
+        function xuatFileBaoCao() {
+            if (typeof XLSX === 'undefined') {
+                alert('Thư viện xuất Excel đang tải, vui lòng thử lại sau giây lát!');
+                return;
+            }
+
+            const d = duLieuHienTaiDeXuat;
+            const k = d.kpi;
+            const thoiDiemXuat = new Date().toLocaleString('vi-VN');
+            const wb = XLSX.utils.book_new();
+
+            // ---------- SHEET 1: TỔNG QUAN ----------
+            const rowsTongQuan = [
+                ['HỆ THỐNG NÔNG NGHIỆP LÚA VÀNG'],
+                [d.tieuDeBaoCao],
+                [`Thời điểm xuất báo cáo: ${thoiDiemXuat}`],
+                [],
+                ['STT', 'CHỈ TIÊU THỐNG KÊ', 'GIÁ TRỊ', 'GHI CHÚ'],
+                [1, 'Tổng doanh thu thực nhận (VNĐ)', k.tongDoanhThuNhan, 'Gồm tiền cọc 30% đã thu & đơn hoàn tất 100%'],
+                [2, 'Doanh thu từ Sản phẩm vật tư (VNĐ)', k.dtSP, `${k.soDonSP} đơn hàng (${k.spHoanTat} đơn hoàn tất)`],
+                [3, 'Doanh thu từ Dịch vụ Thuê máy (VNĐ)', k.dtMay, `${k.soLichMay} lịch thuê (${k.tongCongMay} công)`],
+                [4, 'Tổng giá trị đơn hàng phát sinh (VNĐ)', k.tongGiaTriPhatSinh, 'Tổng giá trị hợp đồng/đơn trong kỳ'],
+                [5, 'Số tiền còn lại chờ thu COD 70% (VNĐ)', k.conPhaiThu, 'Thu khi giao xong hàng / làm xong ruộng'],
+                [6, 'Tổng số lượng sản phẩm bán ra', k.tongSLSP, 'Tính trên các đơn hợp lệ trong kỳ'],
+                [7, 'Lịch thuê máy đang triển khai / đã cọc', k.mayDangChay, 'Số lịch đang chạy hoặc chờ thu hoạch'],
+                [8, 'Lượt nông dân đăng ký Hội thảo / Sự kiện', k.soLuotDKSuKien, `Trên tổng số ${k.tongSuKien} chương trình sự kiện`],
+                [9, 'Tổng số tài khoản nông dân hệ thống', k.tongNongDan, 'Thành viên đang hoạt động']
+            ];
+            const wsTongQuan = XLSX.utils.aoa_to_sheet(rowsTongQuan);
+            wsTongQuan['!cols'] = [{ wch: 8 }, { wch: 42 }, { wch: 22 }, { wch: 45 }];
+            XLSX.utils.book_append_sheet(wb, wsTongQuan, 'Tong_Quan');
+
+            // ---------- SHEET 2: THỐNG KÊ SẢN PHẨM ----------
+            const rowsSanPham = [
+                [d.tieuDeBaoCao + ' - MẢNG SẢN PHẨM VẬT TƯ'],
+                [],
+                ['I. TỔNG HỢP THEO TỪNG SẢN PHẨM'],
+                ['STT', 'Tên sản phẩm', 'Danh mục', 'Đơn vị tính', 'Số đơn hàng', 'Tổng SL bán', 'Doanh thu thực nhận (VNĐ)']
+            ];
+            if (d.tongHopSP.length === 0) {
+                rowsSanPham.push(['', 'Không có dữ liệu sản phẩm trong kỳ báo cáo này', '', '', 0, 0, 0]);
+            } else {
+                d.tongHopSP.forEach((item, idx) => {
+                    rowsSanPham.push([idx + 1, item.ten, item.danhMuc, item.donVi, item.soDon, item.soLuong, item.doanhThu]);
+                });
+            }
+
+            rowsSanPham.push([], ['II. CHI TIẾT CÁC ĐƠN HÀNG SẢN PHẨM TRONG KỲ']);
+            rowsSanPham.push(['Mã đơn', 'Mã thanh toán', 'Khách hàng', 'Số điện thoại', 'Sản phẩm', 'Số lượng', 'Thành tiền (VNĐ)', 'Đã nhận (VNĐ)', 'Trạng thái', 'Thời gian đặt']);
+            d.donSPLoc.forEach(sp => {
+                const thanhTien = Number(sp.GiaTien || 0) * Number(sp.SoLuong || 0);
+                rowsSanPham.push([
+                    `#SP${sp.MaGH}`,
+                    sp.MaThanhToan || '',
+                    sp.HoTen || 'Nông dân',
+                    sp.SoDienThoai || '',
+                    sp.TenSanPham,
+                    Number(sp.SoLuong || 0),
+                    thanhTien,
+                    tinhDoanhThuThucNhanSP(sp),
+                    sp.TrangThai,
+                    formatThoiGianVN(sp.NgayThem)
+                ]);
+            });
+            const wsSanPham = XLSX.utils.aoa_to_sheet(rowsSanPham);
+            wsSanPham['!cols'] = [
+                { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 16 },
+                { wch: 30 }, { wch: 14 }, { wch: 18 }, { wch: 18 }, { wch: 26 }, { wch: 22 }
+            ];
+            XLSX.utils.book_append_sheet(wb, wsSanPham, 'Thong_Ke_San_Pham');
+
+            // ---------- SHEET 3: THỐNG KÊ THUÊ MÁY ----------
+            const rowsThueMay = [
+                [d.tieuDeBaoCao + ' - MẢNG DỊCH VỤ THUÊ MÁY'],
+                [],
+                ['I. TỔNG HỢP THEO TỪNG THIẾT BỊ MÁY'],
+                ['STT', 'Tên thiết bị máy', 'Loại máy', 'Đơn vị tính', 'Số lượt đặt', 'Tổng số công', 'Doanh thu thực nhận (VNĐ)']
+            ];
+            if (d.tongHopMay.length === 0) {
+                rowsThueMay.push(['', 'Không có dữ liệu thuê máy trong kỳ báo cáo này', '', '', 0, 0, 0]);
+            } else {
+                d.tongHopMay.forEach((item, idx) => {
+                    rowsThueMay.push([idx + 1, item.ten, item.loai, item.donVi, item.soLuot, item.soCong, item.doanhThu]);
+                });
+            }
+
+            rowsThueMay.push([], ['II. CHI TIẾT CÁC LỊCH THUÊ MÁY TRONG KỲ']);
+            rowsThueMay.push(['Mã phiếu', 'Mã thanh toán', 'Nông dân thuê', 'Số điện thoại', 'Thiết bị máy', 'Số công', 'Ngày thuê', 'Khung giờ', 'Tổng chi phí (VNĐ)', 'Đã nhận (VNĐ)', 'Trạng thái']);
+            d.donMayLoc.forEach(m => {
+                const thanhTien = Number(m.GiaThue || 0) * Number(m.SoCong || 0);
+                rowsThueMay.push([
+                    `#TM${m.MaDatMay}`,
+                    m.MaThanhToan || '',
+                    m.HoTen || 'Nông dân',
+                    m.SoDienThoai || '',
+                    m.TenMay,
+                    Number(m.SoCong || 0),
+                    m.NgayThue || '',
+                    m.KhungGio || '',
+                    thanhTien,
+                    tinhDoanhThuThucNhanMay(m),
+                    m.TrangThai
+                ]);
+            });
+            const wsThueMay = XLSX.utils.aoa_to_sheet(rowsThueMay);
+            wsThueMay['!cols'] = [
+                { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 16 },
+                { wch: 28 }, { wch: 12 }, { wch: 14 }, { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 26 }
+            ];
+            XLSX.utils.book_append_sheet(wb, wsThueMay, 'Thong_Ke_Thue_May');
+
+            // ---------- SHEET 4: HỘI THẢO & SỰ KIỆN ----------
+            const rowsSuKien = [
+                [d.tieuDeBaoCao + ' - HỘI THẢO & SỰ KIỆN'],
+                [],
+                ['I. TỔNG HỢP LƯỢT THAM GIA THEO CHƯƠNG TRÌNH'],
+                ['STT', 'Tên hội thảo / Sự kiện', 'Thời gian tổ chức', 'Địa điểm', 'Đăng ký trong kỳ', 'Tổng tích lũy']
+            ];
+            if (d.tongHopSuKien.length === 0) {
+                rowsSuKien.push(['', 'Chưa có chương trình sự kiện nào', '', '', 0, 0]);
+            } else {
+                d.tongHopSuKien.forEach((sk, idx) => {
+                    rowsSuKien.push([idx + 1, sk.tieuDe, sk.thoiGian, sk.diaDiem, sk.trongKy, sk.tongTichLuy]);
+                });
+            }
+
+            rowsSuKien.push([], ['II. DANH SÁCH NÔNG DÂN ĐĂNG KÝ SỰ KIỆN TRONG KỲ']);
+            rowsSuKien.push(['STT', 'Tên hội thảo / Sự kiện', 'Họ tên nông dân', 'Số điện thoại', 'Thời gian đăng ký']);
+            d.dangKySKLoc.forEach((dk, idx) => {
+                rowsSuKien.push([
+                    idx + 1,
+                    dk.TieuDeSuKien || '',
+                    dk.HoTen || 'Nông dân',
+                    dk.SoDienThoai || '',
+                    formatThoiGianVN(dk.NgayDangKy)
+                ]);
+            });
+            const wsSuKien = XLSX.utils.aoa_to_sheet(rowsSuKien);
+            wsSuKien['!cols'] = [{ wch: 8 }, { wch: 42 }, { wch: 26 }, { wch: 26 }, { wch: 22 }, { wch: 18 }];
+            XLSX.utils.book_append_sheet(wb, wsSuKien, 'Hoi_Thao_Su_Kien');
+
+            // Tải file Excel xuống máy tính
+            XLSX.writeFile(wb, d.tenFile);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Sự Kiện & Hội Thảo Nông Nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER DÙNG CHUNG -->
+    <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
+
+    <!-- MAIN CONTENT: SỰ KIỆN -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="agritech-hero relative overflow-hidden rounded-3xl text-white p-6 md:p-9 mb-8">
+            <div class="relative z-10 max-w-3xl">
+                <span class="glass-badge inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide">
+                    <i class="fa-solid fa-calendar-check text-amber-300"></i>
+                    Kết nối tri thức nhà nông
+                </span>
+                <h1 class="text-2xl md:text-4xl font-black tracking-tight mt-4">Sự kiện & Hội thảo nông nghiệp</h1>
+                <p class="text-emerald-50/90 text-sm md:text-base leading-relaxed mt-2">Cập nhật lịch tập huấn kỹ thuật, công nghệ drone và giới thiệu giống lúa mới từ chuyên gia.</p>
+            </div>
+            <i class="fa-solid fa-seedling absolute -right-4 -bottom-12 text-[150px] md:text-[210px] text-white/10 pointer-events-none" aria-hidden="true"></i>
+        </div>
+
+        <div id="danh-sach-su-kien" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Dữ liệu render tự động từ API /api/su-kien -->
+        </div>
+    </main>
+
+    <!-- MODAL ĐĂNG KÝ THAM GIA SỰ KIỆN -->
+    <div id="modalDangKy" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative">
+            <h3 class="text-xl font-bold text-luaGreen mb-1">Đăng Ký Tham Gia Sự Kiện</h3>
+            <p id="tenSuKienDangKy" class="text-xs text-amber-700 font-semibold mb-4"></p>
+            <form id="formDangKySuKien" onsubmit="xacNhanDangKy(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Họ và tên nông dân</label>
+                        <input type="text" id="dkHoTen" required readonly class="w-full border bg-gray-50 text-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Số điện thoại liên hệ</label>
+                        <input type="tel" id="dkSoDienThoai" required readonly class="w-full border bg-gray-50 text-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" onclick="dongModalDangKy()" class="px-4 py-2 border rounded-xl text-sm font-semibold hover:bg-gray-50">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-luaGreen text-white rounded-xl text-sm font-semibold hover:bg-emerald-900">Xác nhận đăng ký</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT FETCH HEADER & DỮ LIỆU SỰ KIỆN -->
+    <script>
+        let suKienDangChon = '';
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('site-header').innerHTML = data;
+
+                    const scripts = document.getElementById('site-header').getElementsByTagName('script');
+                    for (let script of scripts) {
+                        eval(script.innerText);
+                    }
+
+                    const currentPath = window.location.pathname;
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        if (currentPath.includes(link.getAttribute('data-target'))) {
+                            link.classList.add('bg-luaGreen', 'text-white', 'font-bold', 'shadow');
+                            link.classList.remove('text-gray-600', 'hover:text-luaGreen');
+                        } else {
+                            link.classList.add('text-gray-600', 'hover:text-luaGreen');
+                        }
+                    });
+                });
+
+            taiSuKienNongDan();
+        });
+
+        async function taiSuKienNongDan() {
+            try {
+                let res = await fetch('/api/su-kien');
+                let result = await res.json();
+                if(result.success) {
+                    const container = document.getElementById('danh-sach-su-kien');
+                    container.innerHTML = '';
+                    if(result.data.length === 0) {
+                        container.innerHTML = `<div class="col-span-3 text-center py-16 text-gray-400 bg-white rounded-2xl border border-gray-100">Chưa có sự kiện nào được tổ chức.</div>`;
+                        return;
+                    }
+
+                    result.data.forEach(item => {
+                        container.innerHTML += `
+                            <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col justify-between">
+                                <div class="bg-gradient-to-br from-emerald-800 to-luaGreen p-6 text-white relative">
+                                    <div class="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1">
+                                        <i class="fa-solid fa-circle-check text-emerald-300"></i>
+                                        <span>Sắp diễn ra</span>
+                                    </div>
+                                    <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-4 text-2xl">
+                                        <i class="fa-solid fa-chalkboard-user text-emerald-300"></i>
+                                    </div>
+                                    <h3 class="font-bold text-lg leading-snug mb-1">${item.TieuDe}</h3>
+                                </div>
+
+                                <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                                    <div class="space-y-3 text-sm">
+                                        <div class="flex items-center text-gray-600">
+                                            <i class="fa-solid fa-calendar-days text-luaGreen w-5"></i>
+                                            <span class="font-medium ml-2">Thời gian: <strong class="text-gray-800">${item.ThoiGian}</strong></span>
+                                        </div>
+                                        <div class="flex items-center text-gray-600">
+                                            <i class="fa-solid fa-location-dot text-amber-600 w-5"></i>
+                                            <span class="font-medium ml-2">Địa điểm: <strong class="text-amber-700">${item.DiaDiem}</strong></span>
+                                        </div>
+                                        <div class="pt-2 border-t border-gray-100">
+                                            <p class="text-xs font-semibold uppercase text-gray-400 mb-1">Nội dung chi tiết:</p>
+                                            <p class="text-gray-600 text-sm leading-relaxed">${item.MoTa || 'Đang cập nhật chi tiết nội dung sự kiện từ ban tổ chức...'}</p>
+                                        </div>
+                                    </div>
+
+                                    <button onclick="moModalDangKy('${item.TieuDe.replace(/'/g, "\\'")}')" class="w-full bg-luaGreen hover:bg-emerald-900 text-white font-semibold py-3 rounded-xl transition shadow flex items-center justify-center space-x-2">
+                                        <i class="fa-solid fa-file-pen"></i>
+                                        <span>Đăng ký tham gia ngay</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch(err) {
+                console.error("Lỗi tải sự kiện:", err);
+            }
+        }
+
+        async function moModalDangKy(tieuDe) {
+            // Đọc chính xác key 'luaVangUser' từ localStorage do trang đăng nhập lưu trữ
+            const userData = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+            
+            if (!userData) {
+                await hienThongBao("Vui lòng đăng nhập tài khoản nông dân trước khi đăng ký tham gia sự kiện!");
+                window.location.href = '/dang-nhap.html';
+                return;
+            }
+
+            try {
+                const user = JSON.parse(userData);
+                suKienDangChon = tieuDe;
+                document.getElementById('tenSuKienDangKy').innerText = tieuDe;
+
+                // Tự động điền HoTen và SoDienThoai từ tài khoản đang đăng nhập
+                document.getElementById('dkHoTen').value = user.name || '';
+                document.getElementById('dkSoDienThoai').value = user.phone || '';
+
+                document.getElementById('modalDangKy').classList.remove('hidden');
+                document.getElementById('modalDangKy').classList.add('flex');
+            } catch(e) {
+                console.error("Lỗi đọc thông tin user:", e);
+                alert("Phiên đăng nhập không hợp lệ, vui lòng đăng nhập lại!");
+            }
+        }
+
+        function dongModalDangKy() {
+            document.getElementById('modalDangKy').classList.remove('flex');
+            document.getElementById('modalDangKy').classList.add('hidden');
+        }
+
+        async function xacNhanDangKy(event) {
+            event.preventDefault();
+            const hoTen = document.getElementById('dkHoTen').value;
+            const soDienThoai = document.getElementById('dkSoDienThoai').value;
+
+            try {
+                let res = await fetch('/api/dang-ky-su-kien', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tieuDeSuKien: suKienDangChon,
+                        hoTen: hoTen,
+                        soDienThoai: soDienThoai
+                    })
+                });
+                let result = await res.json();
+                if (result.success) {
+                    alert(`Đăng ký tham gia sự kiện "${suKienDangChon}" thành công! Ban tổ chức sẽ liên hệ lại qua số điện thoại ${soDienThoai}.`);
+                    dongModalDangKy();
+                } else {
+                    alert("Lỗi đăng ký: " + result.message);
+                }
+            } catch (err) {
+                console.error("Lỗi kết nối:", err);
+                alert("Không thể kết nối đến máy chủ.");
+            }
+        }
+    </script>
+</body>
+</html>

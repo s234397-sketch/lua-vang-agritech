@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Quản Lý Tin Nhắn Tư Vấn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER ADMIN ĐỘNG -->
+    <div id="admin-header-container" class="bg-white shadow-sm sticky top-0 z-50"></div>
+    <script>
+        fetch('admin-header.html')
+            .then(res => res.text())
+            .then(data => {
+                const container = document.getElementById('admin-header-container');
+                container.innerHTML = data;
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    newScript.text = oldScript.innerText;
+                    document.body.appendChild(newScript);
+                });
+                if (typeof window.capNhatAdminHeader === 'function') {
+                    window.capNhatAdminHeader();
+                }
+            });
+    </script>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-3 h-[600px] overflow-hidden">
+
+            <!-- DANH SÁCH NÔNG DÂN NHẮN TIN -->
+            <div class="border-r border-gray-100 flex flex-col bg-gray-50/50 min-h-0">
+                <div class="p-4 border-b border-gray-100">
+                    <input type="text" id="search-nongdan" placeholder="Tìm theo tên hoặc số điện thoại..." class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-luaGreen">
+                </div>
+                <div id="danh-sach-nong-dan" class="flex-1 overflow-y-auto divide-y divide-gray-100">
+                    <div class="p-6 text-center text-gray-400 text-xs">Đang tải...</div>
+                </div>
+            </div>
+
+            <!-- KHUNG CHAT CHI TIẾT VỚI NÔNG DÂN ĐƯỢC CHỌN -->
+            <div class="md:col-span-2 flex flex-col bg-white min-h-0">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-full bg-emerald-200 text-luaGreen flex items-center justify-center font-bold" id="chat-avatar">ND</div>
+                        <div>
+                            <h2 class="font-bold text-sm text-gray-800" id="chat-name">Chọn nông dân để chat</h2>
+                            <p class="text-xs text-emerald-600" id="chat-status">Chưa chọn cuộc trò chuyện</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-400" id="chat-phone">SĐT: --</span>
+                </div>
+
+                <!-- Danh sách tin nhắn -->
+                <div id="admin-chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50/30 text-sm">
+                    <div class="text-center text-gray-400 py-20 text-xs">Chọn một nông dân ở cột bên trái để bắt đầu trả lời.</div>
+                </div>
+
+                <!-- Ô nhập tin nhắn phản hồi -->
+                <div class="p-4 bg-white border-t border-gray-100 flex items-center space-x-3">
+                    <input type="text" id="admin-chat-input" placeholder="Nhập câu trả lời gửi đến nông dân..." class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm">
+                    <button id="btn-admin-send" type="button" class="bg-luaGreen hover:bg-emerald-900 text-white w-11 h-11 rounded-xl flex items-center justify-center transition shadow flex-shrink-0 cursor-pointer" title="Gửi">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let tatCaTinNhan = [];
+        let sdtDangChon = null;   // SĐT của nông dân đang chat
+        let tuKhoaTim = '';
+        let dangGui = false;
+
+        // Dấu vân tay để chỉ vẽ lại khi dữ liệu thật sự thay đổi (không giật, không nhảy cuộn)
+        let dauVanListCu = '';
+        let dauVanChatCu = '';
+
+        // ---------- Trạng thái "đã đọc" (lưu trong trình duyệt của admin) ----------
+        const KHOA_DA_DOC = 'luaVangAdminDaDoc';
+        let daDoc = {};              // { sdt: thời điểm (ms) của tin nông dân cuối cùng admin đã xem }
+        let daKhoiTaoDaDoc = false;
+
+        function luuDaDoc() {
+            try { localStorage.setItem(KHOA_DA_DOC, JSON.stringify(daDoc)); } catch (e) {}
+        }
+
+        function thoiDiemTinNongDanCuoi(sdt) {
+            let max = 0;
+            tatCaTinNhan.forEach(m => {
+                if (m.SoDienThoai === sdt && m.NguoiGui === 'nong-dan') {
+                    const t = new Date(m.NgayGui).getTime();
+                    if (t > max) max = t;
+                }
+            });
+            return max;
+        }
+
+        function danhDauDaDoc(sdt) {
+            const t = thoiDiemTinNongDanCuoi(sdt);
+            if (t > (daDoc[sdt] || 0)) {
+                daDoc[sdt] = t;
+                luuDaDoc();
+            }
+        }
+
+        function khoiTaoDaDoc() {
+            let luu = null;
+            try { luu = JSON.parse(localStorage.getItem(KHOA_DA_DOC)); } catch (e) {}
+
+            if (luu) {
+                daDoc = luu;
+            } else {
+                // Lần đầu dùng: coi tin cũ là đã đọc, chỉ báo chấm đỏ cho tin mới từ giờ
+                new Set(tatCaTinNhan.map(m => m.SoDienThoai)).forEach(sdt => {
+                    daDoc[sdt] = thoiDiemTinNongDanCuoi(sdt);
+                });
+                luuDaDoc();
+            }
+            daKhoiTaoDaDoc = true;
+        }
+
+        // ---------- Tiện ích ----------
+        function escapeHtml(text) {
+            return String(text ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function dinhDangNoiDung(text) {
+            return escapeHtml(text).replace(/\n/g, '<br>');
+        }
+
+        function chuVietTat(hoTen) {
+            return escapeHtml((hoTen || 'ND').trim().substring(0, 2).toUpperCase());
+        }
+
+        function gioPhut(ngay) {
+            return new Date(ngay).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function laTinAI(msg) {
+            return msg.NguoiGui === 'admin' && String(msg.NoiDung || '').includes('[Trợ lý AI');
+        }
+
+        // ---------- Báo trạng thái admin online cho server ----------
+        function guiPingAdmin() {
+            fetch('/api/admin-ping', { method: 'POST' }).catch(() => {});
+        }
+
+        // ---------- Khởi động trang ----------
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('search-nongdan').addEventListener('input', function (e) {
+                tuKhoaTim = e.target.value.trim().toLowerCase();
+                dauVanListCu = '';
+                renderDanhSachNongDan();
+            });
+
+            document.getElementById('danh-sach-nong-dan').addEventListener('click', function (e) {
+                const item = e.target.closest('[data-sdt]');
+                if (item) chonNongDan(item.dataset.sdt);
+            });
+
+            document.getElementById('btn-admin-send').addEventListener('click', guiTinNhanAdmin);
+            document.getElementById('admin-chat-input').addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    guiTinNhanAdmin();
+                }
+            });
+
+            taiTatCaTinNhan();
+            setInterval(taiTatCaTinNhan, 3000);
+
+            // Admin đang mở trang này: AI tạm ngừng trả lời
+            guiPingAdmin();
+            setInterval(guiPingAdmin, 10000);
+
+            // Khi admin chuyển sang trang khác hoặc đóng tab thì báo offline ngay
+            window.addEventListener('pagehide', function () {
+                navigator.sendBeacon('/api/admin-offline');
+            });
+        });
+
+        async function taiTatCaTinNhan() {
+            try {
+                const res = await fetch('/api/tin-nhan');
+                const result = await res.json();
+                if (!result.success) throw new Error(result.error || 'Không tải được tin nhắn');
+                tatCaTinNhan = result.data;
+
+                if (!daKhoiTaoDaDoc) khoiTaoDaDoc();
+
+                // Đang xem cuộc trò chuyện nào thì tin mới của người đó coi như đã đọc
+                if (sdtDangChon && document.visibilityState === 'visible') {
+                    danhDauDaDoc(sdtDangChon);
+                }
+
+                renderDanhSachNongDan();
+                if (sdtDangChon) renderNoiDungChat(false);
+            } catch (err) {
+                console.error('Lỗi tải tin nhắn:', err);
+            }
+        }
+
+        // ---------- Danh sách nông dân ----------
+        function layDanhSachCuocTroChuyen() {
+            const map = {};
+            tatCaTinNhan.forEach(item => {
+                const sdt = item.SoDienThoai;
+                if (!map[sdt]) {
+                    map[sdt] = { soDienThoai: sdt, hoTen: 'Nông dân', noiDungCuoi: '', ngayCuoi: 0, chuaDoc: 0 };
+                }
+                const nd = map[sdt];
+                const t = new Date(item.NgayGui).getTime();
+
+                if (item.NguoiGui === 'nong-dan') {
+                    // Tên lấy từ tin của nông dân
+                    if (item.HoTen) nd.hoTen = item.HoTen;
+                    // Tin của nông dân mới hơn lần admin xem cuối thì là chưa đọc
+                    if (t > (daDoc[sdt] || 0)) nd.chuaDoc++;
+                }
+
+                if (t >= nd.ngayCuoi) {
+                    nd.ngayCuoi = t;
+                    nd.noiDungCuoi = item.NoiDung;
+                    nd.nguoiGuiCuoi = item.NguoiGui;
+                }
+            });
+
+            // Chỉ giữ những người đã từng nhắn tin (có ít nhất 1 tin từ nông dân)
+            const coTinNongDan = new Set(
+                tatCaTinNhan.filter(m => m.NguoiGui === 'nong-dan').map(m => m.SoDienThoai)
+            );
+
+            return Object.values(map)
+                .filter(nd => coTinNongDan.has(nd.soDienThoai))
+                .sort((a, b) => b.ngayCuoi - a.ngayCuoi);
+        }
+
+        function renderDanhSachNongDan() {
+            const container = document.getElementById('danh-sach-nong-dan');
+            let danhSach = layDanhSachCuocTroChuyen();
+
+            if (tuKhoaTim) {
+                danhSach = danhSach.filter(nd =>
+                    (nd.hoTen || '').toLowerCase().includes(tuKhoaTim) ||
+                    (nd.soDienThoai || '').toLowerCase().includes(tuKhoaTim)
+                );
+            }
+
+            const dauVan = JSON.stringify([sdtDangChon, danhSach.map(nd => [nd.soDienThoai, nd.hoTen, nd.noiDungCuoi, nd.ngayCuoi, nd.chuaDoc])]);
+            if (dauVan === dauVanListCu) return;
+            dauVanListCu = dauVan;
+
+            if (danhSach.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-gray-400 text-xs">${
+                    tuKhoaTim ? 'Không tìm thấy nông dân phù hợp.' : 'Chưa có nông dân nào nhắn tin.'
+                }</div>`;
+                return;
+            }
+
+            container.innerHTML = danhSach.map(nd => {
+                const dangChon = sdtDangChon === nd.soDienThoai;
+                const coChuaDoc = nd.chuaDoc > 0;
+                const lop = dangChon ? 'bg-emerald-50/80 border-l-4 border-luaGreen' : 'hover:bg-gray-100/50';
+                const tienTo = nd.nguoiGuiCuoi === 'nong-dan' ? '' : 'Bạn/AI: ';
+                const xemTruoc = tienTo + String(nd.noiDungCuoi || '').replace(/\n/g, ' ');
+                return `
+                    <div data-sdt="${escapeHtml(nd.soDienThoai)}" class="p-4 ${lop} cursor-pointer flex items-center space-x-3 transition">
+                        <div class="w-10 h-10 rounded-full bg-emerald-200 text-luaGreen flex items-center justify-center font-bold flex-shrink-0">
+                            ${chuVietTat(nd.hoTen)}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <p class="font-bold text-sm ${coChuaDoc ? 'text-gray-900' : 'text-gray-800'} truncate">${escapeHtml(nd.hoTen)}</p>
+                                <span class="flex items-center space-x-1.5 ml-2 flex-shrink-0">
+                                    ${coChuaDoc ? '<span class="w-2.5 h-2.5 bg-red-500 rounded-full" title="Có tin nhắn mới chưa đọc"></span>' : ''}
+                                    <span class="text-[10px] text-gray-400">${gioPhut(nd.ngayCuoi)}</span>
+                                </span>
+                            </div>
+                            <p class="text-xs ${coChuaDoc ? 'text-gray-800 font-semibold' : 'text-gray-500'} truncate">${escapeHtml(xemTruoc)}</p>
+                            <p class="text-[10px] text-gray-400 truncate">SĐT: ${escapeHtml(nd.soDienThoai)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ---------- Khung chat ----------
+        function chonNongDan(sdt) {
+            sdtDangChon = sdt;
+            const nd = layDanhSachCuocTroChuyen().find(x => x.soDienThoai === sdt);
+            const hoTen = nd ? nd.hoTen : 'Nông dân';
+
+            document.getElementById('chat-name').textContent = hoTen;
+            document.getElementById('chat-phone').textContent = 'SĐT: ' + sdt;
+            document.getElementById('chat-avatar').textContent = (hoTen || 'ND').trim().substring(0, 2).toUpperCase();
+            document.getElementById('chat-status').textContent = 'Đang trò chuyện';
+
+            danhDauDaDoc(sdt);   // mở cuộc trò chuyện thì tắt chấm đỏ
+
+            dauVanListCu = '';
+            dauVanChatCu = '';
+            renderDanhSachNongDan();
+            renderNoiDungChat(true);
+            document.getElementById('admin-chat-input').focus();
+        }
+
+        function renderNoiDungChat(cuonXuongCuoi) {
+            const container = document.getElementById('admin-chat-messages');
+            const messages = tatCaTinNhan.filter(m => m.SoDienThoai === sdtDangChon);
+
+            const dauVan = sdtDangChon + '|' + messages.length + '|' +
+                (messages.length ? messages[messages.length - 1].NoiDung : '');
+            if (dauVan === dauVanChatCu && !cuonXuongCuoi) return;
+
+            // Nếu đang đứng gần cuối thì tự cuộn xuống khi có tin mới
+            const ganCuoi = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
+            const coTinMoi = dauVan !== dauVanChatCu;
+            dauVanChatCu = dauVan;
+
+            if (messages.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-400 py-20 text-xs">Chưa có tin nhắn nào.</div>';
+                return;
+            }
+
+            container.innerHTML = messages.map(msg => {
+                const gio = gioPhut(msg.NgayGui);
+                const noiDung = dinhDangNoiDung(msg.NoiDung);
+
+                if (msg.NguoiGui === 'nong-dan') {
+                    return `
+                        <div class="flex items-start space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-emerald-200 text-luaGreen flex items-center justify-center text-xs flex-shrink-0 font-bold">
+                                ${chuVietTat(msg.HoTen)}
+                            </div>
+                            <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 max-w-[80%] text-gray-800">
+                                <p class="font-bold text-luaGreen text-xs mb-1">${escapeHtml(msg.HoTen)}</p>
+                                <p class="leading-relaxed">${noiDung}</p>
+                                <span class="text-[10px] text-gray-400 mt-1 block">${gio}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (laTinAI(msg)) {
+                    return `
+                        <div class="flex items-start justify-end space-x-2">
+                            <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl shadow-sm max-w-[80%] text-gray-800">
+                                <p class="font-bold text-amber-700 text-xs mb-1 text-right">Trợ lý AI (tự động)</p>
+                                <p class="leading-relaxed">${noiDung}</p>
+                                <span class="text-[10px] text-gray-400 mt-1 block text-right">${gio}</span>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs flex-shrink-0">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="flex items-start justify-end space-x-2">
+                        <div class="bg-luaGreen text-white p-3.5 rounded-2xl shadow-sm max-w-[80%]">
+                            <p class="font-bold text-emerald-200 text-xs mb-1 text-right">Admin (Bạn)</p>
+                            <p class="leading-relaxed">${noiDung}</p>
+                            <span class="text-[10px] text-emerald-200 mt-1 block text-right">${gio}</span>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-luaGreen text-white flex items-center justify-center text-xs flex-shrink-0 font-bold">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (cuonXuongCuoi || (coTinMoi && ganCuoi)) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        // ---------- Gửi tin nhắn của admin ----------
+        async function guiTinNhanAdmin() {
+            if (dangGui) return;
+
+            if (!sdtDangChon) {
+                alert('Vui lòng chọn một nông dân ở danh sách bên trái để trả lời!');
+                return;
+            }
+
+            const input = document.getElementById('admin-chat-input');
+            const nut = document.getElementById('btn-admin-send');
+            const noiDung = input.value.trim();
+            if (!noiDung) return;
+
+            const nd = layDanhSachCuocTroChuyen().find(x => x.soDienThoai === sdtDangChon);
+            const hoTen = nd ? nd.hoTen : 'Nông dân';
+
+            dangGui = true;
+            nut.disabled = true;
+            nut.classList.add('opacity-50');
+
+            try {
+                const res = await fetch('/api/tin-nhan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nguoiGui: 'admin',
+                        hoTen: hoTen,
+                        soDienThoai: sdtDangChon,
+                        noiDung: noiDung
+                    })
+                });
+                const result = await res.json();
+
+                if (!res.ok || !result.success) {
+                    throw new Error(result.error || ('Máy chủ trả về lỗi ' + res.status));
+                }
+
+                input.value = '';
+                await taiTatCaTinNhan();
+                renderNoiDungChat(true);
+            } catch (err) {
+                console.error('Lỗi gửi tin nhắn:', err);
+                alert('Không gửi được tin nhắn: ' + err.message);
+            } finally {
+                dangGui = false;
+                nut.disabled = false;
+                nut.classList.remove('opacity-50');
+                input.focus();
+            }
+        }
+    </script>
+</body>
+</html>

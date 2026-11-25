@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Tư Vấn & Hỗ Trợ Kỹ Thuật Nông Nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER DÙNG CHUNG -->
+    <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+
+        <section class="agritech-hero relative overflow-hidden rounded-3xl text-white p-6 md:p-9 mb-8">
+            <div class="relative z-10 max-w-3xl">
+                <span class="glass-badge inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide">
+                    <i class="fa-solid fa-sparkles text-amber-300"></i>
+                    Đồng hành cùng mùa vụ
+                </span>
+                <h1 class="text-2xl md:text-4xl font-black tracking-tight mt-4">Tư vấn kỹ thuật & hỗ trợ nhà nông</h1>
+                <p class="text-emerald-50/90 text-sm md:text-base leading-relaxed mt-2">Kết nối nhanh với Trợ lý AI và đội ngũ Lúa Vàng để tìm lời giải phù hợp cho đồng ruộng.</p>
+            </div>
+            <i class="fa-solid fa-wheat-awn absolute -right-4 -bottom-12 text-[150px] md:text-[210px] text-white/10 pointer-events-none" aria-hidden="true"></i>
+        </section>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div class="card-agritech p-6 flex items-center space-x-4">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-luaGreen flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-phone-volume"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 font-semibold uppercase">Hotline tư vấn kỹ thuật</p>
+                    <p class="text-lg font-bold text-luaGreen">1900 6868</p>
+                </div>
+            </div>
+
+            <div class="card-agritech p-6 flex items-center space-x-4">
+                <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 font-semibold uppercase">Hỗ trợ qua Zalo</p>
+                    <p class="text-lg font-bold text-blue-600">0988 123 456</p>
+                </div>
+            </div>
+
+            <div class="card-agritech p-6 flex items-center space-x-4">
+                <div class="w-14 h-14 rounded-2xl bg-amber-50 text-luaYellow flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 font-semibold uppercase">Hòm thư góp ý</p>
+                    <p class="text-lg font-bold text-gray-800">hotro@luavang.vn</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- KHUNG CHAT TRỰC TIẾP VỚI AI & ADMIN (MỞ RỘNG TOÀN MÀN HÌNH) -->
+        <div class="grid grid-cols-1 gap-8">
+            <div class="card-agritech flex flex-col h-[640px] overflow-hidden">
+                <div class="bg-luaGreen px-6 py-4 flex items-center justify-between text-white">
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-emerald-700 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-luaGreen rounded-full"></span>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-base">Trợ Lý AI & Chuyên Gia Lúa Vàng</h2>
+                            <p class="text-xs text-emerald-200">AI tư vấn tự động • Admin trực tuyến 24/7</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-emerald-800 px-3 py-1 rounded-full text-emerald-100 font-medium">
+                        <i class="fa-solid fa-sparkles mr-1 text-amber-300"></i> AI Nông Nghiệp
+                    </span>
+                </div>
+
+                <!-- Khung hiển thị tin nhắn -->
+                <div id="chat-messages-container" class="flex-1 p-6 overflow-y-auto space-y-4 bg-gray-50/50 text-sm">
+                    <!-- Render động từ CSDL -->
+                </div>
+
+                <!-- THANH GỢI Ý CÂU HỎI NHANH (QUICK REPLIES) -->
+                <div class="px-4 py-2.5 bg-gray-50 border-t border-gray-100 flex items-center space-x-2 overflow-x-auto whitespace-nowrap">
+                    <span class="text-xs font-semibold text-gray-400 mr-1"><i class="fa-solid fa-lightbulb text-amber-500"></i> Gợi ý hỏi nhanh:</span>
+                    <button onclick="guiCauHoiGoiY('Lúa bị vàng lá đầu ngọn là thiếu chất gì và cần bón phân gì?')" class="px-3.5 py-1.5 bg-white hover:bg-emerald-50 text-luaGreen rounded-full text-xs font-semibold transition border border-emerald-200 shadow-sm cursor-pointer">
+                        🌾 Lúa bị vàng lá thiếu chất gì?
+                    </button>
+                    <button onclick="guiCauHoiGoiY('Cách nhận biết và phòng trừ bệnh đạo ôn cổ bông trên lúa?')" class="px-3.5 py-1.5 bg-white hover:bg-emerald-50 text-luaGreen rounded-full text-xs font-semibold transition border border-emerald-200 shadow-sm cursor-pointer">
+                        🛡️ Cách trị bệnh đạo ôn cổ bông?
+                    </button>
+                    <button onclick="guiCauHoiGoiY('Tư vấn quy trình bón phân đón đòng giúp lúa trổ đều, chắc hạt?')" class="px-3.5 py-1.5 bg-white hover:bg-emerald-50 text-luaGreen rounded-full text-xs font-semibold transition border border-emerald-200 shadow-sm cursor-pointer">
+                        🌱 Kỹ thuật bón phân đón đòng?
+                    </button>
+                    <button onclick="guiCauHoiGoiY('Tôi muốn thuê máy gặt đập liên hợp và Drone phun thuốc tại An Giang')" class="px-3.5 py-1.5 bg-white hover:bg-emerald-50 text-luaGreen rounded-full text-xs font-semibold transition border border-emerald-200 shadow-sm cursor-pointer">
+                        🚜 Hỏi thuê máy gặt & Drone
+                    </button>
+                </div>
+
+                <!-- Ô nhập tin nhắn -->
+                <div class="p-4 bg-white border-t border-gray-100 flex items-center space-x-3">
+                    <input type="text" id="chat-input" placeholder="Nhập câu hỏi về kỹ thuật trồng lúa, sâu bệnh hoặc dịch vụ thuê máy..." class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm" onkeypress="if(event.key === 'Enter') guiTinNhanNongDan()">
+                    <button id="btn-send-chat" onclick="guiTinNhanNongDan()" class="bg-luaGreen hover:bg-emerald-900 text-white px-6 py-3 rounded-xl flex items-center justify-center transition shadow font-semibold text-sm space-x-2 flex-shrink-0 cursor-pointer">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Gửi</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let dangChoAI = false;
+
+        function layTaiKhoanTab() {
+            const raw = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+            if (raw && !sessionStorage.getItem('luaVangUser')) {
+                sessionStorage.setItem('luaVangUser', raw);
+            }
+            return JSON.parse(raw || '{}');
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('site-header').innerHTML = data;
+                    const scripts = document.getElementById('site-header').getElementsByTagName('script');
+                    for (let script of scripts) { eval(script.innerText); }
+                });
+
+            taiLichSuChat();
+            setInterval(taiLichSuChat, 3000);
+        });
+
+        function guiCauHoiGoiY(cauHoi) {
+            if (dangChoAI) return;
+            document.getElementById('chat-input').value = cauHoi;
+            guiTinNhanNongDan();
+        }
+
+        async function taiLichSuChat() {
+            try {
+                let res = await fetch('/api/tin-nhan');
+                let result = await res.json();
+                if(result.success) {
+                    const container = document.getElementById('chat-messages-container');
+                    const loggedUser = layTaiKhoanTab();
+                    const myPhone = loggedUser.phone || 'khach';
+
+                    const messages = result.data.filter(m => m.SoDienThoai === myPhone);
+                    
+                    let html = '';
+                    if(messages.length === 0) {
+                        html = `
+                            <div class="flex items-start space-x-3">
+                                <div class="w-9 h-9 rounded-full bg-luaGreen text-white flex items-center justify-center text-xs flex-shrink-0">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 max-w-[75%] text-gray-700">
+                                    <p class="font-bold text-luaGreen text-xs mb-1">Trợ Lý AI Lúa Vàng</p>
+                                    <p class="text-sm">Chào bà con! Em là Trợ lý AI của Lúa Vàng. Bà con có thể bấm vào các <b>câu hỏi gợi ý phía dưới</b> hoặc nhắn trực tiếp tình trạng cây lúa để em tư vấn ngay nhé!</p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        messages.forEach(msg => {
+                            let thoiGian = new Date(msg.NgayGui).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                            let noiDungFormatted = msg.NoiDung.replace(/\n/g, '<br>');
+
+                            if(msg.NguoiGui === 'admin') {
+                                let isAI = msg.NoiDung.includes('[Trợ lý AI') || msg.NoiDung.includes('[Hệ thống]');
+                                html += `
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-9 h-9 rounded-full ${isAI ? 'bg-amber-600' : 'bg-luaGreen'} text-white flex items-center justify-center text-xs flex-shrink-0 shadow-sm">
+                                            <i class="fa-solid ${isAI ? 'fa-robot' : 'fa-user-shield'}"></i>
+                                        </div>
+                                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 max-w-[75%] text-gray-700">
+                                            <p class="font-bold ${isAI ? 'text-amber-700' : 'text-luaGreen'} text-xs mb-1">
+                                                ${isAI ? 'Trợ Lý AI Lúa Vàng' : 'Admin Lúa Vàng'}
+                                            </p>
+                                            <p class="text-sm leading-relaxed">${noiDungFormatted}</p>
+                                            <span class="text-[10px] text-gray-400 mt-1.5 block">${thoiGian}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                html += `
+                                    <div class="flex items-start justify-end space-x-3">
+                                        <div class="bg-emerald-100 p-4 rounded-2xl shadow-sm max-w-[75%] text-gray-800">
+                                            <p class="font-bold text-luaGreen text-xs mb-1 text-right">Bạn (Nông dân)</p>
+                                            <p class="text-sm leading-relaxed">${noiDungFormatted}</p>
+                                            <span class="text-[10px] text-gray-500 mt-1.5 block text-right">${thoiGian}</span>
+                                        </div>
+                                        <div class="w-9 h-9 rounded-full bg-emerald-200 text-luaGreen flex items-center justify-center text-xs flex-shrink-0 font-bold">
+                                            ${(msg.HoTen || 'ND').substring(0,2).toUpperCase()}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+
+                    if (dangChoAI) {
+                        html += `
+                            <div class="flex items-start space-x-3 animate-pulse">
+                                <div class="w-9 h-9 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs flex-shrink-0">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div class="bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100 text-gray-500 text-xs italic">
+                                    <i class="fa-solid fa-spinner fa-spin mr-1 text-amber-600"></i> Trợ lý AI đang phân tích câu hỏi của bà con...
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    container.innerHTML = html;
+                    container.scrollTop = container.scrollHeight;
+                }
+            } catch(err) {
+                console.error("Lỗi tải chat:", err);
+            }
+        }
+
+        async function guiTinNhanNongDan() {
+            if (dangChoAI) return;
+            const input = document.getElementById('chat-input');
+            const btnSend = document.getElementById('btn-send-chat');
+            const noiDung = input.value.trim();
+            if(!noiDung) return;
+
+            const loggedUser = layTaiKhoanTab();
+            const hoTen = loggedUser.name || 'Nông dân khách';
+            const soDienThoai = loggedUser.phone || 'khach';
+
+            dangChoAI = true;
+            input.value = '';
+            input.disabled = true;
+            btnSend.disabled = true;
+            btnSend.classList.add('opacity-50');
+            taiLichSuChat();
+
+            try {
+                let res = await fetch('/api/tin-nhan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nguoiGui: 'nong-dan', hoTen, soDienThoai, noiDung })
+                });
+                let result = await res.json();
+                if(result.success) {
+                    dangChoAI = false;
+                    taiLichSuChat();
+                }
+            } catch(err) {
+                console.error("Lỗi gửi tin nhắn:", err);
+                dangChoAI = false;
+            } finally {
+                input.disabled = false;
+                btnSend.disabled = false;
+                btnSend.classList.remove('opacity-50');
+                input.focus();
+            }
+        }
+    </script>
+</body>
+</html>

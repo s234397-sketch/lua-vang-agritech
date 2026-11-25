@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/hinh-anh/logo-lua-vang.png">
+    <title>Lúa Vàng - Quản Lý Tài Khoản Nông Dân</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/nang-cap-ui.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luaGreen: '#064e3b',
+                        luaBgKem: '#f4f6ee',
+                        luaAccent: '#10b981',
+                        luaYellow: '#d97706'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="thong-bao-ui.js"></script>
+</head>
+<body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
+
+    <!-- HEADER ADMIN -->
+    <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+        <!-- TIÊU ĐỀ & THANH TÌM KIẾM -->
+        <div class="admin-filter-panel bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-xl md:text-2xl font-black text-luaGreen uppercase tracking-wide">
+                    Quản Lý Thành Viên Nông Dân
+                </h1>
+                <p class="text-xs md:text-sm text-gray-500 mt-1">
+                    Theo dõi danh sách bà con, địa chỉ ruộng mặc định, tổng chi tiêu và hỗ trợ cấp lại mật khẩu
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass text-gray-400 text-xs absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="input-tim-nong-dan" oninput="locDanhSachNongDan()" placeholder="Tìm tên, SĐT, địa chỉ ruộng..." class="text-xs border border-gray-200 rounded-xl pl-9 pr-3.5 py-2.5 w-64 bg-gray-50 focus:bg-white focus:outline-none focus:border-luaGreen">
+                </div>
+
+                <select id="select-loc-nong-dan" onchange="locDanhSachNongDan()" class="text-xs font-bold border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50 focus:outline-none focus:border-luaGreen">
+                    <option value="tat-ca">Tất cả thành viên</option>
+                    <option value="co-chi-tieu">Đã phát sinh giao dịch</option>
+                    <option value="chua-chi-tieu">Chưa phát sinh đơn</option>
+                    <option value="thieu-dia-chi">Chưa cập nhật địa chỉ ruộng</option>
+                </select>
+
+                <button type="button" onclick="taiDanhSachNongDan()" class="bg-emerald-50 hover:bg-emerald-100 text-luaGreen font-bold text-xs px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Làm mới</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 4 THẺ KPI TỔNG QUAN -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase">Tổng số nông dân</p>
+                    <p id="kpi-tong-nd" class="text-2xl font-black text-luaGreen mt-1">0</p>
+                </div>
+                <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-luaGreen flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase">Đã có địa chỉ ruộng</p>
+                    <p id="kpi-co-dia-chi" class="text-2xl font-black text-blue-600 mt-1">0</p>
+                </div>
+                <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+            </div>
+
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase">Khách đã giao dịch</p>
+                    <p id="kpi-khach-mua" class="text-2xl font-black text-purple-600 mt-1">0</p>
+                </div>
+                <div class="w-11 h-11 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+            </div>
+
+            <div class="admin-kpi-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-gray-400 uppercase">Tổng chi tiêu đã thu</p>
+                    <p id="kpi-tong-chi-tieu" class="text-2xl font-black text-luaYellow mt-1">0 đ</p>
+                </div>
+                <div class="w-11 h-11 rounded-2xl bg-amber-50 text-luaYellow flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-sack-dollar"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- BẢNG DANH SÁCH NÔNG DÂN -->
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-gray-50 text-gray-500 uppercase font-bold border-b border-gray-100">
+                        <tr>
+                            <th class="py-3.5 px-4">Nông dân</th>
+                            <th class="py-3.5 px-4">Địa chỉ ruộng mặc định</th>
+                            <th class="py-3.5 px-3 text-center">Đơn SP</th>
+                            <th class="py-3.5 px-3 text-center">Thuê máy</th>
+                            <th class="py-3.5 px-3 text-center">Sự kiện</th>
+                            <th class="py-3.5 px-4 text-right">Tổng chi tiêu đã thu</th>
+                            <th class="py-3.5 px-4 text-center">Thao tác hỗ trợ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-nong-dan" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL SỬA THÔNG TIN NÔNG DÂN -->
+    <div id="modal-sua-nd" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-gray-100 overflow-hidden">
+            <div class="bg-luaGreen text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-sm uppercase tracking-wide"><i class="fa-solid fa-user-pen mr-1.5"></i>Sửa Thông Tin Nông Dân</h3>
+                <button onclick="dongModalSuaND()" class="text-white/80 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <form onsubmit="luuSuaNongDan(event)" class="p-6 space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-gray-600 mb-1">Số điện thoại (Tài khoản):</label>
+                    <input type="text" id="edit-nd-sdt" readonly class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-100 font-bold text-gray-600">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">Họ và tên nông dân <span class="text-red-500">*</span>:</label>
+                    <input type="text" id="edit-nd-ten" required class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-luaGreen">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">Địa chỉ ruộng mặc định:</label>
+                    <textarea id="edit-nd-diachi" rows="3" placeholder="VD: Ấp Mỹ Lợi, Xã Mỹ Phú, Huyện Châu Phú, An Giang (7 công lúa)" class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-luaGreen"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="dongModalSuaND()" class="px-4 py-2.5 rounded-xl border border-gray-300 font-bold text-gray-600 hover:bg-gray-50">Hủy</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-luaGreen hover:bg-emerald-900 text-white font-bold shadow">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ĐẶT LẠI MẬT KHẨU KHI NÔNG DÂN QUÊN -->
+    <div id="modal-reset-mk" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-gray-100 overflow-hidden">
+            <div class="bg-luaYellow text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-sm uppercase tracking-wide"><i class="fa-solid fa-key mr-1.5"></i>Cấp Lại Mật Khẩu Mới</h3>
+                <button onclick="dongModalResetMK()" class="text-white/80 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <form onsubmit="xacNhanResetMK(event)" class="p-6 space-y-4 text-xs">
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-amber-900">
+                    <p>Hỗ trợ đặt lại mật khẩu cho: <strong id="reset-nd-ten" class="text-gray-900">--</strong></p>
+                    <p class="mt-0.5">Số điện thoại: <strong id="reset-nd-sdt-label" class="text-luaGreen">--</strong></p>
+                </div>
+                <input type="hidden" id="reset-nd-sdt">
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">Nhập mật khẩu mới (tối thiểu 6 ký tự) <span class="text-red-500">*</span>:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="reset-nd-mk" required minlength="6" value="123456" class="flex-1 border border-gray-200 rounded-xl px-3.5 py-2.5 font-mono font-bold text-sm focus:outline-none focus:border-luaYellow">
+                        <button type="button" onclick="document.getElementById('reset-nd-mk').value = 'LV' + Math.floor(100000 + Math.random() * 900000)" class="px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-bold text-gray-700" title="Tạo ngẫu nhiên">
+                            Ngẫu nhiên
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="dongModalResetMK()" class="px-4 py-2.5 rounded-xl border border-gray-300 font-bold text-gray-600 hover:bg-gray-50">Hủy</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-luaYellow hover:bg-amber-700 text-white font-bold shadow">Cấp lại mật khẩu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let danhSachNongDan = [];
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const rawUser = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
+            if (!rawUser) {
+                await hienThongBao('Vui lòng đăng nhập bằng tài khoản Quản trị viên!');
+                window.location.href = '/dang-nhap.html';
+                return;
+            }
+            const user = JSON.parse(rawUser);
+            if (user.role !== 'admin') {
+                await hienThongBao('Bạn không có quyền truy cập trang Quản trị!');
+                window.location.href = '/trang-chu.html';
+                return;
+            }
+
+            fetch('/admin-header.html')
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('site-header').innerHTML = data;
+                    const scripts = document.getElementById('site-header').getElementsByTagName('script');
+                    for (let script of scripts) {
+                        eval(script.innerText);
+                    }
+                });
+
+            taiDanhSachNongDan();
+        });
+
+        async function taiDanhSachNongDan() {
+            try {
+                const res = await fetch('/api/admin/nong-dan');
+                const result = await res.json();
+                if (result.success) {
+                    danhSachNongDan = result.data || [];
+                    capNhatKPI();
+                    locDanhSachNongDan();
+                }
+            } catch (err) {
+                console.error('Lỗi tải danh sách nông dân:', err);
+            }
+        }
+
+        function capNhatKPI() {
+            const tongND = danhSachNongDan.length;
+            const coDiaChi = danhSachNongDan.filter(x => (x.DiaChi || '').trim() !== '').length;
+            const khachMua = danhSachNongDan.filter(x => Number(x.SoDonSP || 0) > 0 || Number(x.SoLichMay || 0) > 0).length;
+            const tongChiTieu = danhSachNongDan.reduce((sum, x) => sum + Number(x.TongChiTieu || 0), 0);
+
+            document.getElementById('kpi-tong-nd').innerText = tongND;
+            document.getElementById('kpi-co-dia-chi').innerText = `${coDiaChi} / ${tongND}`;
+            document.getElementById('kpi-khach-mua').innerText = khachMua;
+            document.getElementById('kpi-tong-chi-tieu').innerText = tongChiTieu.toLocaleString('vi-VN') + ' đ';
+        }
+
+        function locDanhSachNongDan() {
+            const tuKhoa = document.getElementById('input-tim-nong-dan').value.trim().toLowerCase();
+            const kieuLoc = document.getElementById('select-loc-nong-dan').value;
+
+            const ketQua = danhSachNongDan.filter(nd => {
+                const khopTuKhoa = !tuKhoa ||
+                    (nd.HoTen || '').toLowerCase().includes(tuKhoa) ||
+                    (nd.SoDienThoai || '').toLowerCase().includes(tuKhoa) ||
+                    (nd.DiaChi || '').toLowerCase().includes(tuKhoa);
+
+                if (!khopTuKhoa) return false;
+
+                if (kieuLoc === 'co-chi-tieu') return Number(nd.TongChiTieu || 0) > 0;
+                if (kieuLoc === 'chua-chi-tieu') return Number(nd.TongChiTieu || 0) === 0;
+                if (kieuLoc === 'thieu-dia-chi') return !(nd.DiaChi || '').trim();
+                return true;
+            });
+
+            renderBangNongDan(ketQua);
+        }
+
+        function renderBangNongDan(ds) {
+            const tbody = document.getElementById('tbody-nong-dan');
+            if (ds.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-400">Không tìm thấy tài khoản nông dân nào phù hợp.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = ds.map(nd => {
+                const diaChiHtml = (nd.DiaChi || '').trim()
+                    ? `<span class="text-gray-700 font-medium"><i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i>${nd.DiaChi}</span>`
+                    : `<span class="text-gray-400 italic">Chưa cập nhật địa chỉ ruộng</span>`;
+
+                const tenSafe = String(nd.HoTen || '').replace(/'/g, "\\'");
+                const diaChiSafe = String(nd.DiaChi || '').replace(/'/g, "\\'").replace(/\n/g, ' ');
+
+                return `
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="py-3.5 px-4">
+                            <p class="font-bold text-gray-800 text-sm">${nd.HoTen || 'Nông dân'}</p>
+                            <p class="text-luaGreen font-semibold mt-0.5"><i class="fa-solid fa-phone text-[10px] mr-1"></i>${nd.SoDienThoai}</p>
+                        </td>
+                        <td class="py-3.5 px-4 max-w-xs">${diaChiHtml}</td>
+                        <td class="py-3.5 px-3 text-center">
+                            <span class="bg-emerald-50 text-luaGreen font-bold px-2.5 py-1 rounded-full">${nd.SoDonSP} đơn</span>
+                        </td>
+                        <td class="py-3.5 px-3 text-center">
+                            <span class="bg-blue-50 text-blue-700 font-bold px-2.5 py-1 rounded-full">${nd.SoLichMay} lịch</span>
+                        </td>
+                        <td class="py-3.5 px-3 text-center">
+                            <span class="bg-purple-50 text-purple-700 font-bold px-2.5 py-1 rounded-full">${nd.SoSuKien} SK</span>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <p class="font-black text-luaYellow text-sm">${Number(nd.TongChiTieu || 0).toLocaleString('vi-VN')} đ</p>
+                            <span class="text-[11px] text-gray-400">Tổng đơn: ${Number(nd.TongGiaTriDon || 0).toLocaleString('vi-VN')} đ</span>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="moModalSuaND('${nd.SoDienThoai}', '${tenSafe}', '${diaChiSafe}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-luaGreen font-bold transition" title="Sửa họ tên & địa chỉ ruộng">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="moModalResetMK('${nd.SoDienThoai}', '${tenSafe}')" class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold transition flex items-center gap-1" title="Đặt lại mật khẩu mới">
+                                    <i class="fa-solid fa-key"></i>
+                                    <span>Cấp lại MK</span>
+                                </button>
+                                <button onclick="xoaTaiKhoanND('${nd.SoDienThoai}', '${tenSafe}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold transition" title="Xóa tài khoản">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function moModalSuaND(sdt, ten, diaChi) {
+            document.getElementById('edit-nd-sdt').value = sdt;
+            document.getElementById('edit-nd-ten').value = ten;
+            document.getElementById('edit-nd-diachi').value = diaChi;
+            const modal = document.getElementById('modal-sua-nd');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function dongModalSuaND() {
+            const modal = document.getElementById('modal-sua-nd');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function luuSuaNongDan(e) {
+            e.preventDefault();
+            const soDienThoai = document.getElementById('edit-nd-sdt').value;
+            const hoTen = document.getElementById('edit-nd-ten').value.trim();
+            const diaChi = document.getElementById('edit-nd-diachi').value.trim();
+
+            const res = await fetch('/api/admin/nong-dan/cap-nhat', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ soDienThoai, hoTen, diaChi })
+            });
+            const result = await res.json();
+            if (result.success) {
+                dongModalSuaND();
+                taiDanhSachNongDan();
+            } else {
+                alert('❌ ' + result.message);
+            }
+        }
+
+        function moModalResetMK(sdt, ten) {
+            document.getElementById('reset-nd-sdt').value = sdt;
+            document.getElementById('reset-nd-sdt-label').innerText = sdt;
+            document.getElementById('reset-nd-ten').innerText = ten;
+            document.getElementById('reset-nd-mk').value = '123456';
+            const modal = document.getElementById('modal-reset-mk');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function dongModalResetMK() {
+            const modal = document.getElementById('modal-reset-mk');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function xacNhanResetMK(e) {
+            e.preventDefault();
+            const soDienThoai = document.getElementById('reset-nd-sdt').value;
+            const matKhauMoi = document.getElementById('reset-nd-mk').value.trim();
+
+            const res = await fetch('/api/admin/nong-dan/dat-lai-mat-khau', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ soDienThoai, matKhauMoi })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert(`✅ ${result.message}\nMật khẩu mới là: ${matKhauMoi}`);
+                dongModalResetMK();
+            } else {
+                alert('❌ ' + result.message);
+            }
+        }
+
+        async function xoaTaiKhoanND(sdt, ten) {
+            if (!await xacNhanThongBao(`Bạn có chắc chắn muốn xóa tài khoản nông dân "${ten}" (${sdt})?`)) return;
+            const res = await fetch(`/api/admin/nong-dan/${encodeURIComponent(sdt)}`, { method: 'DELETE' });
+            const result = await res.json();
+            if (result.success) {
+                alert('✅ ' + result.message);
+                taiDanhSachNongDan();
+            } else {
+                alert('⚠️ ' + result.message);
+            }
+        }
+    </script>
+</body>
+</html>
