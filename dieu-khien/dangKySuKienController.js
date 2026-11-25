@@ -1,38 +1,79 @@
 const { ketNoiDb } = require('../cau-hinh/ket-noi-db');
 
-// 1. Lưu thông tin nông dân đăng ký tham gia sự kiện
 const dangKySuKien = async (req, res) => {
     try {
-        const { tieuDeSuKien, hoTen, soDienThoai } = req.body;
-        let pool = await ketNoiDb();
+        const { maSuKien, tieuDeSuKien, hoTen, soDienThoai, diaChi } = req.body;
+        const cleanPhone = String(soDienThoai || '').trim();
+        const cleanName = String(hoTen || '').trim() || 'Nông dân';
+        const cleanAddress = String(diaChi || '').trim();
+
+        if (!cleanPhone) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vui lòng nhập số điện thoại đăng ký!'
+            });
+        }
+
+        const pool = await ketNoiDb();
+
+        let title = String(tieuDeSuKien || '').trim();
+        if (!title && maSuKien) {
+            const evRes = await pool.request()
+                .input('maSuKien', maSuKien)
+                .query('SELECT TOP 1 TieuDe FROM SuKien WHERE MaSuKien = @maSuKien');
+            if (evRes.recordset && evRes.recordset[0] && evRes.recordset[0].TieuDe) {
+                title = String(evRes.recordset[0].TieuDe).trim();
+            }
+        }
+
+        if (!title) {
+            return res.status(400).json({
+                success: false,
+                message: 'Thiếu thông tin sự kiện cần đăng ký!'
+            });
+        }
+
+        const dupRes = await pool.request()
+            .input('tieuDeSuKien', title)
+            .input('soDienThoai', cleanPhone)
+            .query(`SELECT TOP 1 MaDK FROM DangKySuKien
+                    WHERE TieuDeSuKien = @tieuDeSuKien AND SoDienThoai = @soDienThoai`);
+
+        if (dupRes.recordset && dupRes.recordset.length > 0) {
+            return res.status(409).json({
+                success: false,
+                message: 'Số điện thoại này đã đăng ký tham gia sự kiện này rồi!'
+            });
+        }
+
         await pool.request()
-            .input('tieuDeSuKien', tieuDeSuKien)
-            .input('hoTen', hoTen || 'Nông dân')
-            .input('soDienThoai', soDienThoai || 'Chưa cập nhật')
-            .query(`INSERT INTO DangKySuKien (TieuDeSuKien, HoTen, SoDienThoai) 
+            .input('tieuDeSuKien', title)
+            .input('hoTen', cleanName)
+            .input('soDienThoai', cleanPhone)
+            .input('diaChi', cleanAddress)
+            .query(`INSERT INTO DangKySuKien (TieuDeSuKien, HoTen, SoDienThoai)
                     VALUES (@tieuDeSuKien, @hoTen, @soDienThoai)`);
-        res.json({ success: true, message: 'Đăng ký tham gia thành công!' });
+
+        res.json({ success: true, message: 'Đăng ký tham gia sự kiện thành công!' });
     } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
+        res.status(500).json({ success: false, message: 'Lỗi máy chủ khi lưu đăng ký sự kiện', error: err.message });
     }
 };
 
-// 2. Lấy danh sách đại biểu đã đăng ký cho Admin xem
 const layDanhSachDangKy = async (req, res) => {
     try {
-        let pool = await ketNoiDb();
-        let result = await pool.request().query('SELECT * FROM DangKySuKien ORDER BY MaDK DESC');
+        const pool = await ketNoiDb();
+        const result = await pool.request().query('SELECT * FROM DangKySuKien ORDER BY MaDK DESC');
         res.json({ success: true, data: result.recordset });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 };
 
-// 3. Xóa nông dân ra khỏi danh sách đăng ký sự kiện theo MaDK
 const xoaDangKySuKien = async (req, res) => {
     try {
         const { id } = req.params;
-        let pool = await ketNoiDb();
+        const pool = await ketNoiDb();
         await pool.request()
             .input('id', id)
             .query('DELETE FROM DangKySuKien WHERE MaDK = @id');

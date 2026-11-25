@@ -1542,26 +1542,33 @@
         }
 
         async function submitEventRegistration(e) {
-            e.preventDefault();
-            var payload = {
-                maSuKien: document.getElementById('ev-reg-id').value,
-                hoTen: document.getElementById('ev-reg-name').value.trim(),
-                soDienThoai: document.getElementById('ev-reg-phone').value.trim(),
-                diaChi: document.getElementById('ev-reg-address').value.trim()
-            };
-            try {
-                var res = await fetch('/api/dang-ky-su-kien', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                var data = await res.json();
-                showToast(data.message || 'Đăng ký tham gia sự kiện thành công!', !data.success);
-                if (data.success) {
-                    closeModal('modal-event-register');
-                    loadCartData();
-                }
-            } catch (err) { showToast('Lỗi đăng ký sự kiện', true); }
+    e.preventDefault();
+    var maSuKien = document.getElementById('ev-reg-id').value;
+    var ev = allEvents.find(function(item) { return Number(item.MaSuKien) === Number(maSuKien); });
+    var payload = {
+        maSuKien: maSuKien,
+        tieuDeSuKien: (ev && ev.TieuDe) || document.getElementById('ev-modal-title').textContent.trim(),
+        hoTen: document.getElementById('ev-reg-name').value.trim(),
+        soDienThoai: document.getElementById('ev-reg-phone').value.trim(),
+        diaChi: document.getElementById('ev-reg-address').value.trim()
+    };
+    try {
+        var res = await fetch('/api/dang-ky-su-kien', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        var data = await res.json();
+        var isOk = res.ok && !!data.success;
+        showToast(data.message || (isOk ? 'Đăng ký tham gia sự kiện thành công!' : 'Không thể đăng ký sự kiện!'), !isOk);
+        if (isOk) {
+            closeModal('modal-event-register');
+            await loadCartData();
         }
+    } catch (err) {
+        showToast('Lỗi kết nối khi đăng ký sự kiện', true);
+    }
+}
 
         // 4. GIỎ HÀNG & QR SEPAY
         function switchCartSubTab(sub) {
