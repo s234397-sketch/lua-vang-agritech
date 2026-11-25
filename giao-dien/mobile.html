@@ -617,6 +617,73 @@
             cursor: pointer;
         }
 
+        /* ORDER DETAIL ON MOBILE */
+        .order-detail-card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        .order-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .order-id-badge {
+            font-size: 11px;
+            font-weight: 800;
+            background: #ecfdf5;
+            color: var(--primary);
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+        .order-qr-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+        .order-cat-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            background: #f3f4f6;
+            color: #374151;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+        .order-status-pill {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            background: #d1fae5;
+            color: #064e3b;
+            padding: 3px 8px;
+            border-radius: 8px;
+            margin-top: 6px;
+        }
+        .order-meta-box {
+            background: #f9fafb;
+            border: 1px solid #f3f4f6;
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-top: 8px;
+            font-size: 11.5px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+        .order-pay-summary {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #e5e7eb;
+            font-size: 11.5px;
+            line-height: 1.5;
+        }
+
         /* CHAT */
         #view-chat.active {
             display: flex;
@@ -948,7 +1015,10 @@
                         <button class="btn-primary" onclick="submitOrderSP()"><i class="fas fa-qrcode"></i> Xác nhận đặt mua &amp; Cọc 30%</button>
                     </div>
                 </div>
-                <div class="sec-head"><h3 style="font-size:11.5px;">Sản phẩm đã lên đơn &amp; Thanh toán</h3></div>
+                <div class="sec-head">
+                    <h3 style="font-size:11.5px;">Sản phẩm đã lên đơn &amp; Thanh toán</h3>
+                    <span>Đơn chờ cọc quá 10 phút tự trả giỏ</span>
+                </div>
                 <div id="order-sp-history"></div>
             </div>
 
@@ -962,7 +1032,10 @@
                         <button class="btn-amber" onclick="submitOrderMay()"><i class="fas fa-qrcode"></i> Xác nhận lịch thuê &amp; Cọc 30%</button>
                     </div>
                 </div>
-                <div class="sec-head"><h3 style="font-size:11.5px;">Lịch thuê máy đã lên đơn</h3></div>
+                <div class="sec-head">
+                    <h3 style="font-size:11.5px;">Lịch thuê máy đã lên đơn</h3>
+                    <span>Chi tiết ca &amp; thanh toán</span>
+                </div>
                 <div id="order-may-history"></div>
             </div>
 
@@ -1248,6 +1321,13 @@
                 .replace(/'/g, "\\'")
                 .replace(/"/g, '&quot;');
         }
+        function escHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
         function getUserPhone() {
             return currentUser ? (currentUser.phone || currentUser.SoDienThoai || '') : '';
         }
@@ -1337,7 +1417,7 @@
                 }
                 var html = '<button class="pill active" data-cat="ALL" onclick="filterCategory(\'ALL\')">Tất cả</button>';
                 for (var k in cats) {
-                    html += '<button class="pill" data-cat="' + escAttr(k) + '" onclick="filterCategory(\'' + escAttr(k) + '\')">' + k + '</button>';
+                    html += '<button class="pill" data-cat="' + escAttr(k) + '" onclick="filterCategory(\'' + escAttr(k) + '\')">' + escHtml(k) + '</button>';
                 }
                 document.getElementById('category-pills').innerHTML = html;
                 renderProducts();
@@ -1369,7 +1449,7 @@
                 html += '<div class="prod-card">' +
                     '<img class="prod-img" src="' + imgSrc + '" onclick="openProductDetail(' + p.MaSanPham + ')" onerror="this.src=\'https://placehold.co/300x200?text=Lua+Vang\'">' +
                     '<div class="prod-body">' +
-                        '<div><span class="prod-cat">' + dm + '</span><div class="prod-name" onclick="openProductDetail(' + p.MaSanPham + ')">' + p.TenSanPham + '</div></div>' +
+                        '<div><span class="prod-cat">' + escHtml(dm) + '</span><div class="prod-name" onclick="openProductDetail(' + p.MaSanPham + ')">' + escHtml(p.TenSanPham) + '</div></div>' +
                         '<div class="prod-foot"><span class="prod-price">' + gia + '</span><div class="prod-btns">' +
                             '<button class="btn-detail-mini" onclick="openProductDetail(' + p.MaSanPham + ')" title="Chi tiết"><i class="fas fa-eye"></i></button>' +
                             '<button class="btn-add" onclick="addToCartProduct(' + p.MaSanPham + ', \'' + escAttr(p.TenSanPham) + '\')" title="Thêm vào giỏ"><i class="fas fa-plus"></i></button>' +
@@ -1425,10 +1505,10 @@
                     html += '<div class="list-card">' +
                         '<img class="list-img" src="' + imgSrc + '" onclick="openBookingModal(' + m.MaMay + ')" onerror="this.src=\'https://placehold.co/200x200?text=May+Nong+Nghiep\'">' +
                         '<div class="list-info">' +
-                            '<div><span style="font-size:10px;font-weight:700;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:6px;">' + loai + '</span>' +
-                            '<div class="list-title" onclick="openBookingModal(' + m.MaMay + ')">' + m.TenMay + '</div>' +
-                            '<div class="list-desc">' + (m.MoTa || 'Thiết bị hiện đại, điều phối đúng giờ.') + '</div></div>' +
-                            '<div class="list-foot"><span style="font-size:13.5px;font-weight:800;color:#064e3b;">' + gia + '<small style="font-weight:400;color:#6b7280;">' + dvt + '</small></span>' +
+                            '<div><span style="font-size:10px;font-weight:700;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:6px;">' + escHtml(loai) + '</span>' +
+                            '<div class="list-title" onclick="openBookingModal(' + m.MaMay + ')">' + escHtml(m.TenMay) + '</div>' +
+                            '<div class="list-desc">' + escHtml(m.MoTa || 'Thiết bị hiện đại, điều phối đúng giờ.') + '</div></div>' +
+                            '<div class="list-foot"><span style="font-size:13.5px;font-weight:800;color:#064e3b;">' + gia + '<small style="font-weight:400;color:#6b7280;">' + escHtml(dvt) + '</small></span>' +
                             '<div style="display:flex;gap:5px;"><button class="btn-detail-outline" onclick="openBookingModal(' + m.MaMay + ')">Chi tiết</button>' +
                             '<button class="btn-book" onclick="openBookingModal(' + m.MaMay + ')">Đặt lịch</button></div></div>' +
                         '</div></div>';
@@ -1477,7 +1557,7 @@
                 if (!booked.length) listEl.innerHTML = '<span style="color:#064e3b;font-weight:600;">Tất cả ca trong ngày đều còn trống.</span>';
                 else {
                     var html = '';
-                    for (var i = 0; i < booked.length; i++) html += '<div style="color:#dc2626;font-weight:600;">• Đã đặt: ' + booked[i].KhungGio + ' (' + booked[i].TrangThai + ')</div>';
+                    for (var i = 0; i < booked.length; i++) html += '<div style="color:#dc2626;font-weight:600;">• Đã đặt: ' + escHtml(booked[i].KhungGio) + ' (' + escHtml(booked[i].TrangThai) + ')</div>';
                     listEl.innerHTML = html;
                 }
             } catch (e) { listEl.textContent = 'Không tải được lịch máy.'; }
@@ -1514,9 +1594,9 @@
                     var imgSrc = getImgUrl(ev.HinhAnh, 'https://placehold.co/400x180?text=Hoi+Thao+Lua+Vang');
                     html += '<div class="event-card">' +
                         '<img class="event-img" src="' + imgSrc + '" onclick="openEventModal(' + ev.MaSuKien + ')" onerror="this.src=\'https://placehold.co/400x180?text=Hoi+Thao+Lua+Vang\'">' +
-                        '<div class="event-body"><div class="event-meta"><i class="far fa-clock"></i> ' + (ev.ThoiGian || 'Đang cập nhật') + ' • <i class="fas fa-map-marker-alt" style="color:#d97706;"></i> ' + (ev.DiaDiem || 'Tại địa phương') + '</div>' +
-                        '<h3 style="font-size:14px;font-weight:800;margin-bottom:4px;cursor:pointer;" onclick="openEventModal(' + ev.MaSuKien + ')">' + title + '</h3>' +
-                        '<p style="font-size:12px;color:#6b7280;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + (ev.MoTa || 'Chương trình tập huấn và tư vấn kỹ thuật đồng ruộng miễn phí.') + '</p>' +
+                        '<div class="event-body"><div class="event-meta"><i class="far fa-clock"></i> ' + escHtml(ev.ThoiGian || 'Đang cập nhật') + ' • <i class="fas fa-map-marker-alt" style="color:#d97706;"></i> ' + escHtml(ev.DiaDiem || 'Tại địa phương') + '</div>' +
+                        '<h3 style="font-size:14px;font-weight:800;margin-bottom:4px;cursor:pointer;" onclick="openEventModal(' + ev.MaSuKien + ')">' + escHtml(title) + '</h3>' +
+                        '<p style="font-size:12px;color:#6b7280;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + escHtml(ev.MoTa || 'Chương trình tập huấn và tư vấn kỹ thuật đồng ruộng miễn phí.') + '</p>' +
                         '<div class="event-actions">' +
                             '<button class="btn-detail-outline" onclick="openEventModal(' + ev.MaSuKien + ')">Xem chi tiết</button>' +
                             '<button class="btn-reg-event" onclick="openEventModal(' + ev.MaSuKien + ')">Đăng ký tham gia</button>' +
@@ -1542,33 +1622,33 @@
         }
 
         async function submitEventRegistration(e) {
-    e.preventDefault();
-    var maSuKien = document.getElementById('ev-reg-id').value;
-    var ev = allEvents.find(function(item) { return Number(item.MaSuKien) === Number(maSuKien); });
-    var payload = {
-        maSuKien: maSuKien,
-        tieuDeSuKien: (ev && ev.TieuDe) || document.getElementById('ev-modal-title').textContent.trim(),
-        hoTen: document.getElementById('ev-reg-name').value.trim(),
-        soDienThoai: document.getElementById('ev-reg-phone').value.trim(),
-        diaChi: document.getElementById('ev-reg-address').value.trim()
-    };
-    try {
-        var res = await fetch('/api/dang-ky-su-kien', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        var data = await res.json();
-        var isOk = res.ok && !!data.success;
-        showToast(data.message || (isOk ? 'Đăng ký tham gia sự kiện thành công!' : 'Không thể đăng ký sự kiện!'), !isOk);
-        if (isOk) {
-            closeModal('modal-event-register');
-            await loadCartData();
+            e.preventDefault();
+            var maSuKien = document.getElementById('ev-reg-id').value;
+            var ev = allEvents.find(function(item) { return Number(item.MaSuKien) === Number(maSuKien); });
+            var payload = {
+                maSuKien: maSuKien,
+                tieuDeSuKien: (ev && ev.TieuDe) || document.getElementById('ev-modal-title').textContent.trim(),
+                hoTen: document.getElementById('ev-reg-name').value.trim(),
+                soDienThoai: document.getElementById('ev-reg-phone').value.trim(),
+                diaChi: document.getElementById('ev-reg-address').value.trim()
+            };
+            try {
+                var res = await fetch('/api/dang-ky-su-kien', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                var data = await res.json();
+                var isOk = res.ok && !!data.success;
+                showToast(data.message || (isOk ? 'Đăng ký tham gia sự kiện thành công!' : 'Không thể đăng ký sự kiện!'), !isOk);
+                if (isOk) {
+                    closeModal('modal-event-register');
+                    await loadCartData();
+                }
+            } catch (err) {
+                showToast('Lỗi kết nối khi đăng ký sự kiện', true);
+            }
         }
-    } catch (err) {
-        showToast('Lỗi kết nối khi đăng ký sự kiện', true);
-    }
-}
 
         // 4. GIỎ HÀNG & QR SEPAY
         function switchCartSubTab(sub) {
@@ -1578,6 +1658,20 @@
                 if (k === sub) { btn.style.background = '#064e3b'; btn.style.color = '#fff'; btn.style.border = 'none'; }
                 else { btn.style.background = '#fff'; btn.style.color = '#4b5563'; btn.style.border = '1px solid #e5e7eb'; }
             });
+        }
+
+        function renderTrangThaiThanhToanChiTiet(trangThai, tienCoc, conLai) {
+            if (trangThai === 'Đã thanh toán & Hoàn thành') {
+                return '<div style="color:#047857;font-weight:700;">Đã thanh toán đủ 100% (' + Number(tienCoc + conLai).toLocaleString('vi-VN') + 'đ)</div>';
+            }
+            if (trangThai === 'Đã đặt cọc (30%)' || trangThai === 'Đã đặt hàng' || trangThai === 'Đang giao hàng' || trangThai === 'Đang thực hiện' || trangThai === 'Đang thuê / Đã đặt lịch') {
+                return '<div style="color:#064e3b;font-weight:700;">Đã cọc 30%: ' + Number(tienCoc).toLocaleString('vi-VN') + 'đ</div>' +
+                    '<div style="color:#b45309;font-weight:700;">Còn lại trả nốt (70%): ' + Number(conLai).toLocaleString('vi-VN') + 'đ</div>';
+            }
+            if (trangThai === 'Chờ thanh toán') {
+                return '<div style="color:#b45309;font-weight:700;">Cần cọc 30%: ' + Number(tienCoc).toLocaleString('vi-VN') + 'đ (Còn lại: ' + Number(conLai).toLocaleString('vi-VN') + 'đ)</div>';
+            }
+            return '';
         }
 
         async function loadCartData() {
@@ -1625,7 +1719,7 @@
                         var item = spGio[i], sub = Number(item.GiaTien) * Number(item.SoLuong);
                         tongSP += sub;
                         htmlSP += '<div class="cart-row" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
-                            '<div style="min-width:0;flex:1;"><strong>' + item.TenSanPham + '</strong><div style="color:#d97706;font-weight:800;margin-top:2px;">' + sub.toLocaleString('vi-VN') + 'đ</div></div>' +
+                            '<div style="min-width:0;flex:1;"><strong>' + escHtml(item.TenSanPham) + '</strong><div style="font-size:11px;color:#6b7280;margin-top:2px;">Đơn giá: ' + Number(item.GiaTien || 0).toLocaleString('vi-VN') + 'đ' + (item.DonViTinh ? (' / ' + escHtml(item.DonViTinh)) : '') + '</div><div style="color:#d97706;font-weight:800;margin-top:2px;">' + sub.toLocaleString('vi-VN') + 'đ</div></div>' +
                             '<div class="qty-box"><button onclick="doiSoLuongSP(' + item.MaGH + ',' + (item.SoLuong - 1) + ')">-</button><span>' + item.SoLuong + '</span><button onclick="doiSoLuongSP(' + item.MaGH + ',' + (item.SoLuong + 1) + ')">+</button></div>' +
                             '<button class="btn-del" onclick="xoaSP(' + item.MaGH + ')"><i class="fas fa-trash"></i></button></div>';
                     }
@@ -1633,22 +1727,52 @@
                     document.getElementById('cart-sp-total').textContent = 'Tổng: ' + tongSP.toLocaleString('vi-VN') + 'đ (Cọc 30%: ' + Math.round(tongSP * 0.3).toLocaleString('vi-VN') + 'đ)';
                 }
 
-                // Sản phẩm đã lên đơn
+                // Sản phẩm đã lên đơn (hiển thị chi tiết đầy đủ giống máy tính)
                 var htmlSPDon = '';
                 for (var j = 0; j < spDon.length; j++) {
-                    var d = spDon[j], tt = Number(d.GiaTien) * Number(d.SoLuong), coc = Number(d.TienCoc || 0), conLai = Number(d.TongConLaiDon || Math.max(0, tt - coc));
+                    var d = spDon[j];
+                    var donGiaSP = Number(d.GiaTien || 0);
+                    var slSP = Number(d.SoLuong || 0);
+                    var tt = donGiaSP * slSP;
+                    var coc = Number(d.TienCoc || Math.round(tt * 0.3));
+                    var conLai = Number(d.TongConLaiDon !== undefined ? d.TongConLaiDon : Math.max(0, tt - coc));
+                    var danhMucSP = d.TenDanhMucChuan || d.DanhMuc || 'Vật tư';
+                    var dvtSP = d.DonViTinh ? (' ' + d.DonViTinh) : '';
+
                     var acts = '';
-                    if (d.TrangThai === 'Chờ thanh toán') acts += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + d.MaThanhToan + '\',\'COC\',\'SP\')">QR cọc 30%</button> <button class="btn-mini-cancel" onclick="huyDonSP(' + d.MaGH + ')">Hủy</button>';
-                    else if (d.TrangThai === 'Đã đặt hàng' || d.TrangThai === 'Đã đặt cọc (30%)') {
-                        if (d.MaThanhToan && conLai > 0) acts += '<button class="btn-mini-cod" onclick="moLaiQR(\'' + d.MaThanhToan + '\',\'COD\',\'SP\')">QR trả nốt (' + conLai.toLocaleString('vi-VN') + 'đ)</button> ';
+                    if (d.TrangThai === 'Chờ thanh toán') {
+                        acts += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + escAttr(d.MaThanhToan) + '\',\'COC\',\'SP\')"><i class="fas fa-qrcode"></i> QR cọc 30%</button> ';
+                        acts += '<button class="btn-mini-cancel" onclick="huyDonSP(' + d.MaGH + ')">Hủy đơn</button>';
+                    } else if (d.TrangThai === 'Đã đặt hàng' || d.TrangThai === 'Đã đặt cọc (30%)') {
+                        if (d.MaThanhToan && conLai > 0) {
+                            acts += '<button class="btn-mini-cod" onclick="moLaiQR(\'' + escAttr(d.MaThanhToan) + '\',\'COD\',\'SP\')"><i class="fas fa-qrcode"></i> QR trả nốt (' + conLai.toLocaleString('vi-VN') + 'đ)</button> ';
+                        }
                         acts += '<button class="btn-mini-cancel" onclick="huyDonSP(' + d.MaGH + ')">Hủy đơn</button>';
                     } else if (d.TrangThai === 'Đang giao hàng' && d.MaThanhToan && conLai > 0) {
-                        acts += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + d.MaThanhToan + '\',\'COD\',\'SP\')">QR trả nốt (' + conLai.toLocaleString('vi-VN') + 'đ)</button>';
+                        acts += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + escAttr(d.MaThanhToan) + '\',\'COD\',\'SP\')"><i class="fas fa-qrcode"></i> QR trả nốt (' + conLai.toLocaleString('vi-VN') + 'đ)</button>';
                     }
-                    htmlSPDon += '<div class="box-card" style="padding:11px;margin-bottom:8px;font-size:12px;">' +
-                        '<div style="display:flex;justify-content:space-between;font-weight:800;"><span>#SP' + d.MaGH + ' • ' + d.TenSanPham + '</span><span style="color:#d97706;">' + tt.toLocaleString('vi-VN') + 'đ</span></div>' +
-                        '<div style="font-size:11px;color:#064e3b;font-weight:700;margin:4px 0;">Trạng thái: ' + d.TrangThai + (d.GiayConLai > 0 ? ' (' + formatMMSS(d.GiayConLai) + ')' : '') + '</div>' +
-                        (acts ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">' + acts + '</div>' : '') + '</div>';
+
+                    htmlSPDon += '<div class="order-detail-card">' +
+                        '<div class="order-top-row">' +
+                            '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;">' +
+                                '<span class="order-id-badge">#SP' + d.MaGH + '</span>' +
+                                (d.MaThanhToan ? '<span class="order-qr-badge">' + escHtml(d.MaThanhToan) + '</span>' : '') +
+                                '<span class="order-cat-badge">' + escHtml(danhMucSP) + '</span>' +
+                            '</div>' +
+                            '<strong style="font-size:13.5px;color:#d97706;white-space:nowrap;">' + tt.toLocaleString('vi-VN') + 'đ</strong>' +
+                        '</div>' +
+                        '<div style="font-size:13.5px;font-weight:800;color:#111827;margin-top:6px;">' + escHtml(d.TenSanPham) + '</div>' +
+                        '<div class="order-meta-box">' +
+                            '<div>Đơn giá: <strong>' + donGiaSP.toLocaleString('vi-VN') + 'đ</strong>' + (d.DonViTinh ? (' / ' + escHtml(d.DonViTinh)) : '') + '</div>' +
+                            '<div>Số lượng: <strong>' + slSP + escHtml(dvtSP) + '</strong></div>' +
+                            (d.NgayDat ? '<div>Thời gian đặt: <strong>' + escHtml(d.NgayDat) + '</strong></div>' : '') +
+                        '</div>' +
+                        '<div class="order-pay-summary">' +
+                            '<span class="order-status-pill">' + escHtml(d.TrangThai) + (d.GiayConLai > 0 ? ' • Giữ chỗ: ' + formatMMSS(d.GiayConLai) : '') + '</span>' +
+                            '<div style="margin-top:6px;">' + renderTrangThaiThanhToanChiTiet(d.TrangThai, coc, conLai) + '</div>' +
+                        '</div>' +
+                        (acts ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid #f3f4f6;">' + acts + '</div>' : '') +
+                    '</div>';
                 }
                 document.getElementById('order-sp-history').innerHTML = htmlSPDon || '<p style="font-size:12px;color:#9ca3af;text-align:center;">Chưa có đơn vật tư nào.</p>';
 
@@ -1664,12 +1788,13 @@
                         var mItem = mayGio[mIdx], mSub = Number(mItem.GiaThue) * Number(mItem.SoCong);
                         tongMay += mSub;
                         var opts = '<option value="">-- Chọn khung giờ --</option>' + DANH_SACH_KHUNG_GIO.map(function(kg) {
-                            return '<option value="' + escAttr(kg) + '"' + (mItem.KhungGio === kg ? ' selected' : '') + '>' + kg + '</option>';
+                            return '<option value="' + escAttr(kg) + '"' + (mItem.KhungGio === kg ? ' selected' : '') + '>' + escHtml(kg) + '</option>';
                         }).join('');
                         htmlMay += '<div class="cart-row" style="background:#fffbeb;">' +
-                            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><strong>' + mItem.TenMay + '</strong><button class="btn-del" onclick="xoaMay(' + mItem.MaDatMay + ')"><i class="fas fa-trash"></i></button></div>' +
+                            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><strong>' + escHtml(mItem.TenMay) + '</strong><button class="btn-del" onclick="xoaMay(' + mItem.MaDatMay + ')"><i class="fas fa-trash"></i></button></div>' +
+                            '<div style="font-size:11px;color:#6b7280;margin-bottom:6px;">Đơn giá: ' + Number(mItem.GiaThue || 0).toLocaleString('vi-VN') + 'đ' + (mItem.DonViTinh ? (' / ' + escHtml(mItem.DonViTinh)) : ' / công') + '</div>' +
                             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div class="qty-box"><button onclick="capNhatMay(' + mItem.MaDatMay + ',{soCong:' + (mItem.SoCong - 1) + '})">-</button><span>' + mItem.SoCong + '</span><button onclick="capNhatMay(' + mItem.MaDatMay + ',{soCong:' + (mItem.SoCong + 1) + '})">+</button></div><strong style="color:#b45309;">' + mSub.toLocaleString('vi-VN') + 'đ</strong></div>' +
-                            '<input type="date" class="input-field" style="margin-bottom:6px;" value="' + (mItem.NgayThue || '') + '" onchange="capNhatMay(' + mItem.MaDatMay + ',{ngayThue:this.value})">' +
+                            '<input type="date" class="input-field" style="margin-bottom:6px;" value="' + escAttr(mItem.NgayThue || '') + '" onchange="capNhatMay(' + mItem.MaDatMay + ',{ngayThue:this.value})">' +
                             '<select class="input-field" style="margin-bottom:6px;background:#fff;" onchange="capNhatMay(' + mItem.MaDatMay + ',{khungGio:this.value})">' + opts + '</select>' +
                             '<input type="text" class="input-field" style="margin-bottom:0;background:#fff;" placeholder="Địa chỉ đồng ruộng / Ghi chú..." value="' + escAttr(mItem.GhiChu || '') + '" onblur="capNhatMay(' + mItem.MaDatMay + ',{ghiChu:this.value})"></div>';
                     }
@@ -1677,24 +1802,53 @@
                     document.getElementById('cart-may-total').textContent = 'Tổng: ' + tongMay.toLocaleString('vi-VN') + 'đ (Cọc 30%: ' + Math.round(tongMay * 0.3).toLocaleString('vi-VN') + 'đ)';
                 }
 
-                // Thuê máy đã lên đơn
+                // Thuê máy đã lên đơn (hiển thị chi tiết đầy đủ giống máy tính)
                 var htmlMayDon = '';
                 for (var n = 0; n < mayDon.length; n++) {
-                    var md = mayDon[n], mtt = Number(md.GiaThue) * Number(md.SoCong), mcoc = Number(md.TienCoc || 0), mConLai = Number(md.TongConLaiDon || Math.max(0, mtt - mcoc));
+                    var md = mayDon[n];
+                    var donGiaMay = Number(md.GiaThue || 0);
+                    var soCongMay = Number(md.SoCong || 0);
+                    var mtt = donGiaMay * soCongMay;
+                    var mcoc = Number(md.TienCoc || Math.round(mtt * 0.3));
+                    var mConLai = Number(md.TongConLaiDon !== undefined ? md.TongConLaiDon : Math.max(0, mtt - mcoc));
+                    var loaiMay = md.TenLoaiMayChuan || md.LoaiMay || 'Cơ giới hóa';
+                    var dvtMay = md.DonViTinh || 'công';
+
                     var mActs = '';
-                    if (md.TrangThai === 'Chờ thanh toán') mActs += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + md.MaThanhToan + '\',\'COC\',\'MAY\')">QR cọc 30%</button> <button class="btn-mini-cancel" onclick="huyDonMay(' + md.MaDatMay + ')">Hủy</button>';
-                    else if (md.TrangThai === 'Đang thuê / Đã đặt lịch' || md.TrangThai === 'Đã đặt cọc (30%)') {
-                        if (md.MaThanhToan && mConLai > 0) mActs += '<button class="btn-mini-cod" onclick="moLaiQR(\'' + md.MaThanhToan + '\',\'COD\',\'MAY\')">QR trả nốt (' + mConLai.toLocaleString('vi-VN') + 'đ)</button> ';
+                    if (md.TrangThai === 'Chờ thanh toán') {
+                        mActs += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + escAttr(md.MaThanhToan) + '\',\'COC\',\'MAY\')"><i class="fas fa-qrcode"></i> QR cọc 30%</button> ';
+                        mActs += '<button class="btn-mini-cancel" onclick="huyDonMay(' + md.MaDatMay + ')">Hủy lịch</button>';
+                    } else if (md.TrangThai === 'Đang thuê / Đã đặt lịch' || md.TrangThai === 'Đã đặt cọc (30%)') {
+                        if (md.MaThanhToan && mConLai > 0) {
+                            mActs += '<button class="btn-mini-cod" onclick="moLaiQR(\'' + escAttr(md.MaThanhToan) + '\',\'COD\',\'MAY\')"><i class="fas fa-qrcode"></i> QR trả nốt (' + mConLai.toLocaleString('vi-VN') + 'đ)</button> ';
+                        }
                         mActs += '<button class="btn-mini-cancel" onclick="huyDonMay(' + md.MaDatMay + ')">Hủy lịch</button>';
                     } else if (md.TrangThai === 'Đang thực hiện' && md.MaThanhToan && mConLai > 0) {
-                        mActs += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + md.MaThanhToan + '\',\'COD\',\'MAY\')">QR trả nốt (' + mConLai.toLocaleString('vi-VN') + 'đ)</button>';
+                        mActs += '<button class="btn-mini-qr" onclick="moLaiQR(\'' + escAttr(md.MaThanhToan) + '\',\'COD\',\'MAY\')"><i class="fas fa-qrcode"></i> QR trả nốt (' + mConLai.toLocaleString('vi-VN') + 'đ)</button>';
                     }
-                    htmlMayDon += '<div class="box-card" style="padding:11px;margin-bottom:8px;font-size:12px;">' +
-                        '<div style="display:flex;justify-content:space-between;font-weight:800;"><span>#TM' + md.MaDatMay + ' • ' + md.TenMay + '</span><span style="color:#b45309;">' + mtt.toLocaleString('vi-VN') + 'đ</span></div>' +
-                        '<div style="font-size:11px;color:#6b7280;margin-top:2px;">' + (md.NgayThue || '') + ' • ' + (md.KhungGio || '') + ' (' + md.SoCong + ' công)</div>' +
-                        (md.GhiChu ? '<div style="font-size:11px;color:#4b5563;margin-top:2px;">Ruộng: ' + md.GhiChu + '</div>' : '') +
-                        '<div style="font-size:11px;color:#064e3b;font-weight:700;margin:4px 0;">Trạng thái: ' + md.TrangThai + (md.GiayConLai > 0 ? ' (' + formatMMSS(md.GiayConLai) + ')' : '') + '</div>' +
-                        (mActs ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">' + mActs + '</div>' : '') + '</div>';
+
+                    htmlMayDon += '<div class="order-detail-card">' +
+                        '<div class="order-top-row">' +
+                            '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;">' +
+                                '<span class="order-id-badge">#TM' + md.MaDatMay + '</span>' +
+                                (md.MaThanhToan ? '<span class="order-qr-badge">' + escHtml(md.MaThanhToan) + '</span>' : '') +
+                                '<span class="order-cat-badge">' + escHtml(loaiMay) + '</span>' +
+                            '</div>' +
+                            '<strong style="font-size:13.5px;color:#b45309;white-space:nowrap;">' + mtt.toLocaleString('vi-VN') + 'đ</strong>' +
+                        '</div>' +
+                        '<div style="font-size:13.5px;font-weight:800;color:#111827;margin-top:6px;">' + escHtml(md.TenMay) + '</div>' +
+                        '<div class="order-meta-box">' +
+                            '<div>Đơn giá: <strong>' + donGiaMay.toLocaleString('vi-VN') + 'đ / ' + escHtml(dvtMay) + '</strong></div>' +
+                            '<div>Diện tích / Khối lượng: <strong>' + soCongMay + ' ' + escHtml(dvtMay) + '</strong></div>' +
+                            '<div>Lịch làm việc: <strong>' + escHtml(md.NgayThue || '--') + '</strong> • <strong>' + escHtml(md.KhungGio || '--') + '</strong></div>' +
+                            (md.GhiChu ? '<div>Địa điểm / Ghi chú: <strong>' + escHtml(md.GhiChu) + '</strong></div>' : '') +
+                        '</div>' +
+                        '<div class="order-pay-summary">' +
+                            '<span class="order-status-pill">' + escHtml(md.TrangThai) + (md.GiayConLai > 0 ? ' • Giữ chỗ: ' + formatMMSS(md.GiayConLai) : '') + '</span>' +
+                            '<div style="margin-top:6px;">' + renderTrangThaiThanhToanChiTiet(md.TrangThai, mcoc, mConLai) + '</div>' +
+                        '</div>' +
+                        (mActs ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid #f3f4f6;">' + mActs + '</div>' : '') +
+                    '</div>';
                 }
                 document.getElementById('order-may-history').innerHTML = htmlMayDon || '<p style="font-size:12px;color:#9ca3af;text-align:center;">Chưa có lịch thuê máy nào.</p>';
 
@@ -1702,7 +1856,17 @@
                 var htmlSK = '';
                 for (var s = 0; s < dsSK.length; s++) {
                     var sk = dsSK[s];
-                    htmlSK += '<div class="box-card" style="padding:12px;margin-bottom:8px;font-size:12px;"><div style="display:flex;justify-content:space-between;align-items:start;gap:8px;"><div><strong>' + sk.TieuDeSuKien + '</strong><div style="font-size:11px;color:#6b7280;margin-top:3px;">' + (sk.ThoiGian || '') + ' • ' + (sk.DiaDiem || '') + '</div></div><button class="btn-mini-cancel" onclick="huySuKien(' + sk.MaDK + ')">Hủy tham gia</button></div></div>';
+                    htmlSK += '<div class="order-detail-card">' +
+                        '<div class="order-top-row">' +
+                            '<div style="flex:1;min-width:0;">' +
+                                '<div style="font-weight:800;color:#111827;">' + escHtml(sk.TieuDeSuKien) + '</div>' +
+                                '<div style="font-size:11.5px;color:#6b7280;margin-top:4px;"><i class="far fa-clock"></i> ' + escHtml(sk.ThoiGian || 'Đang cập nhật') + '</div>' +
+                                '<div style="font-size:11.5px;color:#6b7280;margin-top:2px;"><i class="fas fa-map-marker-alt" style="color:#d97706;"></i> ' + escHtml(sk.DiaDiem || 'Tại địa phương') + '</div>' +
+                                (sk.DiaChi ? '<div style="font-size:11px;color:#4b5563;margin-top:2px;">Địa chỉ đăng ký: ' + escHtml(sk.DiaChi) + '</div>' : '') +
+                            '</div>' +
+                            '<button class="btn-mini-cancel" onclick="huySuKien(' + sk.MaDK + ')">Hủy tham gia</button>' +
+                        '</div>' +
+                    '</div>';
                 }
                 document.getElementById('order-sk-history').innerHTML = htmlSK || '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:16px;">Bạn chưa đăng ký sự kiện nào.</p>';
             } catch (e) { console.error(e); }
@@ -1828,7 +1992,7 @@
                 for (var i = 0; i < msgs.length; i++) {
                     var m = msgs[i], isUser = m.NguoiGui === 'nong-dan';
                     var label = !isUser ? '<div style="font-size:10px;font-weight:800;color:#d97706;margin-bottom:2px;">' + (m.NoiDung.indexOf('[Trợ lý AI') !== -1 ? 'Trợ Lý AI Lúa Vàng' : 'Admin Lúa Vàng') + '</div>' : '';
-                    html += '<div class="msg-row ' + (isUser ? 'user' : 'bot') + '"><div class="msg-bubble">' + label + String(m.NoiDung || '').replace(/\n/g, '<br>') + '</div></div>';
+                    html += '<div class="msg-row ' + (isUser ? 'user' : 'bot') + '"><div class="msg-bubble">' + label + escHtml(m.NoiDung || '').replace(/\n/g, '<br>') + '</div></div>';
                 }
                 if (dangChoAI) {
                     html += '<div class="msg-row bot"><div class="msg-bubble" style="color:#6b7280;font-style:italic;"><i class="fas fa-spinner fa-spin"></i> Trợ lý AI đang phân tích câu hỏi của bà con...</div></div>';
@@ -2044,10 +2208,10 @@
                     var title = isMay ? o.TenMay : o.TenSanPham;
                     var total = Number((isMay ? o.GiaThue : o.GiaTien) * (isMay ? o.SoCong : o.SoLuong)).toLocaleString('vi-VN');
                     html += '<div style="padding:10px;border-radius:10px;background:#f9fafb;border:1px solid #e5e7eb;margin-bottom:8px;font-size:12px;">' +
-                        '<div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px;"><span>' + (isMay ? '[Máy] ' : '[SP] ') + title + '</span><span style="color:#064e3b;">' + total + 'đ</span></div>' +
-                        '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#6b7280;"><span>SĐT: ' + o.SoDienThoai + '</span>' +
+                        '<div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px;"><span>' + (isMay ? '[Máy] ' : '[SP] ') + escHtml(title) + '</span><span style="color:#064e3b;">' + total + 'đ</span></div>' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#6b7280;"><span>SĐT: ' + escHtml(o.SoDienThoai) + '</span>' +
                         '<select onchange="adminUpdateStatus(' + isMay + ',' + id + ',this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #d1d5db;font-weight:700;">' +
-                            '<option value="' + o.TrangThai + '" selected>' + o.TrangThai + '</option>' +
+                            '<option value="' + escAttr(o.TrangThai) + '" selected>' + escHtml(o.TrangThai) + '</option>' +
                             '<option value="Đã đặt cọc (30%)">Đã đặt cọc (30%)</option><option value="Đang giao hàng">Đang giao hàng</option><option value="Đang thực hiện">Đang thực hiện</option><option value="Đã thanh toán & Hoàn thành">Hoàn thành</option>' +
                         '</select></div></div>';
                 }
