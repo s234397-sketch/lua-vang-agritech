@@ -10,6 +10,7 @@
     <style>
         :root {
             --primary: #064e3b;
+            --primary-mid: #047857;
             --accent: #d97706;
             --bg: #f2f4f1;
             --card: #ffffff;
@@ -17,111 +18,834 @@
             --muted: #6b7280;
             --border: #e5e7eb;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 76px; max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding-bottom: 78px;
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
 
-        .app-header { position: sticky; top: 0; z-index: 50; background: var(--primary); color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-        .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-        .brand-logo { width: 36px; height: 36px; border-radius: 10px; background: #fff; padding: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
-        .brand-title { font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
-        .brand-badge { background: #fbbf24; color: #064e3b; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 6px; }
-        .brand-sub { font-size: 11px; color: #a7f3d0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cart-btn { position: relative; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-        .cart-badge { position: absolute; top: -3px; right: -3px; background: #f59e0b; color: #064e3b; font-size: 10px; font-weight: 800; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+        /* HEADER */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--primary);
+            color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #fff;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .brand-title {
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .brand-badge {
+            background: #fbbf24;
+            color: #064e3b;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        .brand-sub {
+            font-size: 11px;
+            color: #a7f3d0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .icon-circle-btn {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #fff;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .cart-badge {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            background: #f59e0b;
+            color: #064e3b;
+            font-size: 10px;
+            font-weight: 800;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
 
-        .tab-view { display: none; padding: 14px; }
-        .tab-view.active { display: block; }
+        /* TAB VIEWS */
+        .tab-view {
+            display: none;
+            padding: 14px;
+        }
+        .tab-view.active {
+            display: block;
+        }
 
-        .hero-card { background: linear-gradient(135deg, #064e3b, #047857); color: #fff; border-radius: 18px; padding: 16px; margin-bottom: 14px; }
-        .hero-tag { display: inline-block; background: rgba(251,191,36,0.2); color: #fde68a; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
-        .hero-card h2 { font-size: 17px; font-weight: 800; line-height: 1.35; margin-bottom: 6px; }
-        .hero-card p { font-size: 12px; color: #d1fae5; line-height: 1.4; margin-bottom: 14px; }
-        .hero-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn-hero-white { background: #fff; color: var(--primary); border: none; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
-        .btn-hero-outline { background: rgba(0,0,0,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+        /* HERO BANNER */
+        .hero-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-mid));
+            color: #fff;
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .hero-tag {
+            display: inline-block;
+            background: rgba(251, 191, 36, 0.2);
+            color: #fde68a;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+        }
+        .hero-card h2 {
+            font-size: 17px;
+            font-weight: 800;
+            line-height: 1.35;
+            margin-bottom: 6px;
+        }
+        .hero-card p {
+            font-size: 12px;
+            color: #d1fae5;
+            line-height: 1.4;
+            margin-bottom: 14px;
+        }
+        .hero-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .btn-hero-white {
+            background: #fff;
+            color: var(--primary);
+            border: none;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .btn-hero-outline {
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+        }
 
-        .search-box { position: relative; margin-bottom: 10px; }
-        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 13px; }
-        .search-box input { width: 100%; padding: 10px 12px 10px 34px; border-radius: 12px; border: 1px solid var(--border); background: #fff; font-size: 13px; outline: none; }
-        .pills-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; scrollbar-width: none; }
-        .pills-row::-webkit-scrollbar { display: none; }
-        .pill { white-space: nowrap; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: #fff; color: var(--muted); cursor: pointer; }
-        .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        /* SEARCH & FILTER */
+        .search-box {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 13px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 34px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            font-size: 13px;
+            outline: none;
+        }
+        .pills-row {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            scrollbar-width: none;
+        }
+        .pills-row::-webkit-scrollbar {
+            display: none;
+        }
+        .pill {
+            white-space: nowrap;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--muted);
+            cursor: pointer;
+        }
+        .pill.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
 
-        .sec-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .sec-head h3 { font-size: 12.5px; font-weight: 800; text-transform: uppercase; color: #374151; }
-        .sec-head span { font-size: 11px; color: var(--muted); }
+        .sec-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .sec-head h3 {
+            font-size: 12.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #374151;
+        }
+        .sec-head span {
+            font-size: 11px;
+            color: var(--muted);
+        }
 
-        .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .prod-card { background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; }
-        .prod-img { width: 100%; height: 120px; object-fit: cover; background: #f9fafb; }
-        .prod-body { padding: 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .prod-cat { font-size: 10px; font-weight: 700; color: var(--primary); background: #ecfdf5; padding: 2px 6px; border-radius: 6px; display: inline-block; margin-bottom: 4px; }
-        .prod-name { font-size: 12.5px; font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .prod-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid #f3f4f6; }
-        .prod-price { font-size: 13px; font-weight: 800; color: var(--accent); }
-        .btn-add { width: 30px; height: 30px; border-radius: 9px; background: var(--primary); color: #fff; border: none; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        /* PRODUCT GRID */
+        .prod-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .prod-card {
+            background: var(--card);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .prod-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background: #f9fafb;
+            cursor: pointer;
+        }
+        .prod-body {
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .prod-cat {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary);
+            background: #ecfdf5;
+            padding: 2px 6px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .prod-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .prod-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #f3f4f6;
+            gap: 4px;
+        }
+        .prod-price {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .prod-btns {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-detail-mini {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .btn-add {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
 
-        .info-banner { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #92400e; display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-        .list-card { background: #fff; border-radius: 16px; border: 1px solid var(--border); padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; }
-        .list-img { width: 86px; height: 86px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: #f3f4f6; }
-        .list-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
-        .list-title { font-size: 14px; font-weight: 800; color: #111827; margin: 3px 0; }
-        .list-desc { font-size: 11.5px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .list-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f3f4f6; }
-        .btn-book { background: #f59e0b; color: #fff; border: none; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        /* MACHINE & EVENT CARDS */
+        .info-banner {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #92400e;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .list-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 12px;
+        }
+        .list-img {
+            width: 86px;
+            height: 86px;
+            border-radius: 12px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #f3f4f6;
+            cursor: pointer;
+        }
+        .list-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .list-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #111827;
+            margin: 3px 0;
+            cursor: pointer;
+        }
+        .list-desc {
+            font-size: 11.5px;
+            color: var(--muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .list-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #f3f4f6;
+            gap: 6px;
+        }
+        .btn-detail-outline {
+            background: #f9fafb;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 6px 10px;
+            border-radius: 10px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-book {
+            background: #f59e0b;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
 
-        .event-card { background: #fff; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 12px; }
-        .event-img { width: 100%; height: 140px; object-fit: cover; }
-        .event-body { padding: 12px; }
-        .event-meta { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
-        .btn-reg-event { width: 100%; margin-top: 10px; padding: 9px; border-radius: 10px; border: 1px solid #a7f3d0; background: #ecfdf5; color: var(--primary); font-size: 12px; font-weight: 700; cursor: pointer; }
+        .event-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .event-img {
+            width: 100%;
+            height: 145px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .event-body {
+            padding: 12px;
+        }
+        .event-meta {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .event-actions {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .btn-reg-event {
+            padding: 9px;
+            border-radius: 10px;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
 
-        .box-card { background: #fff; border-radius: 16px; border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; }
-        .box-title { font-size: 12px; font-weight: 800; text-transform: uppercase; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid #f3f4f6; }
-        .cart-row { background: #f9fafb; padding: 10px; border-radius: 12px; margin-bottom: 8px; font-size: 12px; border: 1px solid #f3f4f6; }
-        .qty-box { display: inline-flex; align-items: center; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; background: #fff; }
-        .qty-box button { border: none; background: #f3f4f6; padding: 4px 9px; font-weight: 800; cursor: pointer; }
-        .qty-box span { padding: 0 8px; font-weight: 700; }
-        .btn-del { width: 28px; height: 28px; border-radius: 8px; background: #fee2e2; color: #dc2626; border: none; cursor: pointer; }
-        .input-field { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 12.5px; margin-top: 4px; margin-bottom: 8px; background: #f9fafb; }
-        .btn-primary { width: 100%; padding: 11px; border-radius: 12px; background: var(--primary); color: #fff; border: none; font-size: 13px; font-weight: 700; cursor: pointer; }
-        .btn-amber { width: 100%; padding: 11px; border-radius: 12px; background: #f59e0b; color: #fff; border: none; font-size: 13px; font-weight: 700; cursor: pointer; }
-        .btn-mini-qr { background: var(--primary); color: #fff; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
-        .btn-mini-cod { background: #d97706; color: #fff; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
-        .btn-mini-cancel { background: #fff; color: #dc2626; border: 1px solid #fecaca; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        /* CARDS, INPUTS, BUTTONS */
+        .box-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .box-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .cart-row {
+            background: #f9fafb;
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            border: 1px solid #f3f4f6;
+        }
+        .qty-box {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .qty-box button {
+            border: none;
+            background: #f3f4f6;
+            padding: 4px 9px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .qty-box span {
+            padding: 0 8px;
+            font-weight: 700;
+        }
+        .btn-del {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            cursor: pointer;
+        }
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #4b5563;
+            margin-bottom: 2px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 12.5px;
+            margin-top: 3px;
+            margin-bottom: 10px;
+            background: #f9fafb;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 11px;
+            border-radius: 12px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-amber {
+            width: 100%;
+            padding: 11px;
+            border-radius: 12px;
+            background: #f59e0b;
+            color: #fff;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-dark {
+            width: 100%;
+            padding: 11px;
+            border-radius: 12px;
+            background: #1f2937;
+            color: #fff;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-mini-qr {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-mini-cod {
+            background: #d97706;
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-mini-cancel {
+            background: #fff;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
 
         /* CHAT */
-        #view-chat.active { display: flex; flex-direction: column; height: calc(100vh - 134px); padding: 0; }
-        .chat-head { background: #fff; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-        .chat-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-        .msg-row { display: flex; }
-        .msg-row.user { justify-content: flex-end; }
-        .msg-bubble { max-width: 84%; padding: 10px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.45; }
-        .msg-row.user .msg-bubble { background: #d1fae5; color: #064e3b; border-bottom-right-radius: 4px; }
-        .msg-row.bot .msg-bubble { background: #fff; color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-        .chat-quick { background: #fff; padding: 6px 10px; border-top: 1px solid var(--border); display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
-        .quick-chip { white-space: nowrap; font-size: 11px; padding: 5px 10px; border-radius: 14px; border: 1px solid #d1fae5; background: #ecfdf5; color: var(--primary); cursor: pointer; }
-        .chat-form { background: #fff; padding: 8px 10px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
-        .chat-form input { flex: 1; padding: 9px 14px; border-radius: 20px; border: 1px solid var(--border); font-size: 13px; outline: none; }
-        .chat-form button { width: 38px; height: 38px; border-radius: 50%; background: var(--primary); color: #fff; border: none; cursor: pointer; }
+        #view-chat.active {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 134px);
+            padding: 0;
+        }
+        .chat-contact-strip {
+            background: #ecfdf5;
+            border-bottom: 1px solid #d1fae5;
+            padding: 7px 12px;
+            font-size: 11px;
+            color: #064e3b;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .chat-head {
+            background: #fff;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .msg-row {
+            display: flex;
+        }
+        .msg-row.user {
+            justify-content: flex-end;
+        }
+        .msg-bubble {
+            max-width: 84%;
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-size: 12.5px;
+            line-height: 1.45;
+        }
+        .msg-row.user .msg-bubble {
+            background: #d1fae5;
+            color: #064e3b;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-row.bot .msg-bubble {
+            background: #fff;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+        .chat-quick {
+            background: #fff;
+            padding: 6px 10px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .chat-quick::-webkit-scrollbar {
+            display: none;
+        }
+        .quick-chip {
+            white-space: nowrap;
+            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 14px;
+            border: 1px solid #d1fae5;
+            background: #ecfdf5;
+            color: var(--primary);
+            cursor: pointer;
+        }
+        .chat-form {
+            background: #fff;
+            padding: 8px 10px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+        }
+        .chat-form input {
+            flex: 1;
+            padding: 9px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            outline: none;
+        }
+        .chat-form button {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; background: #fff; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 0 8px; z-index: 50; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .nav-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px; color: #9ca3af; font-size: 10px; font-weight: 700; cursor: pointer; }
-        .nav-btn i { font-size: 17px; }
-        .nav-btn.active { color: var(--primary); }
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            padding: 6px 0 8px;
+            z-index: 50;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            color: #9ca3af;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .nav-btn i {
+            font-size: 17px;
+        }
+        .nav-btn.active {
+            color: var(--primary);
+        }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.58); z-index: 80; display: none; align-items: center; justify-content: center; padding: 14px; }
-        .modal-overlay.open { display: flex; }
-        .modal-sheet { background: #fff; width: 100%; max-width: 440px; border-radius: 20px; padding: 18px; max-height: 90vh; overflow-y: auto; }
-        .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 12px; }
-        .slot-item { padding: 9px; border: 1px solid var(--border); border-radius: 10px; background: #fff; font-size: 11.5px; font-weight: 700; text-align: left; cursor: pointer; }
-        .slot-item.selected { background: #ecfdf5; border-color: var(--primary); color: var(--primary); }
+        /* MODALS */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.58);
+            z-index: 80;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-sheet {
+            background: #fff;
+            width: 100%;
+            max-width: 440px;
+            border-radius: 20px;
+            padding: 18px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f3f4f6;
+            margin-bottom: 12px;
+        }
+        .modal-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: #f3f4f6;
+            cursor: pointer;
+        }
+        .slot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 8px 0 12px;
+        }
+        .slot-item {
+            padding: 9px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+        }
+        .slot-item.selected {
+            background: #ecfdf5;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
 
-        .toast { position: fixed; top: 14px; left: 14px; right: 14px; max-width: 452px; margin: 0 auto; background: #111827; color: #fff; padding: 12px 14px; border-radius: 12px; font-size: 12.5px; font-weight: 600; z-index: 100; display: none; align-items: center; gap: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
-        .toast.show { display: flex; }
-        .hidden { display: none !important; }
+        /* TOAST */
+        .toast {
+            position: fixed;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            max-width: 452px;
+            margin: 0 auto;
+            background: #111827;
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        .toast.show {
+            display: flex;
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -142,18 +866,20 @@
                 <div id="header-subtitle" class="brand-sub">Đồng hành cùng nhà nông</div>
             </div>
         </div>
-        <button class="cart-btn" onclick="switchTab('cart')">
-            <i class="fas fa-shopping-bag"></i>
-            <span id="cart-badge" class="cart-badge hidden">0</span>
-        </button>
+        <div class="header-actions">
+            <button class="icon-circle-btn" onclick="switchTab('cart')" title="Giỏ hàng">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-badge" class="cart-badge hidden">0</span>
+            </button>
+        </div>
     </header>
 
-    <!-- TAB 1: CỬA HÀNG -->
+    <!-- TAB 1: CỬA HÀNG VẬT TƯ -->
     <main id="view-home" class="tab-view active">
         <div class="hero-card">
             <span class="hero-tag">AgriTech Đồng Bằng Sông Cửu Long</span>
             <h2>Vật tư chính hãng &amp; Cơ giới hóa tận ruộng</h2>
-            <p>Đặt phân bón, giống lúa &amp; chốt ca máy gặt, drone cọc QR SePay tự động 24/7.</p>
+            <p>Đặt phân bón, giống lúa, thuốc BVTV &amp; chốt ca máy gặt, drone cọc QR SePay tự động 24/7.</p>
             <div class="hero-actions">
                 <button class="btn-hero-white" onclick="switchTab('machines')"><i class="fas fa-tractor" style="color:#d97706;"></i> Đặt lịch máy</button>
                 <button class="btn-hero-outline" onclick="switchTab('chat')"><i class="fas fa-robot" style="color:#fde68a;"></i> Hỏi Trợ lý AI</button>
@@ -182,7 +908,7 @@
         <div id="machine-list"></div>
     </main>
 
-    <!-- TAB 3: SỰ KIỆN -->
+    <!-- TAB 3: SỰ KIỆN & HỘI THẢO -->
     <main id="view-events" class="tab-view">
         <div class="sec-head">
             <h3>Hội thảo &amp; Tập huấn kỹ thuật</h3>
@@ -194,8 +920,8 @@
     <!-- TAB 4: GIỎ HÀNG & ĐƠN HÀNG -->
     <main id="view-cart" class="tab-view">
         <div class="sec-head">
-            <h3>Giỏ hàng &amp; Lịch đã đặt</h3>
-            <button onclick="loadCartData()" style="background:none;border:none;color:#064e3b;font-weight:700;font-size:12px;"><i class="fas fa-sync-alt"></i> Làm mới</button>
+            <h3>Giỏ hàng &amp; Hoạt động của tôi</h3>
+            <button onclick="loadCartData()" style="background:none;border:none;color:#064e3b;font-weight:700;font-size:12px;cursor:pointer;"><i class="fas fa-sync-alt"></i> Làm mới</button>
         </div>
 
         <div id="cart-login-notice" class="box-card hidden" style="text-align:center;padding:28px 16px;">
@@ -207,15 +933,15 @@
 
         <div id="cart-content" class="hidden">
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;">
-                <button id="subtab-sp" onclick="switchCartSubTab('sp')" style="padding:8px;border-radius:10px;border:none;background:#064e3b;color:#fff;font-size:11.5px;font-weight:700;">Vật tư (<span id="badge-sp">0</span>)</button>
-                <button id="subtab-may" onclick="switchCartSubTab('may')" style="padding:8px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;color:#4b5563;font-size:11.5px;font-weight:700;">Thuê máy (<span id="badge-may">0</span>)</button>
-                <button id="subtab-sk" onclick="switchCartSubTab('sk')" style="padding:8px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;color:#4b5563;font-size:11.5px;font-weight:700;">Sự kiện (<span id="badge-sk">0</span>)</button>
+                <button id="subtab-sp" onclick="switchCartSubTab('sp')" style="padding:8px;border-radius:10px;border:none;background:#064e3b;color:#fff;font-size:11.5px;font-weight:700;cursor:pointer;">Sản phẩm (<span id="badge-sp">0</span>)</button>
+                <button id="subtab-may" onclick="switchCartSubTab('may')" style="padding:8px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;color:#4b5563;font-size:11.5px;font-weight:700;cursor:pointer;">Thuê máy (<span id="badge-may">0</span>)</button>
+                <button id="subtab-sk" onclick="switchCartSubTab('sk')" style="padding:8px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;color:#4b5563;font-size:11.5px;font-weight:700;cursor:pointer;">Sự kiện (<span id="badge-sk">0</span>)</button>
             </div>
 
-            <!-- KHOẢNG 1: SẢN PHẨM -->
+            <!-- MỤC 1: SẢN PHẨM -->
             <div id="cart-sec-sp">
                 <div class="box-card">
-                    <div class="box-title" style="color:#064e3b;">Vật tư đang trong giỏ</div>
+                    <div class="box-title" style="color:#064e3b;">Sản phẩm đang trong giỏ</div>
                     <div id="cart-sp-list"></div>
                     <div id="checkout-sp-box" class="hidden" style="margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6;">
                         <div id="cart-sp-total" style="font-size:14px;font-weight:800;color:#d97706;margin-bottom:10px;">0đ</div>
@@ -226,10 +952,10 @@
                 <div id="order-sp-history"></div>
             </div>
 
-            <!-- KHOẢNG 2: THUÊ MÁY -->
+            <!-- MỤC 2: THUÊ MÁY -->
             <div id="cart-sec-may" class="hidden">
                 <div class="box-card">
-                    <div class="box-title" style="color:#b45309;">Ca thuê máy đang trong giỏ</div>
+                    <div class="box-title" style="color:#b45309;">Dịch vụ thuê máy đang trong giỏ</div>
                     <div id="cart-may-list"></div>
                     <div id="checkout-may-box" class="hidden" style="margin-top:10px;padding-top:10px;border-top:1px solid #f3f4f6;">
                         <div id="cart-may-total" style="font-size:14px;font-weight:800;color:#b45309;margin-bottom:10px;">0đ</div>
@@ -240,14 +966,14 @@
                 <div id="order-may-history"></div>
             </div>
 
-            <!-- KHOẢNG 3: SỰ KIỆN ĐÃ ĐĂNG KÝ -->
+            <!-- MỤC 3: SỰ KIỆN ĐÃ ĐĂNG KÝ -->
             <div id="cart-sec-sk" class="hidden">
                 <div id="order-sk-history"></div>
             </div>
         </div>
     </main>
 
-    <!-- TAB 5: TƯ VẤN AI (BẮT BUỘC ĐĂNG NHẬP) -->
+    <!-- TAB 5: TƯ VẤN AI -->
     <main id="view-chat" class="tab-view">
         <div id="chat-login-gate" class="hidden" style="padding:24px 16px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
             <div class="box-card" style="width:100%;padding:24px 16px;">
@@ -259,48 +985,53 @@
         </div>
 
         <div id="chat-active-box" style="display:flex;flex-direction:column;height:100%;">
+            <div class="chat-contact-strip">
+                <span><i class="fas fa-phone-volume"></i> Hotline: <strong>1900 6868</strong></span>
+                <span><i class="fas fa-comments"></i> Zalo: <strong>0988 123 456</strong></span>
+            </div>
             <div class="chat-head">
-                <span><i class="fas fa-circle" style="color:#10b981;font-size:8px;margin-right:6px;"></i>Trợ lý AI &amp; Kỹ sư Lúa Vàng 24/7</span>
-                <button onclick="loadChatMessages()" style="background:none;border:none;color:#6b7280;"><i class="fas fa-redo"></i></button>
+                <span><i class="fas fa-circle" style="color:#10b981;font-size:8px;margin-right:6px;"></i>Trợ lý AI &amp; Chuyên gia Lúa Vàng</span>
+                <button onclick="loadChatMessages()" style="background:none;border:none;color:#6b7280;cursor:pointer;"><i class="fas fa-redo"></i></button>
             </div>
             <div id="chat-messages" class="chat-body"></div>
             <div class="chat-quick">
-                <button class="quick-chip" onclick="sendQuickChat('Lúa bị vàng lá đầu ngọn là thiếu chất gì?')">Vàng lá thiếu chất gì?</button>
-                <button class="quick-chip" onclick="sendQuickChat('Cách phòng trừ bệnh đạo ôn cổ bông trên lúa?')">Trị đạo ôn cổ bông</button>
-                <button class="quick-chip" onclick="sendQuickChat('Tư vấn bón phân đón đòng giúp lúa trổ đều?')">Bón phân đón đòng</button>
+                <button class="quick-chip" onclick="sendQuickChat('Lúa bị vàng lá đầu ngọn là thiếu chất gì và cần bón phân gì?')">🌾 Vàng lá thiếu chất gì?</button>
+                <button class="quick-chip" onclick="sendQuickChat('Cách nhận biết và phòng trừ bệnh đạo ôn cổ bông trên lúa?')">🛡️ Trị đạo ôn cổ bông</button>
+                <button class="quick-chip" onclick="sendQuickChat('Tư vấn quy trình bón phân đón đòng giúp lúa trổ đều, chắc hạt?')">🌱 Bón phân đón đòng</button>
+                <button class="quick-chip" onclick="sendQuickChat('Tôi muốn thuê máy gặt đập liên hợp và Drone phun thuốc')">🚜 Hỏi thuê máy &amp; Drone</button>
             </div>
             <form class="chat-form" onsubmit="handleSendChat(event)">
-                <input type="text" id="chat-input" placeholder="Nhập câu hỏi về cây lúa, vật tư..." required>
+                <input type="text" id="chat-input" placeholder="Nhập câu hỏi về kỹ thuật trồng lúa, sâu bệnh, thuê máy..." required>
                 <button id="btn-send-chat" type="submit"><i class="fas fa-paper-plane"></i></button>
             </form>
         </div>
     </main>
 
-    <!-- TAB 6: TÀI KHOẢN & ADMIN -->
+    <!-- TAB 6: TÀI KHOẢN NÔNG DÂN & HỒ SƠ & ĐỔI MẬT KHẨU -->
     <main id="view-account" class="tab-view">
         <div id="auth-forms" class="box-card">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f3f4f6;padding:4px;border-radius:12px;margin-bottom:14px;">
-                <button id="btn-show-login" onclick="toggleAuthMode('login')" style="padding:8px;border-radius:9px;border:none;background:#fff;color:#064e3b;font-weight:800;font-size:12px;">Đăng nhập</button>
-                <button id="btn-show-register" onclick="toggleAuthMode('register')" style="padding:8px;border-radius:9px;border:none;background:transparent;color:#6b7280;font-weight:700;font-size:12px;">Đăng ký mới</button>
+                <button id="btn-show-login" onclick="toggleAuthMode('login')" style="padding:8px;border-radius:9px;border:none;background:#fff;color:#064e3b;font-weight:800;font-size:12px;cursor:pointer;">Đăng nhập</button>
+                <button id="btn-show-register" onclick="toggleAuthMode('register')" style="padding:8px;border-radius:9px;border:none;background:transparent;color:#6b7280;font-weight:700;font-size:12px;cursor:pointer;">Đăng ký mới</button>
             </div>
 
             <form id="form-login" onsubmit="handleLogin(event)">
-                <label style="font-size:11px;font-weight:700;color:#4b5563;">Số điện thoại / Tài khoản</label>
+                <label class="field-label">Số điện thoại / Tài khoản</label>
                 <input type="text" id="login-username" class="input-field" required placeholder="Nhập số điện thoại đã đăng ký...">
-                <label style="font-size:11px;font-weight:700;color:#4b5563;">Mật khẩu</label>
+                <label class="field-label">Mật khẩu</label>
                 <input type="password" id="login-password" class="input-field" required placeholder="Nhập mật khẩu...">
                 <button type="submit" class="btn-primary">Đăng nhập hệ thống</button>
             </form>
 
             <form id="form-register" onsubmit="handleRegister(event)" class="hidden">
-                <label style="font-size:11px;font-weight:700;color:#4b5563;">Họ và tên nông dân</label>
+                <label class="field-label">Họ và tên nông dân</label>
                 <input type="text" id="reg-fullname" class="input-field" required placeholder="Nguyễn Văn A">
-                <label style="font-size:11px;font-weight:700;color:#4b5563;">Số điện thoại</label>
+                <label class="field-label">Số điện thoại</label>
                 <input type="tel" id="reg-phone" class="input-field" required placeholder="09xxxxxxxx">
-                <label style="font-size:11px;font-weight:700;color:#4b5563;">Địa chỉ ruộng / Nơi ở</label>
+                <label class="field-label">Địa chỉ ruộng / Nơi ở</label>
                 <input type="text" id="reg-address" class="input-field" required placeholder="Xã..., Huyện..., Tỉnh...">
-                <label style="font-size:11px;font-weight:700;color:#4b5563;">Mật khẩu</label>
-                <input type="password" id="reg-password" class="input-field" required placeholder="Tối thiểu 6 ký tự">
+                <label class="field-label">Mật khẩu</label>
+                <input type="password" id="reg-password" class="input-field" required placeholder="Nhập mật khẩu...">
                 <button type="submit" class="btn-amber">Tạo tài khoản ngay</button>
             </form>
         </div>
@@ -317,19 +1048,40 @@
                         <p id="profile-phone" style="font-size:12px;color:#6b7280;">09xxxxxxxx</p>
                     </div>
                 </div>
-                <button onclick="handleLogout()" style="width:38px;height:38px;border-radius:10px;background:#fee2e2;color:#dc2626;border:none;flex-shrink:0;"><i class="fas fa-sign-out-alt"></i></button>
+                <button onclick="handleLogout()" style="width:38px;height:38px;border-radius:10px;background:#fee2e2;color:#dc2626;border:none;cursor:pointer;flex-shrink:0;" title="Đăng xuất">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
 
+            <!-- CẬP NHẬT HỒ SƠ NÔNG DÂN -->
             <div class="box-card">
-                <div class="box-title">Địa chỉ ruộng mặc định</div>
+                <div class="box-title" style="color:#064e3b;"><i class="fas fa-id-card"></i> Hồ sơ nông dân</div>
+                <label class="field-label">Họ và tên</label>
+                <input type="text" id="profile-fullname" class="input-field">
+                <label class="field-label">Địa chỉ ruộng / Nơi ở</label>
                 <input type="text" id="profile-address" class="input-field">
-                <button onclick="updateProfileAddress()" class="btn-primary" style="background:#1f2937;">Lưu thay đổi địa chỉ</button>
+                <button onclick="updateProfileInfo()" class="btn-dark">Lưu thay đổi hồ sơ</button>
             </div>
 
+            <!-- ĐỔI MẬT KHẨU -->
+            <div id="change-password-card" class="box-card">
+                <div class="box-title" style="color:#b45309;"><i class="fas fa-key"></i> Đổi mật khẩu</div>
+                <form onsubmit="handleChangePassword(event)">
+                    <label class="field-label">Mật khẩu hiện tại</label>
+                    <input type="password" id="old-password" class="input-field" required placeholder="Nhập mật khẩu cũ...">
+                    <label class="field-label">Mật khẩu mới</label>
+                    <input type="password" id="new-password" class="input-field" required placeholder="Nhập mật khẩu mới...">
+                    <label class="field-label">Nhập lại mật khẩu mới</label>
+                    <input type="password" id="confirm-password" class="input-field" required placeholder="Xác nhận mật khẩu mới...">
+                    <button type="submit" class="btn-amber">Cập nhật mật khẩu</button>
+                </form>
+            </div>
+
+            <!-- BẢNG QUẢN TRỊ NHANH NẾU ĐĂNG NHẬP ADMIN -->
             <div id="admin-mobile-panel" class="hidden">
                 <div class="sec-head">
                     <h3 style="color:#b91c1c;"><i class="fas fa-shield-alt"></i> Quản trị nhanh (Admin)</h3>
-                    <button onclick="loadAdminStats()" style="background:none;border:none;color:#064e3b;font-weight:700;font-size:12px;">Làm mới</button>
+                    <button onclick="loadAdminStats()" style="background:none;border:none;color:#064e3b;font-weight:700;font-size:12px;cursor:pointer;">Làm mới</button>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
                     <div class="box-card" style="margin:0;">
@@ -343,36 +1095,55 @@
                 </div>
                 <div class="box-card">
                     <div class="box-title">Đơn hàng &amp; Ca máy gần đây</div>
-                    <div id="admin-order-list" style="max-height:360px;overflow-y:auto;"></div>
+                    <div id="admin-order-list" style="max-height:340px;overflow-y:auto;"></div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- MODAL ĐẶT LỊCH THUÊ MÁY -->
+    <!-- MODAL CHI TIẾT SẢN PHẨM -->
+    <div id="modal-product-detail" class="modal-overlay">
+        <div class="modal-sheet">
+            <div class="modal-head">
+                <span style="font-size:11px;font-weight:800;color:#064e3b;text-transform:uppercase;">Chi tiết vật tư</span>
+                <button class="modal-close" onclick="closeModal('modal-product-detail')"><i class="fas fa-times"></i></button>
+            </div>
+            <img id="detail-sp-img" src="" alt="Sản phẩm" style="width:100%;height:185px;object-fit:cover;border-radius:14px;margin-bottom:12px;background:#f9fafb;">
+            <span id="detail-sp-cat" style="font-size:11px;font-weight:700;background:#ecfdf5;color:#064e3b;padding:3px 8px;border-radius:8px;">Danh mục</span>
+            <h3 id="detail-sp-name" style="font-size:16px;font-weight:800;margin:8px 0 6px;">Tên sản phẩm</h3>
+            <p id="detail-sp-price" style="font-size:16px;font-weight:900;color:#d97706;margin-bottom:10px;">0đ</p>
+            <p id="detail-sp-desc" style="font-size:12.5px;color:#4b5563;line-height:1.5;margin-bottom:14px;"></p>
+            <button id="detail-sp-add-btn" class="btn-primary"><i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng</button>
+        </div>
+    </div>
+
+    <!-- MODAL CHI TIẾT MÁY & ĐẶT LỊCH -->
     <div id="modal-booking" class="modal-overlay">
         <div class="modal-sheet">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid #f3f4f6;margin-bottom:12px;">
+            <div class="modal-head">
                 <div>
-                    <span style="font-size:10px;font-weight:800;color:#d97706;text-transform:uppercase;">Đặt lịch cơ giới hóa</span>
+                    <span id="booking-machine-cat" style="font-size:10px;font-weight:800;color:#d97706;text-transform:uppercase;">Cơ giới hóa</span>
                     <h3 id="modal-machine-name" style="font-size:15px;font-weight:800;">Tên máy</h3>
                 </div>
-                <button onclick="closeModal('modal-booking')" style="width:30px;height:30px;border-radius:50%;border:none;background:#f3f4f6;"><i class="fas fa-times"></i></button>
+                <button class="modal-close" onclick="closeModal('modal-booking')"><i class="fas fa-times"></i></button>
             </div>
+
+            <p id="modal-machine-price" style="font-size:13.5px;font-weight:800;color:#064e3b;margin-bottom:6px;"></p>
+            <p id="modal-machine-desc" style="font-size:12px;color:#4b5563;line-height:1.45;margin-bottom:12px;background:#f9fafb;padding:10px;border-radius:10px;"></p>
 
             <input type="hidden" id="booking-machine-id">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div>
-                    <label style="font-size:11px;font-weight:700;">Ngày thuê</label>
+                    <label class="field-label">Ngày thuê</label>
                     <input type="date" id="booking-date" class="input-field" onchange="checkMachineSchedule()">
                 </div>
                 <div>
-                    <label style="font-size:11px;font-weight:700;">Diện tích (Công)</label>
+                    <label class="field-label">Diện tích (Công)</label>
                     <input type="number" id="booking-area" class="input-field" value="1" min="0.5" step="0.5">
                 </div>
             </div>
 
-            <label style="font-size:11px;font-weight:700;">Chọn ca làm việc</label>
+            <label class="field-label">Chọn ca làm việc</label>
             <div class="slot-grid">
                 <button type="button" class="slot-item" onclick="selectTimeSlot('Sáng sớm (06:00 - 09:00)', this)">Sáng sớm (06:00 - 09:00)</button>
                 <button type="button" class="slot-item" onclick="selectTimeSlot('Buổi sáng (09:00 - 12:00)', this)">Buổi sáng (09:00 - 12:00)</button>
@@ -390,12 +1161,37 @@
         </div>
     </div>
 
+    <!-- MODAL CHI TIẾT SỰ KIỆN & ĐĂNG KÝ THAM GIA -->
+    <div id="modal-event-register" class="modal-overlay">
+        <div class="modal-sheet">
+            <div class="modal-head">
+                <span style="font-size:11px;font-weight:800;color:#064e3b;text-transform:uppercase;">Chi tiết &amp; Đăng ký sự kiện</span>
+                <button class="modal-close" onclick="closeModal('modal-event-register')"><i class="fas fa-times"></i></button>
+            </div>
+            <img id="ev-modal-img" src="" alt="Sự kiện" style="width:100%;height:150px;object-fit:cover;border-radius:12px;margin-bottom:10px;">
+            <h3 id="ev-modal-title" style="font-size:15px;font-weight:800;margin-bottom:4px;">Tên sự kiện</h3>
+            <p id="ev-modal-meta" style="font-size:11.5px;font-weight:700;color:#064e3b;margin-bottom:6px;"></p>
+            <p id="ev-modal-desc" style="font-size:12px;color:#4b5563;line-height:1.45;margin-bottom:12px;background:#f9fafb;padding:10px;border-radius:10px;"></p>
+
+            <form onsubmit="submitEventRegistration(event)">
+                <input type="hidden" id="ev-reg-id">
+                <label class="field-label">Họ và tên người tham gia</label>
+                <input type="text" id="ev-reg-name" class="input-field" required placeholder="Nhập họ và tên...">
+                <label class="field-label">Số điện thoại</label>
+                <input type="tel" id="ev-reg-phone" class="input-field" required placeholder="Nhập số điện thoại...">
+                <label class="field-label">Địa chỉ ruộng / Địa phương</label>
+                <input type="text" id="ev-reg-address" class="input-field" required placeholder="Nhập xã, huyện, tỉnh...">
+                <button type="submit" class="btn-primary">Xác nhận đăng ký tham gia</button>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL QR SEPAY (CỌC 30% & TRẢ NỐT 70%) -->
     <div id="modal-qr" class="modal-overlay">
         <div class="modal-sheet" style="text-align:center;">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid #f3f4f6;margin-bottom:12px;">
+            <div class="modal-head">
                 <h3 id="qr-title" style="font-size:13px;font-weight:800;color:#064e3b;text-transform:uppercase;">Quét QR SePay</h3>
-                <button onclick="closeQRModal()" style="width:30px;height:30px;border-radius:50%;border:none;background:#f3f4f6;"><i class="fas fa-times"></i></button>
+                <button class="modal-close" onclick="closeQRModal()"><i class="fas fa-times"></i></button>
             </div>
 
             <div id="qr-status-box" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:10px;font-size:11.5px;font-weight:700;margin-bottom:12px;">
@@ -435,6 +1231,8 @@
         ];
 
         var allProducts = [];
+        var allMachines = [];
+        var allEvents = [];
         var selectedCategory = 'ALL';
         var currentUser = JSON.parse(sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser') || 'null');
         var duLieuGioHang = { sanPham: [], thueMay: [], suKien: [] };
@@ -445,11 +1243,26 @@
         var qrEndTimeMs = 0;
 
         function escAttr(str) {
-            return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            return String(str || '')
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '&quot;');
         }
-        function getUserPhone() { return currentUser ? (currentUser.phone || currentUser.SoDienThoai || '') : ''; }
-        function getUserName() { return currentUser ? (currentUser.name || currentUser.HoTen || 'Nông dân') : 'Nông dân'; }
-
+        function getUserPhone() {
+            return currentUser ? (currentUser.phone || currentUser.SoDienThoai || '') : '';
+        }
+        function getUserName() {
+            return currentUser ? (currentUser.name || currentUser.HoTen || 'Nông dân') : 'Nông dân';
+        }
+        function getUserAddress() {
+            return currentUser ? (currentUser.address || currentUser.diaChi || currentUser.DiaChi || '') : '';
+        }
+        function getImgUrl(imgName, fallback) {
+            if (imgName && String(imgName).trim() !== '' && imgName !== 'default.jpg') {
+                return '/hinh-anh/' + String(imgName).trim();
+            }
+            return fallback;
+        }
         function formatMMSS(sec) {
             var s = Math.max(0, Math.floor(Number(sec) || 0));
             return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
@@ -471,6 +1284,10 @@
             icon.style.color = isError ? '#f87171' : '#34d399';
             toast.classList.add('show');
             setTimeout(function() { toast.classList.remove('show'); }, 2800);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
         }
 
         function switchTab(tabName) {
@@ -506,7 +1323,7 @@
             document.getElementById('chat-active-box').classList.toggle('hidden', !loggedIn);
         }
 
-        // 1. CỬA HÀNG
+        // 1. CỬA HÀNG & CHI TIẾT SẢN PHẨM
         async function loadStoreData() {
             try {
                 var res = await fetch('/api/san-pham');
@@ -548,15 +1365,35 @@
                 var p = filtered[i];
                 var dm = p.TenDanhMucChuan || p.DanhMuc || 'Vật tư';
                 var gia = Number(p.GiaTien || 0).toLocaleString('vi-VN') + 'đ';
-                var imgSrc = (p.HinhAnh && p.HinhAnh.trim() !== '' && p.HinhAnh !== 'default.jpg') ? ('/hinh-anh/' + p.HinhAnh) : 'https://placehold.co/300x200?text=Lua+Vang';
+                var imgSrc = getImgUrl(p.HinhAnh, 'https://placehold.co/300x200?text=Lua+Vang');
                 html += '<div class="prod-card">' +
-                    '<img class="prod-img" src="' + imgSrc + '" onerror="this.src=\'https://placehold.co/300x200?text=Lua+Vang\'">' +
+                    '<img class="prod-img" src="' + imgSrc + '" onclick="openProductDetail(' + p.MaSanPham + ')" onerror="this.src=\'https://placehold.co/300x200?text=Lua+Vang\'">' +
                     '<div class="prod-body">' +
-                        '<div><span class="prod-cat">' + dm + '</span><div class="prod-name">' + p.TenSanPham + '</div></div>' +
-                        '<div class="prod-foot"><span class="prod-price">' + gia + '</span><button class="btn-add" onclick="addToCartProduct(' + p.MaSanPham + ', \'' + escAttr(p.TenSanPham) + '\')"><i class="fas fa-plus"></i></button></div>' +
+                        '<div><span class="prod-cat">' + dm + '</span><div class="prod-name" onclick="openProductDetail(' + p.MaSanPham + ')">' + p.TenSanPham + '</div></div>' +
+                        '<div class="prod-foot"><span class="prod-price">' + gia + '</span><div class="prod-btns">' +
+                            '<button class="btn-detail-mini" onclick="openProductDetail(' + p.MaSanPham + ')" title="Chi tiết"><i class="fas fa-eye"></i></button>' +
+                            '<button class="btn-add" onclick="addToCartProduct(' + p.MaSanPham + ', \'' + escAttr(p.TenSanPham) + '\')" title="Thêm vào giỏ"><i class="fas fa-plus"></i></button>' +
+                        '</div></div>' +
                     '</div></div>';
             }
             document.getElementById('product-grid').innerHTML = html;
+        }
+
+        function openProductDetail(maSanPham) {
+            var p = allProducts.find(function(item) { return Number(item.MaSanPham) === Number(maSanPham); });
+            if (!p) return;
+            var dm = p.TenDanhMucChuan || p.DanhMuc || 'Vật tư';
+            var dvt = p.DonViTinh ? (' / ' + p.DonViTinh) : '';
+            document.getElementById('detail-sp-img').src = getImgUrl(p.HinhAnh, 'https://placehold.co/400x240?text=Lua+Vang');
+            document.getElementById('detail-sp-cat').textContent = dm;
+            document.getElementById('detail-sp-name').textContent = p.TenSanPham;
+            document.getElementById('detail-sp-price').textContent = Number(p.GiaTien || 0).toLocaleString('vi-VN') + 'đ' + dvt;
+            document.getElementById('detail-sp-desc').textContent = p.MoTa || 'Vật tư nông nghiệp chính hãng từ hệ thống Lúa Vàng AgriTech.';
+            document.getElementById('detail-sp-add-btn').onclick = function() {
+                closeModal('modal-product-detail');
+                addToCartProduct(p.MaSanPham, p.TenSanPham);
+            };
+            document.getElementById('modal-product-detail').classList.add('open');
         }
 
         async function addToCartProduct(maSanPham, tenSanPham) {
@@ -572,46 +1409,56 @@
             } catch (e) { showToast('Lỗi kết nối máy chủ', true); }
         }
 
-        // 2. THUÊ MÁY
+        // 2. THUÊ MÁY & CHI TIẾT MÁY
         async function loadMachinesData() {
             try {
                 var res = await fetch('/api/thue-may');
                 var result = await res.json();
-                var machines = result.success ? (result.data || []) : [];
+                allMachines = result.success ? (result.data || []) : [];
                 var html = '';
-                for (var i = 0; i < machines.length; i++) {
-                    var m = machines[i];
+                for (var i = 0; i < allMachines.length; i++) {
+                    var m = allMachines[i];
                     var loai = m.TenLoaiMayChuan || m.LoaiMay || 'Cơ giới hóa';
                     var gia = Number(m.GiaThue || 0).toLocaleString('vi-VN') + 'đ';
                     var dvt = m.DonViTinh ? ('/' + m.DonViTinh.toLowerCase()) : '/công';
-                    var imgSrc = (m.HinhAnh && m.HinhAnh.trim() !== '' && m.HinhAnh !== 'default.jpg') ? ('/hinh-anh/' + m.HinhAnh) : 'https://placehold.co/200x200?text=May+Nong+Nghiep';
+                    var imgSrc = getImgUrl(m.HinhAnh, 'https://placehold.co/200x200?text=May+Nong+Nghiep');
                     html += '<div class="list-card">' +
-                        '<img class="list-img" src="' + imgSrc + '" onerror="this.src=\'https://placehold.co/200x200?text=May+Nong+Nghiep\'">' +
+                        '<img class="list-img" src="' + imgSrc + '" onclick="openBookingModal(' + m.MaMay + ')" onerror="this.src=\'https://placehold.co/200x200?text=May+Nong+Nghiep\'">' +
                         '<div class="list-info">' +
                             '<div><span style="font-size:10px;font-weight:700;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:6px;">' + loai + '</span>' +
-                            '<div class="list-title">' + m.TenMay + '</div>' +
+                            '<div class="list-title" onclick="openBookingModal(' + m.MaMay + ')">' + m.TenMay + '</div>' +
                             '<div class="list-desc">' + (m.MoTa || 'Thiết bị hiện đại, điều phối đúng giờ.') + '</div></div>' +
-                            '<div class="list-foot"><span style="font-size:14px;font-weight:800;color:#064e3b;">' + gia + '<small style="font-weight:400;color:#6b7280;">' + dvt + '</small></span>' +
-                            '<button class="btn-book" onclick="openBookingModal(' + m.MaMay + ', \'' + escAttr(m.TenMay) + '\')">Đặt lịch</button></div>' +
+                            '<div class="list-foot"><span style="font-size:13.5px;font-weight:800;color:#064e3b;">' + gia + '<small style="font-weight:400;color:#6b7280;">' + dvt + '</small></span>' +
+                            '<div style="display:flex;gap:5px;"><button class="btn-detail-outline" onclick="openBookingModal(' + m.MaMay + ')">Chi tiết</button>' +
+                            '<button class="btn-book" onclick="openBookingModal(' + m.MaMay + ')">Đặt lịch</button></div></div>' +
                         '</div></div>';
                 }
                 document.getElementById('machine-list').innerHTML = html;
             } catch (e) { console.error(e); }
         }
 
-        function openBookingModal(id, name) {
+        function openBookingModal(id) {
             if (!currentUser || !getUserPhone()) { showToast('Đăng nhập để đặt lịch thuê máy!', true); return switchTab('account'); }
-            document.getElementById('booking-machine-id').value = id;
-            document.getElementById('modal-machine-name').textContent = name;
-            var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+            var m = allMachines.find(function(item) { return Number(item.MaMay) === Number(id); });
+            if (!m) return;
+            var dvt = m.DonViTinh ? (' / ' + m.DonViTinh) : ' / công';
+            document.getElementById('booking-machine-id').value = m.MaMay;
+            document.getElementById('booking-machine-cat').textContent = m.TenLoaiMayChuan || m.LoaiMay || 'Cơ giới hóa';
+            document.getElementById('modal-machine-name').textContent = m.TenMay;
+            document.getElementById('modal-machine-price').textContent = 'Đơn giá: ' + Number(m.GiaThue || 0).toLocaleString('vi-VN') + 'đ' + dvt;
+            document.getElementById('modal-machine-desc').textContent = m.MoTa || 'Thiết bị cơ giới hóa chất lượng cao, hỗ trợ vận hành theo ca.';
+
+            var tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
             document.getElementById('booking-date').value = tomorrow.toISOString().split('T')[0];
+            document.getElementById('booking-area').value = '1';
             document.getElementById('booking-slot').value = '';
             var items = document.querySelectorAll('.slot-item');
             for (var i = 0; i < items.length; i++) items[i].classList.remove('selected');
             document.getElementById('modal-booking').classList.add('open');
             checkMachineSchedule();
         }
-        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
         function selectTimeSlot(slot, btn) {
             document.getElementById('booking-slot').value = slot;
             var items = document.querySelectorAll('.slot-item');
@@ -624,7 +1471,7 @@
             var ngay = document.getElementById('booking-date').value;
             var listEl = document.getElementById('booked-slots-list');
             try {
-                var res = await fetch('/api/thue-may/' + maMay + '/lich-da-dat?ngay=' + ngay);
+                var res = await fetch('/api/thue-may/' + maMay + '/lich-da-dat?ngay=' + encodeURIComponent(ngay));
                 var result = await res.json();
                 var booked = result.data || [];
                 if (!booked.length) listEl.innerHTML = '<span style="color:#064e3b;font-weight:600;">Tất cả ca trong ngày đều còn trống.</span>';
@@ -641,6 +1488,7 @@
             var ngayThue = document.getElementById('booking-date').value;
             var khungGio = document.getElementById('booking-slot').value;
             var soCong = parseFloat(document.getElementById('booking-area').value) || 1;
+            if (!ngayThue) return showToast('Vui lòng chọn ngày thuê!', true);
             if (!khungGio) return showToast('Vui lòng chọn ca làm việc!', true);
             try {
                 var res = await fetch('/api/gio-hang/thue-may', {
@@ -653,39 +1501,66 @@
             } catch (e) { showToast('Lỗi đặt lịch thuê máy', true); }
         }
 
-        // 3. SỰ KIỆN
+        // 3. SỰ KIỆN & ĐĂNG KÝ SỰ KIỆN
         async function loadEventsData() {
             try {
                 var res = await fetch('/api/su-kien');
                 var result = await res.json();
-                var events = result.success ? (result.data || []) : [];
+                allEvents = result.success ? (result.data || []) : [];
                 var html = '';
-                for (var i = 0; i < events.length; i++) {
-                    var ev = events[i];
+                for (var i = 0; i < allEvents.length; i++) {
+                    var ev = allEvents[i];
                     var title = ev.TieuDe || 'Hội thảo kỹ thuật nhà nông';
-                    var imgSrc = (ev.HinhAnh && ev.HinhAnh.trim() !== '' && ev.HinhAnh !== 'default.jpg') ? ('/hinh-anh/' + ev.HinhAnh) : 'https://placehold.co/400x180?text=Hoi+Thao+Lua+Vang';
+                    var imgSrc = getImgUrl(ev.HinhAnh, 'https://placehold.co/400x180?text=Hoi+Thao+Lua+Vang');
                     html += '<div class="event-card">' +
-                        '<img class="event-img" src="' + imgSrc + '" onerror="this.src=\'https://placehold.co/400x180?text=Hoi+Thao+Lua+Vang\'">' +
+                        '<img class="event-img" src="' + imgSrc + '" onclick="openEventModal(' + ev.MaSuKien + ')" onerror="this.src=\'https://placehold.co/400x180?text=Hoi+Thao+Lua+Vang\'">' +
                         '<div class="event-body"><div class="event-meta"><i class="far fa-clock"></i> ' + (ev.ThoiGian || 'Đang cập nhật') + ' • <i class="fas fa-map-marker-alt" style="color:#d97706;"></i> ' + (ev.DiaDiem || 'Tại địa phương') + '</div>' +
-                        '<h3 style="font-size:14px;font-weight:800;margin-bottom:4px;">' + title + '</h3>' +
-                        '<p style="font-size:12px;color:#6b7280;">' + (ev.MoTa || '') + '</p>' +
-                        '<button class="btn-reg-event" onclick="registerEvent(' + ev.MaSuKien + ', \'' + escAttr(title) + '\')">Đăng ký tham gia ngay</button></div></div>';
+                        '<h3 style="font-size:14px;font-weight:800;margin-bottom:4px;cursor:pointer;" onclick="openEventModal(' + ev.MaSuKien + ')">' + title + '</h3>' +
+                        '<p style="font-size:12px;color:#6b7280;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + (ev.MoTa || 'Chương trình tập huấn và tư vấn kỹ thuật đồng ruộng miễn phí.') + '</p>' +
+                        '<div class="event-actions">' +
+                            '<button class="btn-detail-outline" onclick="openEventModal(' + ev.MaSuKien + ')">Xem chi tiết</button>' +
+                            '<button class="btn-reg-event" onclick="openEventModal(' + ev.MaSuKien + ')">Đăng ký tham gia</button>' +
+                        '</div></div></div>';
                 }
                 document.getElementById('event-list').innerHTML = html;
             } catch (e) { console.error(e); }
         }
 
-        async function registerEvent(id, title) {
-            if (!currentUser || !getUserPhone()) { showToast('Vui lòng đăng nhập để đăng ký hội thảo!', true); return switchTab('account'); }
+        function openEventModal(maSuKien) {
+            if (!currentUser || !getUserPhone()) { showToast('Vui lòng đăng nhập để đăng ký sự kiện!', true); return switchTab('account'); }
+            var ev = allEvents.find(function(item) { return Number(item.MaSuKien) === Number(maSuKien); });
+            if (!ev) return;
+            document.getElementById('ev-reg-id').value = ev.MaSuKien;
+            document.getElementById('ev-modal-img').src = getImgUrl(ev.HinhAnh, 'https://placehold.co/400x180?text=Hoi+Thao+Lua+Vang');
+            document.getElementById('ev-modal-title').textContent = ev.TieuDe || 'Hội thảo kỹ thuật';
+            document.getElementById('ev-modal-meta').textContent = (ev.ThoiGian || 'Đang cập nhật') + ' • ' + (ev.DiaDiem || 'Tại địa phương');
+            document.getElementById('ev-modal-desc').textContent = ev.MoTa || 'Chương trình hỗ trợ kỹ thuật canh tác và giải đáp trực tiếp cho nhà nông.';
+            document.getElementById('ev-reg-name').value = getUserName();
+            document.getElementById('ev-reg-phone').value = getUserPhone();
+            document.getElementById('ev-reg-address').value = getUserAddress();
+            document.getElementById('modal-event-register').classList.add('open');
+        }
+
+        async function submitEventRegistration(e) {
+            e.preventDefault();
+            var payload = {
+                maSuKien: document.getElementById('ev-reg-id').value,
+                hoTen: document.getElementById('ev-reg-name').value.trim(),
+                soDienThoai: document.getElementById('ev-reg-phone').value.trim(),
+                diaChi: document.getElementById('ev-reg-address').value.trim()
+            };
             try {
                 var res = await fetch('/api/dang-ky-su-kien', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ maSuKien: id, hoTen: getUserName(), soDienThoai: getUserPhone(), diaChi: currentUser.address || 'ĐBSCL' })
+                    body: JSON.stringify(payload)
                 });
                 var data = await res.json();
-                showToast(data.message || ('Đăng ký thành công: ' + title), !data.success);
-                if (data.success) loadCartData();
-            } catch (e) { showToast('Lỗi đăng ký sự kiện', true); }
+                showToast(data.message || 'Đăng ký tham gia sự kiện thành công!', !data.success);
+                if (data.success) {
+                    closeModal('modal-event-register');
+                    loadCartData();
+                }
+            } catch (err) { showToast('Lỗi đăng ký sự kiện', true); }
         }
 
         // 4. GIỎ HÀNG & QR SEPAY
@@ -731,10 +1606,10 @@
                 if (totalBadge > 0) { badge.textContent = totalBadge; badge.classList.remove('hidden'); }
                 else badge.classList.add('hidden');
 
-                // Render SP giỏ
+                // Sản phẩm trong giỏ
                 var spBox = document.getElementById('checkout-sp-box');
                 if (!spGio.length) {
-                    document.getElementById('cart-sp-list').innerHTML = '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:8px;">Chưa có vật tư nào trong giỏ.</p>';
+                    document.getElementById('cart-sp-list').innerHTML = '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:8px;">Chưa có sản phẩm nào trong giỏ hàng.</p>';
                     spBox.classList.add('hidden');
                 } else {
                     spBox.classList.remove('hidden');
@@ -751,7 +1626,7 @@
                     document.getElementById('cart-sp-total').textContent = 'Tổng: ' + tongSP.toLocaleString('vi-VN') + 'đ (Cọc 30%: ' + Math.round(tongSP * 0.3).toLocaleString('vi-VN') + 'đ)';
                 }
 
-                // Render SP đã đặt
+                // Sản phẩm đã lên đơn
                 var htmlSPDon = '';
                 for (var j = 0; j < spDon.length; j++) {
                     var d = spDon[j], tt = Number(d.GiaTien) * Number(d.SoLuong), coc = Number(d.TienCoc || 0), conLai = Number(d.TongConLaiDon || Math.max(0, tt - coc));
@@ -770,10 +1645,10 @@
                 }
                 document.getElementById('order-sp-history').innerHTML = htmlSPDon || '<p style="font-size:12px;color:#9ca3af;text-align:center;">Chưa có đơn vật tư nào.</p>';
 
-                // Render Máy giỏ
+                // Thuê máy trong giỏ
                 var mayBox = document.getElementById('checkout-may-box');
                 if (!mayGio.length) {
-                    document.getElementById('cart-may-list').innerHTML = '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:8px;">Chưa có ca thuê máy nào trong giỏ.</p>';
+                    document.getElementById('cart-may-list').innerHTML = '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:8px;">Chưa có dịch vụ thuê máy nào trong giỏ.</p>';
                     mayBox.classList.add('hidden');
                 } else {
                     mayBox.classList.remove('hidden');
@@ -781,7 +1656,7 @@
                     for (var mIdx = 0; mIdx < mayGio.length; mIdx++) {
                         var mItem = mayGio[mIdx], mSub = Number(mItem.GiaThue) * Number(mItem.SoCong);
                         tongMay += mSub;
-                        var opts = '<option value="">-- Chọn ca --</option>' + DANH_SACH_KHUNG_GIO.map(function(kg) {
+                        var opts = '<option value="">-- Chọn khung giờ --</option>' + DANH_SACH_KHUNG_GIO.map(function(kg) {
                             return '<option value="' + escAttr(kg) + '"' + (mItem.KhungGio === kg ? ' selected' : '') + '>' + kg + '</option>';
                         }).join('');
                         htmlMay += '<div class="cart-row" style="background:#fffbeb;">' +
@@ -789,13 +1664,13 @@
                             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div class="qty-box"><button onclick="capNhatMay(' + mItem.MaDatMay + ',{soCong:' + (mItem.SoCong - 1) + '})">-</button><span>' + mItem.SoCong + '</span><button onclick="capNhatMay(' + mItem.MaDatMay + ',{soCong:' + (mItem.SoCong + 1) + '})">+</button></div><strong style="color:#b45309;">' + mSub.toLocaleString('vi-VN') + 'đ</strong></div>' +
                             '<input type="date" class="input-field" style="margin-bottom:6px;" value="' + (mItem.NgayThue || '') + '" onchange="capNhatMay(' + mItem.MaDatMay + ',{ngayThue:this.value})">' +
                             '<select class="input-field" style="margin-bottom:6px;background:#fff;" onchange="capNhatMay(' + mItem.MaDatMay + ',{khungGio:this.value})">' + opts + '</select>' +
-                            '<input type="text" class="input-field" style="margin-bottom:0;background:#fff;" placeholder="Địa chỉ ruộng / Ghi chú..." value="' + escAttr(mItem.GhiChu || '') + '" onblur="capNhatMay(' + mItem.MaDatMay + ',{ghiChu:this.value})"></div>';
+                            '<input type="text" class="input-field" style="margin-bottom:0;background:#fff;" placeholder="Địa chỉ đồng ruộng / Ghi chú..." value="' + escAttr(mItem.GhiChu || '') + '" onblur="capNhatMay(' + mItem.MaDatMay + ',{ghiChu:this.value})"></div>';
                     }
                     document.getElementById('cart-may-list').innerHTML = htmlMay;
                     document.getElementById('cart-may-total').textContent = 'Tổng: ' + tongMay.toLocaleString('vi-VN') + 'đ (Cọc 30%: ' + Math.round(tongMay * 0.3).toLocaleString('vi-VN') + 'đ)';
                 }
 
-                // Render Máy đã đặt
+                // Thuê máy đã lên đơn
                 var htmlMayDon = '';
                 for (var n = 0; n < mayDon.length; n++) {
                     var md = mayDon[n], mtt = Number(md.GiaThue) * Number(md.SoCong), mcoc = Number(md.TienCoc || 0), mConLai = Number(md.TongConLaiDon || Math.max(0, mtt - mcoc));
@@ -810,18 +1685,19 @@
                     htmlMayDon += '<div class="box-card" style="padding:11px;margin-bottom:8px;font-size:12px;">' +
                         '<div style="display:flex;justify-content:space-between;font-weight:800;"><span>#TM' + md.MaDatMay + ' • ' + md.TenMay + '</span><span style="color:#b45309;">' + mtt.toLocaleString('vi-VN') + 'đ</span></div>' +
                         '<div style="font-size:11px;color:#6b7280;margin-top:2px;">' + (md.NgayThue || '') + ' • ' + (md.KhungGio || '') + ' (' + md.SoCong + ' công)</div>' +
+                        (md.GhiChu ? '<div style="font-size:11px;color:#4b5563;margin-top:2px;">Ruộng: ' + md.GhiChu + '</div>' : '') +
                         '<div style="font-size:11px;color:#064e3b;font-weight:700;margin:4px 0;">Trạng thái: ' + md.TrangThai + (md.GiayConLai > 0 ? ' (' + formatMMSS(md.GiayConLai) + ')' : '') + '</div>' +
                         (mActs ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">' + mActs + '</div>' : '') + '</div>';
                 }
                 document.getElementById('order-may-history').innerHTML = htmlMayDon || '<p style="font-size:12px;color:#9ca3af;text-align:center;">Chưa có lịch thuê máy nào.</p>';
 
-                // Render Sự kiện đã đăng ký
+                // Sự kiện đã đăng ký
                 var htmlSK = '';
                 for (var s = 0; s < dsSK.length; s++) {
                     var sk = dsSK[s];
-                    htmlSK += '<div class="box-card" style="padding:12px;margin-bottom:8px;font-size:12px;"><div style="display:flex;justify-content:space-between;align-items:start;gap:8px;"><div><strong>' + sk.TieuDeSuKien + '</strong><div style="font-size:11px;color:#6b7280;margin-top:3px;">' + (sk.ThoiGian || '') + ' • ' + (sk.DiaDiem || '') + '</div></div><button class="btn-mini-cancel" onclick="huySuKien(' + sk.MaDK + ')">Hủy</button></div></div>';
+                    htmlSK += '<div class="box-card" style="padding:12px;margin-bottom:8px;font-size:12px;"><div style="display:flex;justify-content:space-between;align-items:start;gap:8px;"><div><strong>' + sk.TieuDeSuKien + '</strong><div style="font-size:11px;color:#6b7280;margin-top:3px;">' + (sk.ThoiGian || '') + ' • ' + (sk.DiaDiem || '') + '</div></div><button class="btn-mini-cancel" onclick="huySuKien(' + sk.MaDK + ')">Hủy tham gia</button></div></div>';
                 }
-                document.getElementById('order-sk-history').innerHTML = htmlSK || '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:16px;">Chưa đăng ký sự kiện nào.</p>';
+                document.getElementById('order-sk-history').innerHTML = htmlSK || '<p style="font-size:12px;color:#9ca3af;text-align:center;padding:16px;">Bạn chưa đăng ký sự kiện nào.</p>';
             } catch (e) { console.error(e); }
         }
 
@@ -863,7 +1739,7 @@
             loadCartData();
         }
         async function xoaMay(maDatMay) {
-            if (!confirm('Xóa ca thuê máy này khỏi giỏ?')) return;
+            if (!confirm('Xóa dịch vụ thuê máy này khỏi giỏ?')) return;
             await fetch('/api/gio-hang/thue-may/' + maDatMay, { method: 'DELETE' });
             showToast('Đã xóa ca thuê máy'); loadCartData();
         }
@@ -880,7 +1756,7 @@
             showToast(data.message || 'Đã trả về giỏ hàng', !data.success); loadCartData();
         }
         async function huySuKien(maDK) {
-            if (!confirm('Hủy đăng ký sự kiện này?')) return;
+            if (!confirm('Hủy đăng ký tham gia sự kiện này?')) return;
             await fetch('/api/dang-ky-su-kien/' + maDK, { method: 'DELETE' });
             showToast('Đã hủy đăng ký sự kiện'); loadCartData();
         }
@@ -938,7 +1814,7 @@
                 var msgs = result.data || [];
                 var box = document.getElementById('chat-messages');
                 if (!msgs.length) {
-                    box.innerHTML = '<div class="msg-row bot"><div class="msg-bubble">Chào bà con! Em là Trợ lý AI của <strong>Lúa Vàng</strong>. Bà con cần hỏi về lúa giống, phân bón hay đặt ca máy gặt cứ nhắn tại đây nhé!</div></div>';
+                    box.innerHTML = '<div class="msg-row bot"><div class="msg-bubble">Chào bà con! Em là Trợ lý AI của <strong>Lúa Vàng</strong>. Bà con có thể bấm vào các câu hỏi gợi ý phía dưới hoặc nhắn trực tiếp tình trạng cây lúa để em tư vấn ngay nhé!</div></div>';
                     return;
                 }
                 var html = '';
@@ -948,7 +1824,7 @@
                     html += '<div class="msg-row ' + (isUser ? 'user' : 'bot') + '"><div class="msg-bubble">' + label + String(m.NoiDung || '').replace(/\n/g, '<br>') + '</div></div>';
                 }
                 if (dangChoAI) {
-                    html += '<div class="msg-row bot"><div class="msg-bubble" style="color:#6b7280;font-style:italic;"><i class="fas fa-spinner fa-spin"></i> Trợ lý AI đang phân tích câu hỏi...</div></div>';
+                    html += '<div class="msg-row bot"><div class="msg-bubble" style="color:#6b7280;font-style:italic;"><i class="fas fa-spinner fa-spin"></i> Trợ lý AI đang phân tích câu hỏi của bà con...</div></div>';
                 }
                 box.innerHTML = html;
                 box.scrollTop = box.scrollHeight;
@@ -992,7 +1868,7 @@
             }
         }
 
-        // 6. TÀI KHOẢN & ADMIN (ĐÚNG CHUẨN authController.js)
+        // 6. TÀI KHOẢN NÔNG DÂN, HỒ SƠ & ĐỔI MẬT KHẨU
         function toggleAuthMode(mode) {
             var isLogin = mode === 'login';
             document.getElementById('form-login').classList.toggle('hidden', !isLogin);
@@ -1057,40 +1933,92 @@
         }
 
         function checkAuthUI() {
-            var authForms = document.getElementById('auth-forms'), profileBox = document.getElementById('user-profile-box'), adminPanel = document.getElementById('admin-mobile-panel');
+            var authForms = document.getElementById('auth-forms');
+            var profileBox = document.getElementById('user-profile-box');
+            var adminPanel = document.getElementById('admin-mobile-panel');
+            var passCard = document.getElementById('change-password-card');
+
             if (!currentUser) {
-                authForms.classList.remove('hidden'); profileBox.classList.add('hidden');
+                authForms.classList.remove('hidden');
+                profileBox.classList.add('hidden');
                 document.getElementById('header-subtitle').textContent = 'Đồng hành cùng nhà nông';
                 return;
             }
-            authForms.classList.add('hidden'); profileBox.classList.remove('hidden');
-            document.getElementById('profile-name').textContent = getUserName();
-            document.getElementById('profile-phone').textContent = getUserPhone() || 'Admin';
-            document.getElementById('profile-address').value = currentUser.address || '';
-            document.getElementById('header-subtitle').textContent = 'Xin chào, ' + getUserName();
+
+            authForms.classList.add('hidden');
+            profileBox.classList.remove('hidden');
+            var fullName = getUserName();
+            var phone = getUserPhone() || 'Admin';
+            document.getElementById('profile-name').textContent = fullName;
+            document.getElementById('profile-phone').textContent = phone;
+            document.getElementById('profile-fullname').value = fullName;
+            document.getElementById('profile-address').value = getUserAddress();
+            document.getElementById('header-subtitle').textContent = 'Xin chào, ' + fullName;
+
             if (currentUser.role === 'admin') {
                 document.getElementById('profile-role-badge').textContent = 'Quản trị viên (Admin)';
                 document.getElementById('profile-role-badge').style.background = '#fee2e2';
                 document.getElementById('profile-role-badge').style.color = '#b91c1c';
-                adminPanel.classList.remove('hidden'); loadAdminStats();
-            } else adminPanel.classList.add('hidden');
+                passCard.classList.add('hidden');
+                adminPanel.classList.remove('hidden');
+                loadAdminStats();
+            } else {
+                document.getElementById('profile-role-badge').textContent = 'Nông dân';
+                document.getElementById('profile-role-badge').style.background = '#d1fae5';
+                document.getElementById('profile-role-badge').style.color = '#064e3b';
+                passCard.classList.remove('hidden');
+                adminPanel.classList.add('hidden');
+            }
         }
 
-        async function updateProfileAddress() {
-            var diaChi = document.getElementById('profile-address').value;
+        async function updateProfileInfo() {
+            var hoTen = document.getElementById('profile-fullname').value.trim();
+            var diaChi = document.getElementById('profile-address').value.trim();
+            if (!hoTen) return showToast('Vui lòng nhập họ và tên!', true);
             try {
                 var res = await fetch('/api/nong-dan/ho-so', {
                     method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ soDienThoai: getUserPhone(), hoTen: getUserName(), diaChi: diaChi })
+                    body: JSON.stringify({ soDienThoai: getUserPhone(), hoTen: hoTen, diaChi: diaChi })
                 });
                 var data = await res.json();
                 if (data.success) {
+                    currentUser.name = hoTen;
                     currentUser.address = diaChi;
+                    currentUser.diaChi = diaChi;
                     localStorage.setItem('luaVangUser', JSON.stringify(currentUser));
                     sessionStorage.setItem('luaVangUser', JSON.stringify(currentUser));
-                    showToast('Đã cập nhật địa chỉ!');
+                    checkAuthUI();
+                    showToast(data.message || 'Đã cập nhật hồ sơ!');
+                } else showToast(data.message || 'Không thể cập nhật hồ sơ!', true);
+            } catch (e) { showToast('Lỗi kết nối khi cập nhật hồ sơ', true); }
+        }
+
+        async function handleChangePassword(e) {
+            e.preventDefault();
+            var matKhauCu = document.getElementById('old-password').value;
+            var matKhauMoi = document.getElementById('new-password').value;
+            var xacNhan = document.getElementById('confirm-password').value;
+
+            if (matKhauMoi !== xacNhan) {
+                return showToast('Mật khẩu mới và nhập lại không khớp!', true);
+            }
+            try {
+                var res = await fetch('/api/nong-dan/doi-mat-khau', {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ soDienThoai: getUserPhone(), matKhauCu: matKhauCu, matKhauMoi: matKhauMoi })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    document.getElementById('old-password').value = '';
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('confirm-password').value = '';
+                    showToast(data.message || 'Đổi mật khẩu thành công!');
+                } else {
+                    showToast(data.message || 'Mật khẩu hiện tại không đúng hoặc chưa hỗ trợ!', true);
                 }
-            } catch (e) { showToast('Lỗi cập nhật', true); }
+            } catch (err) {
+                showToast('Lỗi kết nối khi đổi mật khẩu!', true);
+            }
         }
 
         async function loadAdminStats() {
