@@ -1,22 +1,17 @@
-const sql = require('mssql/msnodesqlv8');
+const sql = require('mssql');
 require('dotenv').config();
 
-const dungWindowsAuth = !process.env.DB_USER;
-
 const config = {
-  server: process.env.DB_SERVER || 'localhost\\SQLEXPRESS',
+  server: process.env.DB_SERVER || 'localhost',
   database: process.env.DB_DATABASE || process.env.DB_NAME || 'LuaVangDB',
-  driver: process.env.DB_DRIVER || 'ODBC Driver 18 for SQL Server',
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
   options: {
-    encrypt: process.env.DB_ENCRYPT === 'true',
-    trustedConnection: dungWindowsAuth,
+    encrypt: process.env.DB_ENCRYPT !== 'false',
     trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE !== 'false',
     enableArithAbort: true,
     useUTC: false
-  },
-  ...(dungWindowsAuth
-    ? {}
-    : { user: process.env.DB_USER, password: process.env.DB_PASSWORD })
+  }
 };
 
 let poolPromise = null;
