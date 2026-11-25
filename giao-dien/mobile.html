@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#15803d">
+    <title>Lúa Vàng AgriTech - Ứng dụng Di động</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Be Vietnam Pro', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #f3f4f6; padding-bottom: 84px; overscroll-behavior-y: contain; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .tab-view { display: none; animation: fadeIn 0.2s ease-out; }
+        .tab-view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .bottom-sheet { transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); }
+        .bottom-sheet.open { transform: translateY(0); }
+        #mobile-toast { transition: all 0.3s ease; transform: translateY(-120%); }
+        #mobile-toast.show { transform: translateY(0); }
+    </style>
+</head>
+<body class="text-gray-800 max-w-md mx-auto bg-gray-50 min-h-screen shadow-2xl relative overflow-x-hidden">
+
+    <!-- TOAST THÔNG BÁO -->
+    <div id="mobile-toast" class="fixed top-4 left-4 right-4 max-w-md mx-auto z-[100] bg-gray-900 text-white px-4 py-3.5 rounded-2xl shadow-xl flex items-center gap-3">
+        <i id="toast-icon" class="fas fa-check-circle text-green-400 text-lg"></i>
+        <span id="toast-msg" class="text-sm font-medium flex-1">Thông báo</span>
+    </div>
+
+    <!-- HEADER CỐ ĐỊNH TRÊN CÙNG -->
+    <header class="sticky top-0 z-40 bg-gradient-to-r from-green-800 to-green-700 text-white px-4 py-3.5 shadow-md flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-amber-400 text-green-950 flex items-center justify-center font-black text-lg shadow-inner">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-base leading-tight tracking-tight">LÚA VÀNG <span class="text-amber-300 text-xs font-bold">MOBILE</span></h1>
+                <p id="header-subtitle" class="text-[11px] text-green-100">Đồng hành cùng nhà nông</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="switchTab('cart')" class="relative w-10 h-10 rounded-full bg-white/15 flex items-center justify-center active:scale-95 transition">
+                <i class="fas fa-shopping-bag text-base"></i>
+                <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-amber-400 text-green-950 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-green-800">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- TAB 1: TRANG CHỦ & VẬT TƯ NÔNG NGHIỆP -->
+    <main id="view-home" class="tab-view active p-4 space-y-5">
+        <div class="bg-gradient-to-br from-green-700 via-green-600 to-emerald-600 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+            <div class="relative z-10">
+                <span class="bg-amber-400 text-green-950 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase">Vụ mùa 2026</span>
+                <h2 class="text-lg font-extrabold mt-2 leading-snug">Vật tư chính hãng &amp; Cơ giới hóa tận ruộng</h2>
+                <p class="text-xs text-green-100 mt-1">Đặt giống, phân thuốc &amp; thuê máy gặt, drone chỉ trong 1 phút.</p>
+                <div class="flex gap-2 mt-3.5">
+                    <button onclick="switchTab('machines')" class="bg-white text-green-800 text-xs font-bold px-3.5 py-2 rounded-xl shadow active:scale-95 transition">
+                        <i class="fas fa-tractor mr-1"></i> Đặt lịch máy
+                    </button>
+                    <button onclick="switchTab('chat')" class="bg-green-900/50 border border-white/30 text-white text-xs font-bold px-3.5 py-2 rounded-xl active:scale-95 transition">
+                        <i class="fas fa-robot mr-1"></i> Hỏi kỹ sư AI
+                    </button>
+                </div>
+            </div>
+            <i class="fas fa-wheat-awn absolute -right-4 -bottom-4 text-8xl text-white/10 rotate-12"></i>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2 text-center">
+            <button onclick="filterCategory('ALL')" class="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 active:scale-95 transition">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-lg mb-1"><i class="fas fa-store"></i></div>
+                <span class="text-[11px] font-bold text-gray-700 block">Vật tư</span>
+            </button>
+            <button onclick="switchTab('machines')" class="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 active:scale-95 transition">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg mb-1"><i class="fas fa-tractor"></i></div>
+                <span class="text-[11px] font-bold text-gray-700 block">Thuê máy</span>
+            </button>
+            <button onclick="switchTab('events')" class="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 active:scale-95 transition">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg mb-1"><i class="fas fa-calendar-check"></i></div>
+                <span class="text-[11px] font-bold text-gray-700 block">Hội thảo</span>
+            </button>
+            <button onclick="switchTab('chat')" class="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 active:scale-95 transition">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg mb-1"><i class="fas fa-headset"></i></div>
+                <span class="text-[11px] font-bold text-gray-700 block">Tư vấn</span>
+            </button>
+        </div>
+
+        <div class="space-y-2.5">
+            <div class="relative">
+                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" id="search-product" oninput="renderProducts()" placeholder="Tìm lúa giống, phân bón, thuốc BVTV..."
+                    class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-600 shadow-sm">
+            </div>
+            <div id="category-pills" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                <button onclick="filterCategory('ALL')" data-cat="ALL" class="cat-pill active shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-green-700 text-white">Tất cả</button>
+            </div>
+        </div>
+
+        <div>
+            <div class="flex items-center justify-between mb-2.5">
+                <h3 class="font-extrabold text-sm text-gray-800 uppercase tracking-wide">Vật tư nông nghiệp</h3>
+                <span id="product-count" class="text-xs text-gray-500 font-medium">0 sản phẩm</span>
+            </div>
+            <div id="product-grid" class="grid grid-cols-2 gap-3"></div>
+        </div>
+    </main>
+
+    <!-- TAB 2: THUÊ MÁY NÔNG NGHIỆP -->
+    <main id="view-machines" class="tab-view p-4 space-y-4">
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 flex items-start gap-3">
+            <i class="fas fa-info-circle text-amber-600 text-lg mt-0.5"></i>
+            <div class="text-xs text-amber-900">
+                <p class="font-bold">Đặt lịch cơ giới hóa minh bạch</p>
+                <p class="mt-0.5 text-amber-800">Hệ thống tự động kiểm tra khung giờ trống theo ngày để tránh trùng lịch gặt/phun thuốc.</p>
+            </div>
+        </div>
+        <div id="machine-list" class="space-y-3.5"></div>
+    </main>
+
+    <!-- TAB 3: SỰ KIỆN & HỘI THẢO -->
+    <main id="view-events" class="tab-view p-4 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-base text-gray-800">Hội thảo &amp; Tập huấn kỹ thuật</h2>
+            <span class="text-xs bg-green-100 text-green-800 font-bold px-2.5 py-1 rounded-full">Miễn phí</span>
+        </div>
+        <div id="event-list" class="space-y-3.5"></div>
+    </main>
+
+    <!-- TAB 4: GIỎ HÀNG & THANH TOÁN VIETQR -->
+    <main id="view-cart" class="tab-view p-4 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-base text-gray-800">Giỏ hàng &amp; Lịch đã đặt</h2>
+            <button onclick="loadCartData()" class="text-xs text-green-700 font-bold"><i class="fas fa-sync-alt mr-1"></i>Làm mới</button>
+        </div>
+
+        <div id="cart-login-notice" class="hidden bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
+            <i class="fas fa-user-lock text-4xl text-gray-300 mb-3"></i>
+            <p class="text-sm font-bold text-gray-700">Bạn chưa đăng nhập tài khoản</p>
+            <p class="text-xs text-gray-500 mt-1 mb-4">Vui lòng đăng nhập bằng Số điện thoại để xem và thanh toán đơn hàng.</p>
+            <button onclick="switchTab('account')" class="bg-green-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl">Đăng nhập ngay</button>
+        </div>
+
+        <div id="cart-content" class="space-y-4 hidden">
+            <div id="cart-items-list" class="space-y-2.5"></div>
+
+            <div id="checkout-box" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3 hidden">
+                <h3 class="font-extrabold text-sm text-gray-800 border-b pb-2">Thông tin giao nhận &amp; Thanh toán</h3>
+                <div>
+                    <label class="text-[11px] font-bold text-gray-500 uppercase">Địa chỉ giao hàng / Vị trí ruộng</label>
+                    <input type="text" id="checkout-address" placeholder="Nhập ấp, xã, huyện, tỉnh..." class="w-full mt-1 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-gray-500 uppercase">Ghi chú cho tài xế / kỹ thuật viên</label>
+                    <input type="text" id="checkout-note" placeholder="VD: Đường xe tải vào được, gọi trước 30p..." class="w-full mt-1 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-xl space-y-1.5 text-sm">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Tổng giá trị đơn:</span>
+                        <span id="cart-total-amount" class="font-bold text-gray-900">0đ</span>
+                    </div>
+                    <div class="flex justify-between text-green-700 text-xs font-semibold">
+                        <span>Cọc trước 30% (nếu chuyển khoản):</span>
+                        <span id="cart-deposit-amount">0đ</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <button onclick="processCheckout('COD')" class="py-3 px-3 rounded-xl border-2 border-green-700 text-green-800 font-bold text-xs active:scale-95 transition">
+                        <i class="fas fa-hand-holding-usd block text-base mb-1"></i> Tiền mặt (COD)
+                    </button>
+                    <button onclick="processCheckout('VIETQR')" class="py-3 px-3 rounded-xl bg-green-700 text-white font-bold text-xs shadow-md active:scale-95 transition">
+                        <i class="fas fa-qrcode block text-base mb-1"></i> Quét mã VietQR
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <h3 class="font-extrabold text-sm text-gray-800 mb-2">Đơn hàng &amp; Lịch hẹn của bạn</h3>
+                <div id="order-history-list" class="space-y-2.5"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- TAB 5: TƯ VẤN TRỰC TUYẾN (AI & ADMIN) -->
+    <main id="view-chat" class="tab-view flex flex-col h-[calc(100vh-142px)]">
+        <div class="bg-white px-4 py-2.5 border-b flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+                <span class="text-xs font-bold text-gray-700">Trợ lý AI &amp; Kỹ sư Nông nghiệp 24/7</span>
+            </div>
+            <button onclick="loadChatMessages()" class="text-xs text-gray-400 hover:text-green-700"><i class="fas fa-redo"></i></button>
+        </div>
+
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"></div>
+
+        <div class="px-3 py-1.5 bg-white border-t flex gap-1.5 overflow-x-auto no-scrollbar">
+            <button onclick="sendQuickChat('Tư vấn giống lúa chịu mặn tốt nhất hiện nay?')" class="shrink-0 text-[11px] bg-green-50 text-green-800 border border-green-200 px-2.5 py-1 rounded-full">Giống lúa chịu mặn</button>
+            <button onclick="sendQuickChat('Giá thuê máy gặt đập liên hợp tính như thế nào?')" class="shrink-0 text-[11px] bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-full">Giá thuê máy gặt</button>
+            <button onclick="sendQuickChat('Lúa bị đạo ôn lá nên phun thuốc gì?')" class="shrink-0 text-[11px] bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-full">Trị bệnh đạo ôn</button>
+        </div>
+
+        <form onsubmit="handleSendChat(event)" class="p-2.5 bg-white border-t flex gap-2">
+            <input type="text" id="chat-input" placeholder="Nhập câu hỏi về cây lúa, vật tư..." required
+                class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-green-600">
+            <button type="submit" class="w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center shrink-0 active:scale-95 transition">
+                <i class="fas fa-paper-plane text-sm"></i>
+            </button>
+        </form>
+    </main>
+
+    <!-- TAB 6: TÀI KHOẢN & QUẢN TRỊ ADMIN MOBILE -->
+    <main id="view-account" class="tab-view p-4 space-y-4">
+        <div id="auth-forms" class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
+            <div class="flex bg-gray-100 p-1 rounded-xl">
+                <button id="btn-show-login" onclick="toggleAuthMode('login')" class="flex-1 py-2 text-xs font-extrabold rounded-lg bg-white text-green-800 shadow-sm">Đăng nhập</button>
+                <button id="btn-show-register" onclick="toggleAuthMode('register')" class="flex-1 py-2 text-xs font-extrabold rounded-lg text-gray-500">Đăng ký mới</button>
+            </div>
+
+            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-600">Số điện thoại / Tài khoản Admin</label>
+                    <input type="text" id="login-phone" required placeholder="Nhập SĐT (VD: 0912345678)" class="w-full mt-1 px-3.5 py-2.5 border rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600">Mật khẩu</label>
+                    <input type="password" id="login-pass" required placeholder="••••••••" class="w-full mt-1 px-3.5 py-2.5 border rounded-xl text-sm">
+                </div>
+                <button type="submit" class="w-full bg-green-700 text-white font-bold py-3 rounded-xl text-sm shadow-md active:scale-95 transition">Đăng nhập hệ thống</button>
+            </form>
+
+            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-3 hidden">
+                <div>
+                    <label class="text-xs font-bold text-gray-600">Họ và tên nông dân</label>
+                    <input type="text" id="reg-name" required placeholder="Nguyễn Văn A" class="w-full mt-1 px-3.5 py-2.5 border rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600">Số điện thoại</label>
+                    <input type="tel" id="reg-phone" required placeholder="09xxxxxxxx" class="w-full mt-1 px-3.5 py-2.5 border rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600">Địa chỉ ruộng / Nơi ở</label>
+                    <input type="text" id="reg-address" required placeholder="Xã..., Huyện..., Tỉnh..." class="w-full mt-1 px-3.5 py-2.5 border rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600">Mật khẩu</label>
+                    <input type="password" id="reg-pass" required placeholder="Tối thiểu 6 ký tự" class="w-full mt-1 px-3.5 py-2.5 border rounded-xl text-sm">
+                </div>
+                <button type="submit" class="w-full bg-amber-500 text-green-950 font-extrabold py-3 rounded-xl text-sm shadow-md active:scale-95 transition">Tạo tài khoản ngay</button>
+            </form>
+        </div>
+
+        <div id="user-profile-box" class="hidden space-y-4">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3.5">
+                <div class="w-14 h-14 rounded-2xl bg-green-100 text-green-800 flex items-center justify-center font-black text-xl">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <span id="profile-role-badge" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-green-100 text-green-800">Nông dân</span>
+                    <h3 id="profile-name" class="font-extrabold text-base text-gray-900 truncate mt-0.5">Tên người dùng</h3>
+                    <p id="profile-phone" class="text-xs text-gray-500">09xxxxxxxx</p>
+                </div>
+                <button onclick="handleLogout()" class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center" title="Đăng xuất">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
+                <h4 class="font-extrabold text-xs uppercase text-gray-500">Thông tin địa chỉ ruộng mặc định</h4>
+                <input type="text" id="profile-address" class="w-full px-3.5 py-2.5 bg-gray-50 border rounded-xl text-sm">
+                <button onclick="updateProfileAddress()" class="w-full bg-gray-900 text-white text-xs font-bold py-2.5 rounded-xl">Lưu thay đổi địa chỉ</button>
+            </div>
+
+            <div id="admin-mobile-panel" class="hidden space-y-3 pt-2">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-extrabold text-sm text-red-700 uppercase"><i class="fas fa-shield-alt mr-1"></i> Quản trị nhanh (Admin)</h3>
+                    <button onclick="loadAdminStats()" class="text-xs text-green-700 font-bold">Cập nhật</button>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-sm">
+                        <span class="text-[11px] text-gray-500 font-semibold">Tổng doanh thu</span>
+                        <p id="admin-stat-revenue" class="text-base font-black text-green-700 mt-1">0đ</p>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-sm">
+                        <span class="text-[11px] text-gray-500 font-semibold">Đơn hàng / Lịch thuê</span>
+                        <p id="admin-stat-orders" class="text-base font-black text-amber-600 mt-1">0</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-2.5">
+                    <h4 class="font-extrabold text-xs text-gray-700 uppercase">Đơn hàng &amp; Lịch thuê cần duyệt</h4>
+                    <div id="admin-order-list" class="space-y-2.5 max-h-80 overflow-y-auto"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- BOTTOM SHEET MODAL: ĐẶT LỊCH THUÊ MÁY -->
+    <div id="modal-booking" class="fixed inset-0 z-50 bg-black/60 hidden flex items-end justify-center">
+        <div class="bottom-sheet bg-white w-full max-w-md rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b pb-3">
+                <div>
+                    <span class="text-[10px] font-bold uppercase text-amber-600">Đặt lịch cơ giới hóa</span>
+                    <h3 id="modal-machine-name" class="font-extrabold text-base text-gray-900">Tên máy nông nghiệp</h3>
+                </div>
+                <button onclick="closeModal('modal-booking')" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+
+            <input type="hidden" id="booking-machine-id">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-600">Ngày thuê</label>
+                    <input type="date" id="booking-date" onchange="checkMachineSchedule()" class="w-full mt-1 px-3 py-2 border rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600">Diện tích (Công/Ha)</label>
+                    <input type="number" id="booking-area" value="1" min="0.5" step="0.5" class="w-full mt-1 px-3 py-2 border rounded-xl text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-gray-600">Chọn khung giờ làm việc</label>
+                <div class="grid grid-cols-2 gap-2 mt-1.5" id="slot-buttons">
+                    <button type="button" onclick="selectTimeSlot('Sáng sớm (05h-08h)')" class="slot-btn border rounded-xl py-2 px-3 text-xs font-bold text-left hover:border-green-600">Sáng sớm (05h-08h)</button>
+                    <button type="button" onclick="selectTimeSlot('Buổi sáng (08h-11h30)')" class="slot-btn border rounded-xl py-2 px-3 text-xs font-bold text-left hover:border-green-600">Buổi sáng (08h-11h30)</button>
+                    <button type="button" onclick="selectTimeSlot('Buổi chiều (13h30-17h)')" class="slot-btn border rounded-xl py-2 px-3 text-xs font-bold text-left hover:border-green-600">Buổi chiều (13h30-17h)</button>
+                    <button type="button" onclick="selectTimeSlot('Cả ngày')" class="slot-btn border rounded-xl py-2 px-3 text-xs font-bold text-left hover:border-green-600">Cả ngày</button>
+                </div>
+                <input type="hidden" id="booking-slot" value="">
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-3">
+                <p class="text-[11px] font-bold text-gray-500 uppercase mb-1.5">Lịch đã có người đặt trong ngày:</p>
+                <div id="booked-slots-list" class="text-xs text-gray-600 space-y-1">Chưa có lịch đặt nào.</div>
+            </div>
+
+            <button onclick="submitMachineBooking()" class="w-full bg-green-700 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg active:scale-95 transition">
+                Thêm lịch thuê vào giỏ hàng
+            </button>
+        </div>
+    </div>
+
+    <!-- BOTTOM SHEET MODAL: THANH TOÁN VIETQR TỰ ĐỘNG -->
+    <div id="modal-vietqr" class="fixed inset-0 z-50 bg-black/70 hidden flex items-end justify-center">
+        <div class="bottom-sheet bg-white w-full max-w-md rounded-t-3xl p-5 text-center space-y-3.5">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold text-green-700 bg-green-50 px-3 py-1 rounded-full">Cổng thanh toán SePay VietQR</span>
+                <button onclick="closeVietQRModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <h3 class="font-extrabold text-base text-gray-900">Quét mã QR để thanh toán cọc 30%</h3>
+            <div class="bg-white p-3 rounded-2xl border-2 border-green-600 inline-block shadow-md">
+                <img id="vietqr-img" src="" alt="Mã VietQR" class="w-52 h-52 object-contain mx-auto">
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs space-y-1">
+                <p class="text-gray-600">Số tiền thanh toán: <strong id="vietqr-amount" class="text-red-600 text-sm">0đ</strong></p>
+                <p class="text-gray-600">Nội dung CK: <strong id="vietqr-content" class="text-green-900 select-all">SEVQR LV...</strong></p>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 text-xs text-green-700 font-bold py-1">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span id="vietqr-status">Đang chờ hệ thống ngân hàng xác nhận tự động...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- THANH ĐIỀU HƯỚNG DƯỚI CÙNG -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 px-2 py-1.5 flex justify-around items-center z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <button onclick="switchTab('home')" id="nav-home" class="nav-item active flex flex-col items-center py-1 px-2 text-green-700">
+            <i class="fas fa-home text-lg"></i>
+            <span class="text-[10px] font-bold mt-0.5">Cửa hàng</span>
+        </button>
+        <button onclick="switchTab('machines')" id="nav-machines" class="nav-item flex flex-col items-center py-1 px-2 text-gray-400">
+            <i class="fas fa-tractor text-lg"></i>
+            <span class="text-[10px] font-bold mt-0.5">Thuê máy</span>
+        </button>
+        <button onclick="switchTab('events')" id="nav-events" class="nav-item flex flex-col items-center py-1 px-2 text-gray-400">
+            <i class="fas fa-calendar-alt text-lg"></i>
+            <span class="text-[10px] font-bold mt-0.5">Sự kiện</span>
+        </button>
+        <button onclick="switchTab('chat')" id="nav-chat" class="nav-item flex flex-col items-center py-1 px-2 text-gray-400">
+            <i class="fas fa-comment-dots text-lg"></i>
+            <span class="text-[10px] font-bold mt-0.5">Tư vấn AI</span>
+        </button>
+        <button onclick="switchTab('account')" id="nav-account" class="nav-item flex flex-col items-center py-1 px-2 text-gray-400">
+            <i class="fas fa-user text-lg"></i>
+            <span class="text-[10px] font-bold mt-0.5">Tài khoản</span>
+        </button>
+    </nav>
+
+    <script>
+        var allProducts = [];
+        var allCategories = [];
+        var selectedCategory = 'ALL';
+        var currentUser = JSON.parse(localStorage.getItem('user_luavang') || 'null');
+        var qrCheckInterval = null;
+        var chatPollInterval = null;
+        var currentBookingPrice = 0;
+
+        function escAttr(str) {
+            return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthUI();
+            loadStoreData();
+            loadMachinesData();
+            loadEventsData();
+            if (currentUser) {
+                loadCartData();
+            }
+        });
+
+        function showToast(msg, isError) {
+            var toast = document.getElementById('mobile-toast');
+            var icon = document.getElementById('toast-icon');
+            document.getElementById('toast-msg').textContent = msg;
+            icon.className = isError ? 'fas fa-exclamation-circle text-red-400 text-lg' : 'fas fa-check-circle text-green-400 text-lg';
+            toast.classList.add('show');
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function switchTab(tabName) {
+            var views = document.querySelectorAll('.tab-view');
+            for (var i = 0; i < views.length; i++) {
+                views[i].classList.remove('active');
+            }
+            document.getElementById('view-' + tabName).classList.add('active');
+
+            var navs = document.querySelectorAll('.nav-item');
+            for (var j = 0; j < navs.length; j++) {
+                navs[j].classList.remove('text-green-700', 'active');
+                navs[j].classList.add('text-gray-400');
+            }
+            var activeNav = document.getElementById('nav-' + tabName);
+            if (activeNav) {
+                activeNav.classList.remove('text-gray-400');
+                activeNav.classList.add('text-green-700', 'active');
+            }
+
+            if (tabName === 'cart') {
+                loadCartData();
+            }
+            if (tabName === 'chat') {
+                loadChatMessages();
+                if (!chatPollInterval) {
+                    chatPollInterval = setInterval(loadChatMessages, 4000);
+                }
+            } else if (chatPollInterval) {
+                clearInterval(chatPollInterval);
+                chatPollInterval = null;
+            }
+            if (tabName === 'account' && currentUser && currentUser.role === 'admin') {
+                loadAdminStats();
+            }
+            window.scrollTo(0, 0);
+        }
+
+        // 1. CỬA HÀNG VẬT TƯ NÔNG NGHIỆP
+        async function loadStoreData() {
+            try {
+                var results = await Promise.all([
+                    fetch('/api/danh-muc'),
+                    fetch('/api/san-pham')
+                ]);
+                allCategories = await results[0].json();
+                allProducts = await results[1].json();
+
+                var pillContainer = document.getElementById('category-pills');
+                var html = '<button onclick="filterCategory(\'ALL\')" data-cat="ALL" class="cat-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-green-700 text-white">Tất cả</button>';
+                for (var i = 0; i < allCategories.length; i++) {
+                    var c = allCategories[i];
+                    html += '<button onclick="filterCategory(\'' + c.MaDanhMuc + '\')" data-cat="' + c.MaDanhMuc + '" class="cat-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white text-gray-600 border">' + c.TenDanhMuc + '</button>';
+                }
+                pillContainer.innerHTML = html;
+                renderProducts();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function filterCategory(catId) {
+            selectedCategory = catId;
+            var pills = document.querySelectorAll('.cat-pill');
+            for (var i = 0; i < pills.length; i++) {
+                var btn = pills[i];
+                if (btn.getAttribute('data-cat') == catId) {
+                    btn.className = 'cat-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-green-700 text-white';
+                } else {
+                    btn.className = 'cat-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white text-gray-600 border';
+                }
+            }
+            renderProducts();
+        }
+
+        function renderProducts() {
+            var keyword = document.getElementById('search-product').value.toLowerCase();
+            var filtered = allProducts.filter(function(p) {
+                var matchCat = selectedCategory === 'ALL' || p.MaDanhMuc == selectedCategory;
+                var matchKey = (p.TenSanPham || '').toLowerCase().indexOf(keyword) !== -1;
+                return matchCat && matchKey;
+            });
+
+            document.getElementById('product-count').textContent = filtered.length + ' sản phẩm';
+            var grid = document.getElementById('product-grid');
+            var html = '';
+            for (var i = 0; i < filtered.length; i++) {
+                var p = filtered[i];
+                var img = p.HinhAnh || 'https://placehold.co/300x200?text=Lua+Vang';
+                var catName = p.TenDanhMuc || 'Vật tư';
+                var price = Number(p.GiaBan || 0).toLocaleString();
+                html += '<div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col">' +
+                    '<img src="' + img + '" class="w-full h-32 object-cover bg-gray-100">' +
+                    '<div class="p-3 flex-1 flex flex-col justify-between">' +
+                        '<div>' +
+                            '<span class="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded">' + catName + '</span>' +
+                            '<h4 class="font-bold text-xs text-gray-800 mt-1 line-clamp-2">' + p.TenSanPham + '</h4>' +
+                        '</div>' +
+                        '<div class="mt-2.5 pt-2 border-t border-gray-50 flex items-center justify-between">' +
+                            '<span class="font-extrabold text-sm text-red-600">' + price + 'đ</span>' +
+                            '<button onclick="addToCartProduct(' + p.MaSanPham + ', \'' + escAttr(p.TenSanPham) + '\', ' + p.GiaBan + ')" class="w-8 h-8 rounded-xl bg-green-700 text-white flex items-center justify-center active:scale-90 transition">' +
+                                '<i class="fas fa-plus text-xs"></i>' +
+                            '</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }
+            grid.innerHTML = html;
+        }
+
+        async function addToCartProduct(id, name, price) {
+            if (!currentUser) {
+                showToast('Vui lòng đăng nhập để thêm vào giỏ!', true);
+                return switchTab('account');
+            }
+            try {
+                var res = await fetch('/api/gio-hang/them', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        soDienThoai: currentUser.SoDienThoai || currentUser.soDienThoai,
+                        loaiDichVu: 'SAN_PHAM',
+                        maThamChieu: id,
+                        tenHienThi: name,
+                        donGia: price,
+                        soLuong: 1
+                    })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    showToast('Đã thêm "' + name + '" vào giỏ!');
+                    loadCartData();
+                } else {
+                    showToast(data.message || 'Lỗi thêm giỏ hàng', true);
+                }
+            } catch (e) {
+                showToast('Lỗi kết nối máy chủ', true);
+            }
+        }
+
+        // 2. THUÊ MÁY NÔNG NGHIỆP
+        async function loadMachinesData() {
+            try {
+                var res = await fetch('/api/thue-may');
+                var machines = await res.json();
+                var container = document.getElementById('machine-list');
+                var html = '';
+                for (var i = 0; i < machines.length; i++) {
+                    var m = machines[i];
+                    var img = m.HinhAnh || 'https://placehold.co/200x200?text=May+Nong+Nghiep';
+                    var status = m.TrangThai || 'Sẵn sàng';
+                    var desc = m.MoTa || 'Công suất lớn, vận hành bởi kỹ thuật viên chuyên nghiệp.';
+                    var price = Number(m.GiaThue || 0).toLocaleString();
+                    html += '<div class="bg-white rounded-2xl p-3.5 shadow-sm border border-gray-100 flex gap-3.5">' +
+                        '<img src="' + img + '" class="w-24 h-24 rounded-xl object-cover shrink-0 bg-gray-100">' +
+                        '<div class="flex-1 flex flex-col justify-between">' +
+                            '<div>' +
+                                '<div class="flex items-center justify-between">' +
+                                    '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">' + status + '</span>' +
+                                '</div>' +
+                                '<h3 class="font-extrabold text-sm text-gray-900 mt-1">' + m.TenMay + '</h3>' +
+                                '<p class="text-[11px] text-gray-500 line-clamp-2 mt-0.5">' + desc + '</p>' +
+                            '</div>' +
+                            '<div class="flex items-center justify-between mt-2 pt-2 border-t">' +
+                                '<span class="font-extrabold text-sm text-green-700">' + price + 'đ<span class="text-[10px] text-gray-400 font-normal">/công</span></span>' +
+                                '<button onclick="openBookingModal(' + m.MaMay + ', \'' + escAttr(m.TenMay) + '\', ' + m.GiaThue + ')" class="bg-amber-400 text-green-950 font-extrabold text-xs px-3 py-1.5 rounded-xl active:scale-95 transition">Đặt lịch</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                }
+                container.innerHTML = html;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function openBookingModal(id, name, price) {
+            if (!currentUser) {
+                showToast('Đăng nhập để đặt lịch thuê máy!', true);
+                return switchTab('account');
+            }
+            document.getElementById('booking-machine-id').value = id;
+            document.getElementById('modal-machine-name').textContent = name;
+            currentBookingPrice = price;
+
+            var tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('booking-date').value = tomorrow.toISOString().split('T')[0];
+            document.getElementById('booking-slot').value = '';
+            var btns = document.querySelectorAll('.slot-btn');
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].classList.remove('bg-green-50', 'border-green-600', 'text-green-800');
+            }
+
+            var modal = document.getElementById('modal-booking');
+            modal.classList.remove('hidden');
+            setTimeout(function() {
+                modal.querySelector('.bottom-sheet').classList.add('open');
+            }, 10);
+            checkMachineSchedule();
+        }
+
+        function closeModal(id) {
+            var modal = document.getElementById(id);
+            modal.querySelector('.bottom-sheet').classList.remove('open');
+            setTimeout(function() {
+                modal.classList.add('hidden');
+            }, 250);
+        }
+
+        function selectTimeSlot(slot) {
+            document.getElementById('booking-slot').value = slot;
+            var btns = document.querySelectorAll('.slot-btn');
+            for (var i = 0; i < btns.length; i++) {
+                if (btns[i].textContent.indexOf(slot) !== -1) {
+                    btns[i].classList.add('bg-green-50', 'border-green-600', 'text-green-800');
+                } else {
+                    btns[i].classList.remove('bg-green-50', 'border-green-600', 'text-green-800');
+                }
+            }
+        }
+
+        async function checkMachineSchedule() {
+            var maMay = document.getElementById('booking-machine-id').value;
+            var ngay = document.getElementById('booking-date').value;
+            var listEl = document.getElementById('booked-slots-list');
+            try {
+                var res = await fetch('/api/gio-hang/lich-may?maMay=' + maMay + '&ngayThue=' + ngay);
+                var booked = await res.json();
+                if (!booked || booked.length === 0) {
+                    listEl.innerHTML = '<span class="text-green-700 font-medium">Tất cả khung giờ trong ngày đều còn trống.</span>';
+                } else {
+                    var html = '';
+                    for (var i = 0; i < booked.length; i++) {
+                        html += '<div class="text-red-600 font-semibold">Đã đặt: ' + booked[i].KhungGio + ' (' + booked[i].TrangThai + ')</div>';
+                    }
+                    listEl.innerHTML = html;
+                }
+            } catch (e) {
+                listEl.textContent = 'Không tải được lịch máy.';
+            }
+        }
+
+        async function submitMachineBooking() {
+            var maMay = document.getElementById('booking-machine-id').value;
+            var tenMay = document.getElementById('modal-machine-name').textContent;
+            var ngayThue = document.getElementById('booking-date').value;
+            var khungGio = document.getElementById('booking-slot').value;
+            var dienTich = parseFloat(document.getElementById('booking-area').value) || 1;
+
+            if (!khungGio) {
+                return showToast('Vui lòng chọn khung giờ làm việc!', true);
+            }
+
+            try {
+                var res = await fetch('/api/gio-hang/them', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        soDienThoai: currentUser.SoDienThoai || currentUser.soDienThoai,
+                        loaiDichVu: 'THUE_MAY',
+                        maThamChieu: maMay,
+                        tenHienThi: tenMay + ' (' + dienTich + ' công)',
+                        donGia: currentBookingPrice,
+                        soLuong: dienTich,
+                        ngayThue: ngayThue,
+                        khungGio: khungGio
+                    })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    closeModal('modal-booking');
+                    showToast('Đã giữ chỗ lịch thuê máy trong giỏ hàng!');
+                    loadCartData();
+                } else {
+                    showToast(data.message || 'Khung giờ này đã bị trùng lịch!', true);
+                }
+            } catch (e) {
+                showToast('Lỗi đặt lịch thuê máy', true);
+            }
+        }
+
+        // 3. SỰ KIỆN & HỘI THẢO
+        async function loadEventsData() {
+            try {
+                var res = await fetch('/api/su-kien');
+                var events = await res.json();
+                var container = document.getElementById('event-list');
+                var html = '';
+                for (var i = 0; i < events.length; i++) {
+                    var ev = events[i];
+                    var img = ev.HinhAnh || 'https://placehold.co/400x180?text=Hoi+Thao+Nong+Nghiep';
+                    var dateStr = new Date(ev.NgayToChuc).toLocaleDateString('vi-VN');
+                    html += '<div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">' +
+                        '<img src="' + img + '" class="w-full h-36 object-cover">' +
+                        '<div class="p-4 space-y-2">' +
+                            '<div class="flex items-center gap-2 text-[11px] font-bold text-green-700">' +
+                                '<span><i class="far fa-calendar-alt mr-1"></i>' + dateStr + '</span>' +
+                                '<span>•</span>' +
+                                '<span class="truncate"><i class="fas fa-map-marker-alt mr-1"></i>' + ev.DiaDiem + '</span>' +
+                            '</div>' +
+                            '<h3 class="font-extrabold text-sm text-gray-900">' + ev.TenSuKien + '</h3>' +
+                            '<p class="text-xs text-gray-500 line-clamp-2">' + (ev.MoTa || '') + '</p>' +
+                            '<button onclick="registerEvent(' + ev.MaSuKien + ', \'' + escAttr(ev.TenSuKien) + '\')" class="w-full mt-2 bg-green-50 text-green-800 border border-green-200 font-bold text-xs py-2.5 rounded-xl active:scale-95 transition">Đăng ký tham gia ngay</button>' +
+                        '</div>' +
+                    '</div>';
+                }
+                container.innerHTML = html;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function registerEvent(id, name) {
+            if (!currentUser) {
+                showToast('Vui lòng đăng nhập để đăng ký hội thảo!', true);
+                return switchTab('account');
+            }
+            try {
+                var res = await fetch('/api/dang-ky-su-kien', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maSuKien: id,
+                        hoTen: currentUser.HoTen || currentUser.hoTen,
+                        soDienThoai: currentUser.SoDienThoai || currentUser.soDienThoai,
+                        diaChi: currentUser.DiaChi || 'Miền Tây'
+                    })
+                });
+                var data = await res.json();
+                showToast(data.message || ('Đăng ký thành công: ' + name), !data.success);
+            } catch (e) {
+                showToast('Lỗi đăng ký sự kiện', true);
+            }
+        }
+
+        // 4. GIỎ HÀNG & THANH TOÁN VIETQR
+        async function loadCartData() {
+            if (!currentUser) {
+                document.getElementById('cart-login-notice').classList.remove('hidden');
+                document.getElementById('cart-content').classList.add('hidden');
+                return;
+            }
+            document.getElementById('cart-login-notice').classList.add('hidden');
+            document.getElementById('cart-content').classList.remove('hidden');
+            document.getElementById('checkout-address').value = currentUser.DiaChi || '';
+
+            var phone = currentUser.SoDienThoai || currentUser.soDienThoai;
+            try {
+                var res = await fetch('/api/gio-hang?soDienThoai=' + phone);
+                var items = await res.json();
+
+                var pendingItems = items.filter(function(i) {
+                    return i.TrangThai === 'Trong giỏ' || i.TrangThai === 'Chờ thanh toán';
+                });
+                var historyItems = items.filter(function(i) {
+                    return i.TrangThai !== 'Trong giỏ' && i.TrangThai !== 'Chờ thanh toán';
+                });
+
+                var badge = document.getElementById('cart-badge');
+                if (pendingItems.length > 0) {
+                    badge.textContent = pendingItems.length;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+
+                var listEl = document.getElementById('cart-items-list');
+                var checkoutBox = document.getElementById('checkout-box');
+                if (pendingItems.length === 0) {
+                    listEl.innerHTML = '<div class="bg-white rounded-2xl p-6 text-center text-xs text-gray-400">Giỏ hàng của bạn đang trống.</div>';
+                    checkoutBox.classList.add('hidden');
+                } else {
+                    checkoutBox.classList.remove('hidden');
+                    var total = 0;
+                    var html = '';
+                    for (var i = 0; i < pendingItems.length; i++) {
+                        var item = pendingItems[i];
+                        var sub = Number(item.DonGia) * Number(item.SoLuong);
+                        total += sub;
+                        var timeInfo = item.NgayThue ? '<p class="text-[11px] text-amber-700 font-medium mt-0.5"><i class="far fa-clock mr-1"></i>' + new Date(item.NgayThue).toLocaleDateString('vi-VN') + ' - ' + item.KhungGio + '</p>' : '';
+                        html += '<div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between gap-3">' +
+                            '<div class="flex-1 min-w-0">' +
+                                '<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-gray-100 text-gray-600">' + item.LoaiDichVu + '</span>' +
+                                '<h4 class="font-bold text-xs text-gray-900 truncate mt-1">' + item.TenHienThi + '</h4>' +
+                                timeInfo +
+                                '<p class="text-xs font-extrabold text-green-700 mt-1">' + sub.toLocaleString() + 'đ <span class="text-gray-400 font-normal">(x' + item.SoLuong + ')</span></p>' +
+                            '</div>' +
+                            '<button onclick="deleteCartItem(' + item.MaGioHang + ')" class="w-8 h-8 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0"><i class="fas fa-trash-alt text-xs"></i></button>' +
+                        '</div>';
+                    }
+                    listEl.innerHTML = html;
+                    document.getElementById('cart-total-amount').textContent = total.toLocaleString() + 'đ';
+                    document.getElementById('cart-deposit-amount').textContent = Math.round(total * 0.3).toLocaleString() + 'đ';
+                }
+
+                var histEl = document.getElementById('order-history-list');
+                if (historyItems.length === 0) {
+                    histEl.innerHTML = '<p class="text-xs text-gray-400 text-center py-3">Chưa có đơn hàng nào được đặt.</p>';
+                } else {
+                    var histHtml = '';
+                    for (var j = 0; j < historyItems.length; j++) {
+                        var h = historyItems[j];
+                        var hTotal = (Number(h.DonGia) * Number(h.SoLuong)).toLocaleString();
+                        histHtml += '<div class="bg-white p-3 rounded-xl border border-gray-100 flex items-center justify-between text-xs">' +
+                            '<div class="min-w-0 flex-1 pr-2">' +
+                                '<p class="font-bold text-gray-800 truncate">' + h.TenHienThi + '</p>' +
+                                '<p class="text-[11px] text-gray-500 mt-0.5">' + hTotal + 'đ</p>' +
+                            '</div>' +
+                            '<span class="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-green-100 text-green-800">' + h.TrangThai + '</span>' +
+                        '</div>';
+                    }
+                    histEl.innerHTML = histHtml;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function deleteCartItem(id) {
+            await fetch('/api/gio-hang/' + id, { method: 'DELETE' });
+            showToast('Đã xóa khỏi giỏ hàng');
+            loadCartData();
+        }
+
+        async function processCheckout(method) {
+            var phone = currentUser.SoDienThoai || currentUser.soDienThoai;
+            var diaChi = document.getElementById('checkout-address').value;
+            var ghiChu = document.getElementById('checkout-note').value;
+
+            if (!diaChi) {
+                return showToast('Vui lòng nhập địa chỉ giao hàng / ruộng!', true);
+            }
+
+            if (method === 'COD') {
+                var res = await fetch('/api/gio-hang/thanh-toan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ soDienThoai: phone, diaChi: diaChi, ghiChu: ghiChu, phuongThuc: 'COD' })
+                });
+                var data = await res.json();
+                showToast(data.message || 'Đặt hàng COD thành công!');
+                loadCartData();
+            } else {
+                try {
+                    var resQr = await fetch('/api/payment/create-qr', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ soDienThoai: phone, diaChi: diaChi, ghiChu: ghiChu })
+                    });
+                    var dataQr = await resQr.json();
+                    if (dataQr.qrUrl) {
+                        document.getElementById('vietqr-img').src = dataQr.qrUrl;
+                        document.getElementById('vietqr-amount').textContent = Number(dataQr.amount).toLocaleString() + 'đ';
+                        document.getElementById('vietqr-content').textContent = dataQr.orderCode;
+
+                        var modal = document.getElementById('modal-vietqr');
+                        modal.classList.remove('hidden');
+                        setTimeout(function() {
+                            modal.querySelector('.bottom-sheet').classList.add('open');
+                        }, 10);
+
+                        if (qrCheckInterval) clearInterval(qrCheckInterval);
+                        qrCheckInterval = setInterval(async function() {
+                            var checkRes = await fetch('/api/payment/status/' + dataQr.orderCode);
+                            var checkData = await checkRes.json();
+                            if (checkData.paid) {
+                                closeVietQRModal();
+                                showToast('Thanh toán thành công! Đơn hàng đã được xác nhận.');
+                                loadCartData();
+                            }
+                        }, 3000);
+                    } else {
+                        showToast(dataQr.message || 'Không tạo được mã QR', true);
+                    }
+                } catch (e) {
+                    showToast('Lỗi kết nối cổng thanh toán', true);
+                }
+            }
+        }
+
+        function closeVietQRModal() {
+            if (qrCheckInterval) clearInterval(qrCheckInterval);
+            closeModal('modal-vietqr');
+        }
+
+        // 5. TƯ VẤN TRỰC TUYẾN (AI & ADMIN)
+        async function loadChatMessages() {
+            var phone = currentUser ? (currentUser.SoDienThoai || currentUser.soDienThoai) : 'KHACH_VANG_LAI';
+            try {
+                var res = await fetch('/api/tu-van?soDienThoai=' + phone);
+                var msgs = await res.json();
+                var box = document.getElementById('chat-messages');
+                if (!msgs || msgs.length === 0) {
+                    box.innerHTML = '<div class="bg-white p-3.5 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 text-xs text-gray-700 max-w-[85%]">Xin chào bà con! Tôi là trợ lý AI của <strong>Lúa Vàng AgriTech</strong>. Bà con cần hỏi về giá lúa giống, phân bón hay đặt lịch máy gặt cứ nhắn tại đây nhé!</div>';
+                    return;
+                }
+                var html = '';
+                for (var i = 0; i < msgs.length; i++) {
+                    var m = msgs[i];
+                    var isUser = m.NguoiGui === 'NongDan' || m.NguoiGui === 'Khach';
+                    var alignClass = isUser ? 'justify-end' : 'justify-start';
+                    var bubbleClass = isUser ? 'bg-green-700 text-white rounded-tr-none' : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none';
+                    var senderLabel = !isUser ? '<p class="text-[10px] font-extrabold text-amber-600 mb-0.5">' + (m.NguoiGui === 'AI' ? 'Trợ lý AI Lúa Vàng' : 'Kỹ sư Admin') + '</p>' : '';
+                    html += '<div class="flex ' + alignClass + '">' +
+                        '<div class="' + bubbleClass + ' px-3.5 py-2.5 rounded-2xl shadow-sm text-xs max-w-[82%] leading-relaxed">' +
+                            senderLabel +
+                            '<p>' + m.NoiDung + '</p>' +
+                        '</div>' +
+                    '</div>';
+                }
+                box.innerHTML = html;
+                box.scrollTop = box.scrollHeight;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function sendQuickChat(text) {
+            document.getElementById('chat-input').value = text;
+            handleSendChat(new Event('submit'));
+        }
+
+        async function handleSendChat(e) {
+            e.preventDefault();
+            var input = document.getElementById('chat-input');
+            var noiDung = input.value.trim();
+            if (!noiDung) return;
+            input.value = '';
+
+            var phone = currentUser ? (currentUser.SoDienThoai || currentUser.soDienThoai) : 'KHACH_VANG_LAI';
+            var ten = currentUser ? (currentUser.HoTen || currentUser.hoTen) : 'Bà con nông dân';
+
+            var box = document.getElementById('chat-messages');
+            box.innerHTML += '<div class="flex justify-end"><div class="bg-green-700 text-white rounded-tr-none px-3.5 py-2.5 rounded-2xl shadow-sm text-xs max-w-[82%]">' + noiDung + '</div></div>';
+            box.scrollTop = box.scrollHeight;
+
+            try {
+                await fetch('/api/tu-van/gui', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ soDienThoai: phone, tenNguoiGui: ten, noiDung: noiDung })
+                });
+                loadChatMessages();
+            } catch (err) {
+                showToast('Không gửi được tin nhắn', true);
+            }
+        }
+
+        // 6. TÀI KHOẢN & DASHBOARD ADMIN MOBILE
+        function toggleAuthMode(mode) {
+            var isLogin = mode === 'login';
+            document.getElementById('form-login').classList.toggle('hidden', !isLogin);
+            document.getElementById('form-register').classList.toggle('hidden', isLogin);
+            document.getElementById('btn-show-login').className = isLogin ? 'flex-1 py-2 text-xs font-extrabold rounded-lg bg-white text-green-800 shadow-sm' : 'flex-1 py-2 text-xs font-extrabold rounded-lg text-gray-500';
+            document.getElementById('btn-show-register').className = !isLogin ? 'flex-1 py-2 text-xs font-extrabold rounded-lg bg-white text-green-800 shadow-sm' : 'flex-1 py-2 text-xs font-extrabold rounded-lg text-gray-500';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            var taiKhoan = document.getElementById('login-phone').value;
+            var matKhau = document.getElementById('login-pass').value;
+            try {
+                var res = await fetch('/api/auth/dang-nhap', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ taiKhoan: taiKhoan, soDienThoai: taiKhoan, matKhau: matKhau })
+                });
+                var data = await res.json();
+                if (data.success || data.user) {
+                    currentUser = data.user || data;
+                    localStorage.setItem('user_luavang', JSON.stringify(currentUser));
+                    showToast('Đăng nhập thành công!');
+                    checkAuthUI();
+                    loadCartData();
+                } else {
+                    showToast(data.message || 'Sai tài khoản hoặc mật khẩu!', true);
+                }
+            } catch (err) {
+                showToast('Lỗi đăng nhập', true);
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            var payload = {
+                hoTen: document.getElementById('reg-name').value,
+                soDienThoai: document.getElementById('reg-phone').value,
+                diaChi: document.getElementById('reg-address').value,
+                matKhau: document.getElementById('reg-pass').value
+            };
+            try {
+                var res = await fetch('/api/auth/dang-ky', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                var data = await res.json();
+                if (data.success) {
+                    showToast('Đăng ký thành công! Vui lòng đăng nhập.');
+                    toggleAuthMode('login');
+                    document.getElementById('login-phone').value = payload.soDienThoai;
+                } else {
+                    showToast(data.message || 'Đăng ký thất bại', true);
+                }
+            } catch (err) {
+                showToast('Lỗi đăng ký', true);
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('user_luavang');
+            currentUser = null;
+            checkAuthUI();
+            showToast('Đã đăng xuất tài khoản');
+        }
+
+        function checkAuthUI() {
+            var authForms = document.getElementById('auth-forms');
+            var profileBox = document.getElementById('user-profile-box');
+            var adminPanel = document.getElementById('admin-mobile-panel');
+
+            if (!currentUser) {
+                authForms.classList.remove('hidden');
+                profileBox.classList.add('hidden');
+                document.getElementById('header-subtitle').textContent = 'Đồng hành cùng nhà nông';
+                return;
+            }
+
+            authForms.classList.add('hidden');
+            profileBox.classList.remove('hidden');
+            var name = currentUser.HoTen || currentUser.hoTen || 'Quản trị viên';
+            var phone = currentUser.SoDienThoai || currentUser.soDienThoai || currentUser.TenDangNhap || '';
+            document.getElementById('profile-name').textContent = name;
+            document.getElementById('profile-phone').textContent = phone;
+            document.getElementById('profile-address').value = currentUser.DiaChi || '';
+            document.getElementById('header-subtitle').textContent = 'Xin chào, ' + name;
+
+            if (currentUser.role === 'admin' || currentUser.Quyen === 'Admin') {
+                document.getElementById('profile-role-badge').textContent = 'Quản trị viên (Admin)';
+                document.getElementById('profile-role-badge').className = 'text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-100 text-red-700';
+                adminPanel.classList.remove('hidden');
+                loadAdminStats();
+            } else {
+                adminPanel.classList.add('hidden');
+            }
+        }
+
+        async function updateProfileAddress() {
+            var diaChi = document.getElementById('profile-address').value;
+            var phone = currentUser.SoDienThoai || currentUser.soDienThoai;
+            try {
+                var res = await fetch('/api/nong-dan/cap-nhat', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ soDienThoai: phone, diaChi: diaChi })
+                });
+                var data = await res.json();
+                if (data.success) {
+                    currentUser.DiaChi = diaChi;
+                    localStorage.setItem('user_luavang', JSON.stringify(currentUser));
+                    showToast('Đã cập nhật địa chỉ mặc định!');
+                }
+            } catch (e) {
+                showToast('Lỗi cập nhật', true);
+            }
+        }
+
+        async function loadAdminStats() {
+            try {
+                var results = await Promise.all([
+                    fetch('/api/thong-ke'),
+                    fetch('/api/gio-hang/tat-ca')
+                ]);
+                var stats = await results[0].json();
+                var orders = await results[1].json();
+
+                document.getElementById('admin-stat-revenue').textContent = Number(stats.tongDoanhThu || 0).toLocaleString() + 'đ';
+                document.getElementById('admin-stat-orders').textContent = orders.length || 0;
+
+                var orderContainer = document.getElementById('admin-order-list');
+                var limit = Math.min(orders.length, 15);
+                var html = '';
+                for (var i = 0; i < limit; i++) {
+                    var o = orders[i];
+                    var total = (Number(o.DonGia) * Number(o.SoLuong)).toLocaleString();
+                    html += '<div class="p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs space-y-1.5">' +
+                        '<div class="flex justify-between font-bold">' +
+                            '<span class="text-gray-800 truncate">' + o.TenHienThi + '</span>' +
+                            '<span class="text-green-700 shrink-0">' + total + 'đ</span>' +
+                        '</div>' +
+                        '<div class="flex items-center justify-between text-[11px] text-gray-500">' +
+                            '<span>SĐT: ' + o.SoDienThoai + '</span>' +
+                            '<select onchange="adminUpdateOrderStatus(' + o.MaGioHang + ', this.value)" class="bg-white border rounded-lg px-2 py-1 font-bold text-gray-700">' +
+                                '<option value="' + o.TrangThai + '" selected>' + o.TrangThai + '</option>' +
+                                '<option value="Đã xác nhận">Đã xác nhận</option>' +
+                                '<option value="Đang giao hàng">Đang giao hàng</option>' +
+                                '<option value="Đang thực hiện">Đang thực hiện</option>' +
+                                '<option value="Hoàn thành">Hoàn thành</option>' +
+                            '</select>' +
+                        '</div>' +
+                    '</div>';
+                }
+                orderContainer.innerHTML = html;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function adminUpdateOrderStatus(id, trangThai) {
+            try {
+                await fetch('/api/gio-hang/trang-thai/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ trangThai: trangThai })
+                });
+                showToast('Đã chuyển trạng thái sang: ' + trangThai);
+            } catch (e) {
+                showToast('Lỗi cập nhật trạng thái', true);
+            }
+        }
+    </script>
+</body>
+</html>
