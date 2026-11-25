@@ -4,6 +4,30 @@ const sepayConfig = require('../cau-hinh/sepay');
 
 const THOI_GIAN_GIU_DON_GIAY = 600; // 10 phút = 600 giây
 
+// Biểu thức SQL luôn lấy đúng thời gian hiện tại theo múi giờ Việt Nam (+07:00)
+const VN_NOW_SQL = `CAST(SWITCHOFFSET(SYSDATETIMEOFFSET(), '+07:00') AS DATETIME2(0))`;
+
+function formatNgayGioVN(val) {
+    if (!val) return '';
+    const d = val instanceof Date ? val : new Date(val);
+    if (Number.isNaN(d.getTime())) return String(val);
+
+    const parts = new Intl.DateTimeFormat('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour12: false
+    }).formatToParts(d);
+
+    const map = {};
+    for (const p of parts) map[p.type] = p.value;
+    return `${map.hour}:${map.minute}:${map.second} ${map.day}/${map.month}/${map.year}`;
+}
+
 // ================= HÀM HỖ TRỢ KIỂM TRA LỊCH THUÊ MÁY =================
 function kiemTraTrungKhungGio(gioA, gioB) {
     if (!gioA || !gioB) return false;
@@ -49,7 +73,6 @@ async function donDepDonQuaHan10Phut(poolParam = null) {
         const pool = poolParam || await ketNoiDb();
         await damBaoCotThanhToan(pool);
 
-        // 1. Trả các đơn Sản phẩm 'Chờ thanh toán' quá 10 phút về lại 'Trong giỏ'
         const spQuaHan = await pool.request()
             .input('hanGiay', sql.Int, THOI_GIAN_GIU_DON_GIAY)
             .query(`
@@ -57,7 +80,7 @@ async function donDepDonQuaHan10Phut(poolParam = null) {
                 FROM GioHangSanPham
                 WHERE TrangThai = N'Chờ thanh toán'
                   AND NgayThem IS NOT NULL
-                  AND DATEDIFF(SECOND, NgayThem, GETDATE()) >= @hanGiay
+                  AND DATEDIFF(SECOND, NgayThem, ${VN_NOW_SQL}) >= @hanGiay
             `);
 
         for (const item of spQuaHan.recordset) {
@@ -90,13 +113,12 @@ async function donDepDonQuaHan10Phut(poolParam = null) {
                         SET TrangThai = N'Trong giỏ',
                             MaThanhToan = NULL,
                             TienCoc = NULL,
-                            NgayThem = GETDATE()
+                            NgayThem = ${VN_NOW_SQL}
                         WHERE MaGH = @id
                     `);
             }
         }
 
-        // 2. Trả các lịch Thuê máy 'Chờ thanh toán' quá 10 phút về 'Chờ xác nhận' -> Mở lại khung giờ trống
         const mayQuaHan = await pool.request()
             .input('hanGiay', sql.Int, THOI_GIAN_GIU_DON_GIAY)
             .query(`
@@ -104,11 +126,11 @@ async function donDepDonQuaHan10Phut(poolParam = null) {
                 SET TrangThai = N'Chờ xác nhận',
                     MaThanhToan = NULL,
                     TienCoc = NULL,
-                    NgayTao = GETDATE()
+                    NgayTao = ${VN_NOW_SQL}
                 OUTPUT INSERTED.MaDatMay
                 WHERE TrangThai = N'Chờ thanh toán'
                   AND NgayTao IS NOT NULL
-                  AND DATEDIFF(SECOND, NgayTao, GETDATE()) >= @hanGiay
+                  AND DATEDIFF(SECOND, NgayTao, ${VN_NOW_SQL}) >= @hanGiay
             `);
 
         if (spQuaHan.recordset.length > 0 || mayQuaHan.recordset.length > 0) {
@@ -122,7 +144,6 @@ async function donDepDonQuaHan10Phut(poolParam = null) {
 async function kiemTraMayDaBiDat(pool, maMay, ngayThue, khungGio, boQuaMaDatMay = null) {
     if (!ngayThue || !khungGio) return null;
 
-    // Dọn dẹp ngay các đơn quá hạn 10 phút trước khi kiểm tra trùng ca
     await donDepDonQuaHan10Phut(pool);
 
     const req = pool.request()
@@ -170,11 +191,11 @@ const layGioHang = async (req, res) => {
                 .query(`
                     SELECT gh.MaGH, gh.SoLuong, gh.TrangThai,
                            gh.MaThanhToan, ISNULL(gh.TienCoc, 0) AS TienCoc,
-                           CONVERT(varchar(19), gh.NgayThem, 126) AS NgayThem,
+                           CONVERT(varchar(19), gh.NgayThem, 126) + '+07:00' AS NgayThem,
                            CASE
                                WHEN gh.TrangThai = N'Chờ thanh toán' AND gh.NgayThem IS NOT NULL
-                               THEN IIF(@hanGiay - DATEDIFF(SECOND, gh.NgayThem, GETDATE()) > 0,
-                                        @hanGiay - DATEDIFF(SECOND, gh.NgayThem, GETDATE()), 0)
+                               THEN IIF(@hanGiay - DATEDIFF(SECOND, gh.NgayThem, ${VN_NOW_SQL}) > 0,
+                                        @hanGiay - DATEDIFF(SECOND, gh.NgayThem, ${VN_NOW_SQL}), 0)
                                ELSE 0
                            END AS GiayConLai,
                            sp.MaSanPham, sp.TenSanPham, sp.DanhMuc, sp.GiaTien, sp.DonViTinh, sp.HinhAnh
@@ -191,11 +212,11 @@ const layGioHang = async (req, res) => {
                            CONVERT(VARCHAR(10), tm_gh.NgayThue, 23) AS NgayThue,
                            tm_gh.KhungGio, tm_gh.GhiChu, tm_gh.TrangThai,
                            tm_gh.MaThanhToan, ISNULL(tm_gh.TienCoc, 0) AS TienCoc,
-                           CONVERT(varchar(19), tm_gh.NgayTao, 126) AS NgayTao,
+                           CONVERT(varchar(19), tm_gh.NgayTao, 126) + '+07:00' AS NgayTao,
                            CASE
                                WHEN tm_gh.TrangThai = N'Chờ thanh toán' AND tm_gh.NgayTao IS NOT NULL
-                               THEN IIF(@hanGiay - DATEDIFF(SECOND, tm_gh.NgayTao, GETDATE()) > 0,
-                                        @hanGiay - DATEDIFF(SECOND, tm_gh.NgayTao, GETDATE()), 0)
+                               THEN IIF(@hanGiay - DATEDIFF(SECOND, tm_gh.NgayTao, ${VN_NOW_SQL}) > 0,
+                                        @hanGiay - DATEDIFF(SECOND, tm_gh.NgayTao, ${VN_NOW_SQL}), 0)
                                ELSE 0
                            END AS GiayConLai,
                            tm.MaMay, tm.TenMay, tm.LoaiMay, tm.GiaThue, tm.DonViTinh, tm.HinhAnh
@@ -208,7 +229,7 @@ const layGioHang = async (req, res) => {
                 .input('sdt', sql.VarChar, sdt)
                 .query(`
                     SELECT dk.MaDK, dk.TieuDeSuKien, dk.HoTen, dk.SoDienThoai,
-                           CONVERT(varchar(19), dk.NgayDangKy, 126) AS NgayDangKy,
+                           CONVERT(varchar(19), dk.NgayDangKy, 126) + '+07:00' AS NgayDangKy,
                            sk.ThoiGian, sk.DiaDiem, sk.MoTa
                     FROM DangKySuKien dk
                     LEFT JOIN SuKien sk ON LTRIM(RTRIM(dk.TieuDeSuKien)) = LTRIM(RTRIM(sk.TieuDe))
@@ -237,6 +258,7 @@ const layGioHang = async (req, res) => {
 
             return {
                 ...item,
+                NgayThemVN: formatNgayGioVN(item.NgayThem),
                 TongCocDon: tongCocDon,
                 TongConLaiDon: tongConLaiDon,
                 MaThanhToanCOD: maThanhToanCOD,
@@ -265,6 +287,7 @@ const layGioHang = async (req, res) => {
 
             return {
                 ...item,
+                NgayTaoVN: formatNgayGioVN(item.NgayTao),
                 TongCocDon: tongCocDon,
                 TongConLaiDon: tongConLaiDon,
                 MaThanhToanCOD: maThanhToanCOD,
@@ -277,7 +300,10 @@ const layGioHang = async (req, res) => {
             success: true,
             sanPham: dsSanPham,
             thueMay: dsThueMay,
-            suKien: resSuKien.recordset,
+            suKien: resSuKien.recordset.map(sk => ({
+                ...sk,
+                NgayDangKyVN: formatNgayGioVN(sk.NgayDangKy)
+            })),
             bankInfo: {
                 bankName: 'VietinBank',
                 accountNo: sepayConfig.ACCOUNT_NO,
@@ -324,7 +350,7 @@ const themSanPhamVaoGio = async (req, res) => {
                 .input('tienCoc', sql.Decimal(18, 0), tienCoc)
                 .query(`
                     INSERT INTO GioHangSanPham (SoDienThoai, MaSanPham, SoLuong, TrangThai, MaThanhToan, TienCoc, NgayThem)
-                    VALUES (@sdt, @maSP, @sl, N'Chờ thanh toán', @mtt, @tienCoc, GETDATE())
+                    VALUES (@sdt, @maSP, @sl, N'Chờ thanh toán', @mtt, @tienCoc, ${VN_NOW_SQL})
                 `);
 
             return res.json({
@@ -363,7 +389,7 @@ const themSanPhamVaoGio = async (req, res) => {
                 .input('sl', sql.Int, slThem)
                 .query(`
                     INSERT INTO GioHangSanPham (SoDienThoai, MaSanPham, SoLuong, TrangThai, NgayThem)
-                    VALUES (@sdt, @maSP, @sl, N'Trong giỏ', GETDATE())
+                    VALUES (@sdt, @maSP, @sl, N'Trong giỏ', ${VN_NOW_SQL})
                 `);
         }
 
@@ -451,7 +477,7 @@ const datMuaSanPham = async (req, res) => {
                     SET TrangThai = N'Chờ thanh toán',
                         MaThanhToan = @mtt,
                         TienCoc = @coc,
-                        NgayThem = GETDATE()
+                        NgayThem = ${VN_NOW_SQL}
                     WHERE MaGH = @maGH
                 `);
         }
@@ -475,7 +501,7 @@ const datMuaSanPham = async (req, res) => {
     }
 };
 
-// 6. API Lấy lịch đã đặt minh bạch của từng máy (tự mở lại ca quá hạn 10 phút trước khi trả kết quả)
+// 6. API Lấy lịch đã đặt minh bạch của từng máy
 const layLichDaDatMay = async (req, res) => {
     try {
         const maMay = parseInt(req.params.maMay);
@@ -531,7 +557,7 @@ const layLichDaDatMay = async (req, res) => {
     }
 };
 
-// 7. Thêm dịch vụ thuê máy vào giỏ HOẶC đặt lịch thuê ngay kèm QR cọc 30% SePay (giữ lịch tối đa 10 phút)
+// 7. Thêm dịch vụ thuê máy vào giỏ HOẶC đặt lịch thuê ngay kèm QR cọc 30% SePay
 const themThueMayVaoGio = async (req, res) => {
     const { soDienThoai, maMay, soCong, ngayThue, khungGio, ghiChu, trangThai } = req.body;
     if (!soDienThoai || !maMay) {
@@ -545,7 +571,6 @@ const themThueMayVaoGio = async (req, res) => {
         const ngayStr = String(ngayThue || '').trim();
         const gioStr = String(khungGio || '').trim();
 
-        // Tự động lấy địa chỉ ruộng mặc định của nông dân nếu ghi chú trống
         let ghiChuFinal = String(ghiChu || '').trim();
         if (!ghiChuFinal) {
             const ndRes = await pool.request()
@@ -597,7 +622,7 @@ const themThueMayVaoGio = async (req, res) => {
                 .input('tienCoc', sql.Decimal(18, 0), tienCoc)
                 .query(`
                     INSERT INTO GioHangThueMay (SoDienThoai, MaMay, SoCong, NgayThue, KhungGio, GhiChu, TrangThai, MaThanhToan, TienCoc, NgayTao)
-                    VALUES (@sdt, @maMay, @cong, @ngayThue, @khungGio, @ghiChu, N'Chờ thanh toán', @mtt, @tienCoc, GETDATE())
+                    VALUES (@sdt, @maMay, @cong, @ngayThue, @khungGio, @ghiChu, N'Chờ thanh toán', @mtt, @tienCoc, ${VN_NOW_SQL})
                 `);
 
             return res.json({
@@ -651,7 +676,7 @@ const themThueMayVaoGio = async (req, res) => {
                 .input('ghiChu', sql.NVarChar, ghiChuFinal)
                 .query(`
                     INSERT INTO GioHangThueMay (SoDienThoai, MaMay, SoCong, NgayThue, KhungGio, GhiChu, TrangThai, NgayTao)
-                    VALUES (@sdt, @maMay, @cong, @ngayThue, @khungGio, @ghiChu, N'Chờ xác nhận', GETDATE())
+                    VALUES (@sdt, @maMay, @cong, @ngayThue, @khungGio, @ghiChu, N'Chờ xác nhận', ${VN_NOW_SQL})
                 `);
         }
 
@@ -703,7 +728,7 @@ const xoaThueMayGio = async (req, res) => {
     }
 };
 
-// 10. Nông dân xác nhận lịch thuê máy từ giỏ -> Khóa khung giờ & tạo QR cọc 30% SePay (giữ 10 phút)
+// 10. Nông dân xác nhận lịch thuê máy từ giỏ -> Khóa khung giờ & tạo QR cọc 30% SePay
 const xacNhanThueMay = async (req, res) => {
     const { soDienThoai } = req.body;
     try {
@@ -778,7 +803,7 @@ const xacNhanThueMay = async (req, res) => {
                     SET TrangThai = N'Chờ thanh toán',
                         MaThanhToan = @mtt,
                         TienCoc = @coc,
-                        NgayTao = GETDATE()
+                        NgayTao = ${VN_NOW_SQL}
                     WHERE MaDatMay = @id
                 `);
         }
@@ -814,7 +839,7 @@ const layTatCaDonHangAdmin = async (req, res) => {
             pool.request().query(`
                 SELECT gh.MaGH, gh.SoDienThoai, gh.SoLuong, gh.TrangThai,
                        gh.MaThanhToan, ISNULL(gh.TienCoc, 0) AS TienCoc,
-                       CONVERT(varchar(19), gh.NgayThem, 126) AS NgayThem,
+                       CONVERT(varchar(19), gh.NgayThem, 126) + '+07:00' AS NgayThem,
                        sp.TenSanPham, sp.DanhMuc, sp.GiaTien, sp.DonViTinh,
                        nd.HoTen, nd.DiaChi
                 FROM GioHangSanPham gh
@@ -827,7 +852,7 @@ const layTatCaDonHangAdmin = async (req, res) => {
                        CONVERT(VARCHAR(10), tm_gh.NgayThue, 23) AS NgayThue,
                        tm_gh.KhungGio, tm_gh.GhiChu, tm_gh.TrangThai,
                        tm_gh.MaThanhToan, ISNULL(tm_gh.TienCoc, 0) AS TienCoc,
-                       CONVERT(varchar(19), tm_gh.NgayTao, 126) AS NgayTao,
+                       CONVERT(varchar(19), tm_gh.NgayTao, 126) + '+07:00' AS NgayTao,
                        tm.TenMay, tm.LoaiMay, tm.GiaThue, tm.DonViTinh,
                        nd.HoTen, nd.DiaChi
                 FROM GioHangThueMay tm_gh
@@ -839,8 +864,14 @@ const layTatCaDonHangAdmin = async (req, res) => {
 
         res.json({
             success: true,
-            donSanPham: resDonSP.recordset,
-            donThueMay: resDonMay.recordset
+            donSanPham: resDonSP.recordset.map(item => ({
+                ...item,
+                NgayThemVN: formatNgayGioVN(item.NgayThem)
+            })),
+            donThueMay: resDonMay.recordset.map(item => ({
+                ...item,
+                NgayTaoVN: formatNgayGioVN(item.NgayTao)
+            }))
         });
     } catch (err) {
         console.error('Lỗi lấy danh sách đơn hàng Admin:', err);
@@ -910,7 +941,7 @@ const capNhatTrangThaiDonSP = async (req, res) => {
                         SET TrangThai = N'Trong giỏ',
                             MaThanhToan = NULL,
                             TienCoc = NULL,
-                            NgayThem = GETDATE()
+                            NgayThem = ${VN_NOW_SQL}
                         WHERE MaGH = @id
                     `);
             }
@@ -954,7 +985,7 @@ const capNhatTrangThaiDonSP = async (req, res) => {
                     .input('noiDung', sql.NVarChar, noiDungTin)
                     .query(`
                         INSERT INTO TinNhanTuVan (NguoiGui, HoTen, SoDienThoai, NoiDung, NgayGui)
-                        VALUES ('admin', @hoTen, @sdt, @noiDung, GETDATE())
+                        VALUES ('admin', @hoTen, @sdt, @noiDung, ${VN_NOW_SQL})
                     `);
             } catch (chatErr) {
                 console.error('Lỗi gửi tin nhắn tự động khi giao hàng:', chatErr.message);
@@ -1002,7 +1033,7 @@ const capNhatTrangThaiDonMay = async (req, res) => {
                     SET TrangThai = N'Chờ xác nhận',
                         MaThanhToan = NULL,
                         TienCoc = NULL,
-                        NgayTao = GETDATE()
+                        NgayTao = ${VN_NOW_SQL}
                     WHERE MaDatMay = @id
                 `);
 
@@ -1060,7 +1091,7 @@ const capNhatTrangThaiDonMay = async (req, res) => {
                     .input('noiDung', sql.NVarChar, noiDungTin)
                     .query(`
                         INSERT INTO TinNhanTuVan (NguoiGui, HoTen, SoDienThoai, NoiDung, NgayGui)
-                        VALUES ('admin', @hoTen, @sdt, @noiDung, GETDATE())
+                        VALUES ('admin', @hoTen, @sdt, @noiDung, ${VN_NOW_SQL})
                     `);
             } catch (chatErr) {
                 console.error('Lỗi gửi tin nhắn tự động khi điều máy:', chatErr.message);
