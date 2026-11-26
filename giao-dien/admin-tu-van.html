@@ -90,17 +90,15 @@
 
     <script>
         let tatCaTinNhan = [];
-        let sdtDangChon = null;   // SĐT của nông dân đang chat
+        let sdtDangChon = null;
         let tuKhoaTim = '';
         let dangGui = false;
 
-        // Dấu vân tay để chỉ vẽ lại khi dữ liệu thật sự thay đổi (không giật, không nhảy cuộn)
         let dauVanListCu = '';
         let dauVanChatCu = '';
 
-        // ---------- Trạng thái "đã đọc" (lưu trong trình duyệt của admin) ----------
         const KHOA_DA_DOC = 'luaVangAdminDaDoc';
-        let daDoc = {};              // { sdt: thời điểm (ms) của tin nông dân cuối cùng admin đã xem }
+        let daDoc = {};
         let daKhoiTaoDaDoc = false;
 
         function luuDaDoc() {
@@ -133,7 +131,6 @@
             if (luu) {
                 daDoc = luu;
             } else {
-                // Lần đầu dùng: coi tin cũ là đã đọc, chỉ báo chấm đỏ cho tin mới từ giờ
                 new Set(tatCaTinNhan.map(m => m.SoDienThoai)).forEach(sdt => {
                     daDoc[sdt] = thoiDiemTinNongDanCuoi(sdt);
                 });
@@ -142,7 +139,6 @@
             daKhoiTaoDaDoc = true;
         }
 
-        // ---------- Tiện ích ----------
         function escapeHtml(text) {
             return String(text ?? '')
                 .replace(/&/g, '&amp;')
@@ -153,7 +149,25 @@
         }
 
         function dinhDangNoiDung(text) {
-            return escapeHtml(text).replace(/\n/g, '<br>');
+            return escapeHtml(text)
+                .replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function dinhDangGioVN(ngay) {
+            if (!ngay) return '';
+            let raw = String(ngay).trim();
+            if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(raw)) {
+                raw = raw.replace(' ', 'T') + '+07:00';
+            }
+            const d = new Date(raw);
+            if (isNaN(d.getTime())) return raw;
+            return d.toLocaleTimeString('vi-VN', {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
         }
 
         function chuVietTat(hoTen) {
@@ -161,19 +175,17 @@
         }
 
         function gioPhut(ngay) {
-            return new Date(ngay).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            return dinhDangGioVN(ngay);
         }
 
         function laTinAI(msg) {
             return msg.NguoiGui === 'admin' && String(msg.NoiDung || '').includes('[Trợ lý AI');
         }
 
-        // ---------- Báo trạng thái admin online cho server ----------
         function guiPingAdmin() {
             fetch('/api/admin-ping', { method: 'POST' }).catch(() => {});
         }
 
-        // ---------- Khởi động trang ----------
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('search-nongdan').addEventListener('input', function (e) {
                 tuKhoaTim = e.target.value.trim().toLowerCase();
@@ -197,11 +209,9 @@
             taiTatCaTinNhan();
             setInterval(taiTatCaTinNhan, 3000);
 
-            // Admin đang mở trang này: AI tạm ngừng trả lời
             guiPingAdmin();
             setInterval(guiPingAdmin, 10000);
 
-            // Khi admin chuyển sang trang khác hoặc đóng tab thì báo offline ngay
             window.addEventListener('pagehide', function () {
                 navigator.sendBeacon('/api/admin-offline');
             });
@@ -218,7 +228,6 @@
 
                 if (!daKhoiTaoDaDoc) khoiTaoDaDoc();
 
-                // Đang xem cuộc trò chuyện nào thì tin mới của người đó coi như đã đọc
                 if (sdtDangChon && document.visibilityState === 'visible') {
                     danhDauDaDoc(sdtDangChon);
                 }
@@ -234,7 +243,6 @@
             }
         }
 
-        // ---------- Danh sách nông dân ----------
         function layDanhSachCuocTroChuyen() {
             const map = {};
             tatCaTinNhan.forEach(item => {
@@ -246,9 +254,7 @@
                 const t = new Date(item.NgayGui).getTime();
 
                 if (item.NguoiGui === 'nong-dan') {
-                    // Tên lấy từ tin của nông dân
                     if (item.HoTen) nd.hoTen = item.HoTen;
-                    // Tin của nông dân mới hơn lần admin xem cuối thì là chưa đọc
                     if (t > (daDoc[sdt] || 0)) nd.chuaDoc++;
                 }
 
@@ -259,7 +265,6 @@
                 }
             });
 
-            // Chỉ giữ những người đã từng nhắn tin (có ít nhất 1 tin từ nông dân)
             const coTinNongDan = new Set(
                 tatCaTinNhan.filter(m => m.NguoiGui === 'nong-dan').map(m => m.SoDienThoai)
             );
@@ -318,7 +323,6 @@
             }).join('');
         }
 
-        // ---------- Khung chat ----------
         function chonNongDan(sdt) {
             sdtDangChon = sdt;
             const nd = layDanhSachCuocTroChuyen().find(x => x.soDienThoai === sdt);
@@ -329,7 +333,7 @@
             document.getElementById('chat-avatar').textContent = (hoTen || 'ND').trim().substring(0, 2).toUpperCase();
             document.getElementById('chat-status').textContent = 'Đang trò chuyện';
 
-            danhDauDaDoc(sdt);   // mở cuộc trò chuyện thì tắt chấm đỏ
+            danhDauDaDoc(sdt);
 
             dauVanListCu = '';
             dauVanChatCu = '';
@@ -341,13 +345,18 @@
         function renderNoiDungChat(cuonXuongCuoi) {
             const container = document.getElementById('admin-chat-messages');
             const messages = tatCaTinNhan.filter(m => m.SoDienThoai === sdtDangChon);
+            const lastMsg = messages.length ? messages[messages.length - 1] : null;
 
-            const dauVan = sdtDangChon + '|' + messages.length + '|' +
-                (messages.length ? messages[messages.length - 1].NoiDung : '');
+            const dauVan = [
+                sdtDangChon,
+                messages.length,
+                lastMsg ? (lastMsg.Id || '') : '',
+                lastMsg ? (lastMsg.NoiDung || '') : ''
+            ].join('|');
+
             if (dauVan === dauVanChatCu && !cuonXuongCuoi) return;
 
-            // Nếu đang đứng gần cuối thì tự cuộn xuống khi có tin mới
-            const ganCuoi = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
+            const ganCuoi = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
             const coTinMoi = dauVan !== dauVanChatCu;
             dauVanChatCu = dauVan;
 
@@ -368,7 +377,7 @@
                             </div>
                             <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 max-w-[80%] text-gray-800">
                                 <p class="font-bold text-luaGreen text-xs mb-1">${escapeHtml(msg.HoTen)}</p>
-                                <p class="leading-relaxed">${noiDung}</p>
+                                <div class="leading-relaxed">${noiDung}</div>
                                 <span class="text-[10px] text-gray-400 mt-1 block">${gio}</span>
                             </div>
                         </div>
@@ -380,7 +389,7 @@
                         <div class="flex items-start justify-end space-x-2">
                             <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl shadow-sm max-w-[80%] text-gray-800">
                                 <p class="font-bold text-amber-700 text-xs mb-1 text-right">Trợ lý AI (tự động)</p>
-                                <p class="leading-relaxed">${noiDung}</p>
+                                <div class="leading-relaxed">${noiDung}</div>
                                 <span class="text-[10px] text-gray-400 mt-1 block text-right">${gio}</span>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs flex-shrink-0">
@@ -394,7 +403,7 @@
                     <div class="flex items-start justify-end space-x-2">
                         <div class="bg-luaGreen text-white p-3.5 rounded-2xl shadow-sm max-w-[80%]">
                             <p class="font-bold text-emerald-200 text-xs mb-1 text-right">Admin (Bạn)</p>
-                            <p class="leading-relaxed">${noiDung}</p>
+                            <div class="leading-relaxed">${noiDung}</div>
                             <span class="text-[10px] text-emerald-200 mt-1 block text-right">${gio}</span>
                         </div>
                         <div class="w-8 h-8 rounded-full bg-luaGreen text-white flex items-center justify-center text-xs flex-shrink-0 font-bold">
@@ -409,7 +418,6 @@
             }
         }
 
-        // ---------- Gửi tin nhắn của admin ----------
         async function guiTinNhanAdmin() {
             if (dangGui) return;
 

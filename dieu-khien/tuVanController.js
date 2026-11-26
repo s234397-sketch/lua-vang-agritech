@@ -35,8 +35,9 @@ const adminOffline = (req, res) => {
 
 function lamSachTinAI(text) {
     return String(text || '')
-        .replace(/^🤖 \[Trợ lý AI Lúa Vàng\]: /, '')
-        .replace(/\n\n⏳ \(Hệ thống[\s\S]*$/, '');
+        .replace(/^🤖 \[Trợ lý AI Lúa Vàng\]:\s*/i, '')
+        .replace(/\n\n⏳ \(Hệ thống[\s\S]*$/, '')
+        .trim();
 }
 
 async function taoPromptHeThong(pool) {
@@ -106,7 +107,7 @@ async function hoiAI(lichSu, systemPrompt) {
                 messages: [{ role: "system", content: systemPrompt }, ...lichSu]
             });
             const text = completion.choices[0]?.message?.content;
-            if (text) return text;
+            if (text && text.trim()) return text.trim();
         } catch (err) {
             console.error(`Groq model ${model} lỗi:`, err.status, err.message);
         }
@@ -120,7 +121,7 @@ async function hoiAI(lichSu, systemPrompt) {
                 contents: cauHoiCuoi,
                 config: { systemInstruction: systemPrompt }
             });
-            if (r.text) return r.text;
+            if (r.text && r.text.trim()) return r.text.trim();
         } catch (err) {
             console.error('Gemini lỗi:', err.status || '', err.message);
         }
@@ -173,6 +174,7 @@ const guiTinNhan = async (req, res) => {
     try {
         const { nguoiGui, hoTen, soDienThoai, noiDung } = req.body;
         const sdtClean = String(soDienThoai || '').trim();
+        const noiDungClean = String(noiDung || '').trim();
 
         if (!sdtClean || sdtClean === 'khach') {
             return res.status(401).json({
@@ -182,13 +184,20 @@ const guiTinNhan = async (req, res) => {
             });
         }
 
+        if (!noiDungClean) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nội dung tin nhắn không được để trống!'
+            });
+        }
+
         const pool = await ketNoiDb();
 
         await pool.request()
             .input('nguoiGui', sql.VarChar, nguoiGui)
             .input('hoTen', sql.NVarChar, hoTen || 'Nông dân')
             .input('soDienThoai', sql.VarChar, sdtClean)
-            .input('noiDung', sql.NVarChar, noiDung)
+            .input('noiDung', sql.NVarChar, noiDungClean)
             .query(`INSERT INTO TinNhanTuVan (NguoiGui, HoTen, SoDienThoai, NoiDung, NgayGui) 
                     VALUES (@nguoiGui, @hoTen, @soDienThoai, @noiDung, GETDATE())`);
 

@@ -26,12 +26,9 @@
 </head>
 <body class="bg-luaBgKem min-h-screen text-gray-800 font-sans">
 
-    <!-- HEADER DÙNG CHUNG -->
     <header id="site-header" class="bg-white shadow-sm sticky top-0 z-50"></header>
 
-    <!-- MAIN CONTENT -->
     <main class="max-w-7xl mx-auto px-4 py-8">
-
         <section class="agritech-hero relative overflow-hidden rounded-3xl text-white p-6 md:p-9 mb-8">
             <div class="relative z-10 max-w-3xl">
                 <span class="glass-badge inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide">
@@ -43,7 +40,7 @@
             </div>
             <i class="fa-solid fa-wheat-awn absolute -right-4 -bottom-12 text-[150px] md:text-[210px] text-white/10 pointer-events-none" aria-hidden="true"></i>
         </section>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div class="card-agritech p-6 flex items-center space-x-4">
                 <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-luaGreen flex items-center justify-center text-2xl">
@@ -76,7 +73,6 @@
             </div>
         </div>
 
-        <!-- KHUNG CHAT TRỰC TIẾP VỚI AI & ADMIN (MỞ RỘNG TOÀN MÀN HÌNH) -->
         <div class="grid grid-cols-1 gap-8">
             <div class="card-agritech flex flex-col h-[640px] overflow-hidden">
                 <div class="bg-luaGreen px-6 py-4 flex items-center justify-between text-white">
@@ -97,12 +93,8 @@
                     </span>
                 </div>
 
-                <!-- Khung hiển thị tin nhắn -->
-                <div id="chat-messages-container" class="flex-1 p-6 overflow-y-auto space-y-4 bg-gray-50/50 text-sm">
-                    <!-- Render động từ CSDL -->
-                </div>
+                <div id="chat-messages-container" class="flex-1 p-6 overflow-y-auto space-y-4 bg-gray-50/50 text-sm"></div>
 
-                <!-- THANH GỢI Ý CÂU HỎI NHANH (QUICK REPLIES) -->
                 <div class="px-4 py-2.5 bg-gray-50 border-t border-gray-100 flex items-center space-x-2 overflow-x-auto whitespace-nowrap">
                     <span class="text-xs font-semibold text-gray-400 mr-1"><i class="fa-solid fa-lightbulb text-amber-500"></i> Gợi ý hỏi nhanh:</span>
                     <button onclick="guiCauHoiGoiY('Lúa bị vàng lá đầu ngọn là thiếu chất gì và cần bón phân gì?')" class="px-3.5 py-1.5 bg-white hover:bg-emerald-50 text-luaGreen rounded-full text-xs font-semibold transition border border-emerald-200 shadow-sm cursor-pointer">
@@ -119,7 +111,6 @@
                     </button>
                 </div>
 
-                <!-- Ô nhập tin nhắn -->
                 <div class="p-4 bg-white border-t border-gray-100 flex items-center space-x-3">
                     <input type="text" id="chat-input" placeholder="Nhập câu hỏi về kỹ thuật trồng lúa, sâu bệnh hoặc dịch vụ thuê máy..." class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-luaGreen text-sm" onkeypress="if(event.key === 'Enter') guiTinNhanNongDan()">
                     <button id="btn-send-chat" onclick="guiTinNhanNongDan()" class="bg-luaGreen hover:bg-emerald-900 text-white px-6 py-3 rounded-xl flex items-center justify-center transition shadow font-semibold text-sm space-x-2 flex-shrink-0 cursor-pointer">
@@ -133,6 +124,7 @@
 
     <script>
         let dangChoAI = false;
+        let dauVanChatCu = '';
 
         function layTaiKhoanTab() {
             const raw = sessionStorage.getItem('luaVangUser') || localStorage.getItem('luaVangUser');
@@ -140,6 +132,37 @@
                 sessionStorage.setItem('luaVangUser', raw);
             }
             return JSON.parse(raw || '{}');
+        }
+
+        function escapeHtml(text) {
+            return String(text ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function dinhDangNoiDung(text) {
+            return escapeHtml(text)
+                .replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function dinhDangGioVN(ngay) {
+            if (!ngay) return '';
+            let raw = String(ngay).trim();
+            if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(raw)) {
+                raw = raw.replace(' ', 'T') + '+07:00';
+            }
+            const d = new Date(raw);
+            if (isNaN(d.getTime())) return raw;
+            return d.toLocaleTimeString('vi-VN', {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
         }
 
         document.addEventListener("DOMContentLoaded", function() {
@@ -151,8 +174,8 @@
                     for (let script of scripts) { eval(script.innerText); }
                 });
 
-            taiLichSuChat();
-            setInterval(taiLichSuChat, 3000);
+            taiLichSuChat(true);
+            setInterval(() => taiLichSuChat(false), 3000);
         });
 
         function guiCauHoiGoiY(cauHoi) {
@@ -161,13 +184,14 @@
             guiTinNhanNongDan();
         }
 
-        async function taiLichSuChat() {
+        async function taiLichSuChat(epCuonXuongCuoi = false) {
             try {
                 const loggedUser = layTaiKhoanTab();
                 const myPhone = String(loggedUser.phone || loggedUser.SoDienThoai || '').trim();
                 const container = document.getElementById('chat-messages-container');
 
                 if (!myPhone || myPhone === 'khach') {
+                    dauVanChatCu = 'guest';
                     container.innerHTML = `
                         <div class="text-center text-gray-500 py-16 text-sm">
                             Vui lòng <b>đăng nhập tài khoản</b> để xem và gửi tin nhắn tư vấn.
@@ -178,6 +202,7 @@
 
                 const res = await fetch('/api/tin-nhan?soDienThoai=' + encodeURIComponent(myPhone));
                 if (res.status === 401) {
+                    dauVanChatCu = '401';
                     container.innerHTML = `
                         <div class="text-center text-gray-500 py-16 text-sm">
                             Phiên đăng nhập chưa hợp lệ. Vui lòng đăng nhập lại để sử dụng tư vấn.
@@ -189,6 +214,21 @@
                 const result = await res.json();
                 if (result.success) {
                     const messages = result.data || [];
+                    const lastMsg = messages.length ? messages[messages.length - 1] : null;
+                    const dauVanMoi = [
+                        myPhone,
+                        messages.length,
+                        lastMsg ? (lastMsg.Id || '') : '',
+                        lastMsg ? (lastMsg.NoiDung || '') : '',
+                        dangChoAI ? '1' : '0'
+                    ].join('|');
+
+                    if (dauVanMoi === dauVanChatCu && !epCuonXuongCuoi) return;
+
+                    const ganCuoi = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+                    const coTinMoi = dauVanMoi !== dauVanChatCu;
+                    dauVanChatCu = dauVanMoi;
+
                     let html = '';
                     if (messages.length === 0) {
                         html = `
@@ -204,11 +244,11 @@
                         `;
                     } else {
                         messages.forEach(msg => {
-                            let thoiGian = new Date(msg.NgayGui).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                            let noiDungFormatted = String(msg.NoiDung || '').replace(/\n/g, '<br>');
+                            const thoiGian = dinhDangGioVN(msg.NgayGui);
+                            const noiDungFormatted = dinhDangNoiDung(msg.NoiDung);
 
                             if (msg.NguoiGui === 'admin') {
-                                let isAI = String(msg.NoiDung || '').includes('[Trợ lý AI') || String(msg.NoiDung || '').includes('[Hệ thống]');
+                                const isAI = String(msg.NoiDung || '').includes('[Trợ lý AI') || String(msg.NoiDung || '').includes('[Hệ thống]');
                                 html += `
                                     <div class="flex items-start space-x-3">
                                         <div class="w-9 h-9 rounded-full ${isAI ? 'bg-amber-600' : 'bg-luaGreen'} text-white flex items-center justify-center text-xs flex-shrink-0 shadow-sm">
@@ -218,7 +258,7 @@
                                             <p class="font-bold ${isAI ? 'text-amber-700' : 'text-luaGreen'} text-xs mb-1">
                                                 ${isAI ? 'Trợ Lý AI Lúa Vàng' : 'Admin Lúa Vàng'}
                                             </p>
-                                            <p class="text-sm leading-relaxed">${noiDungFormatted}</p>
+                                            <div class="text-sm leading-relaxed">${noiDungFormatted}</div>
                                             <span class="text-[10px] text-gray-400 mt-1.5 block">${thoiGian}</span>
                                         </div>
                                     </div>
@@ -228,11 +268,11 @@
                                     <div class="flex items-start justify-end space-x-3">
                                         <div class="bg-emerald-100 p-4 rounded-2xl shadow-sm max-w-[75%] text-gray-800">
                                             <p class="font-bold text-luaGreen text-xs mb-1 text-right">Bạn (Nông dân)</p>
-                                            <p class="text-sm leading-relaxed">${noiDungFormatted}</p>
+                                            <div class="text-sm leading-relaxed">${noiDungFormatted}</div>
                                             <span class="text-[10px] text-gray-500 mt-1.5 block text-right">${thoiGian}</span>
                                         </div>
                                         <div class="w-9 h-9 rounded-full bg-emerald-200 text-luaGreen flex items-center justify-center text-xs flex-shrink-0 font-bold">
-                                            ${(msg.HoTen || 'ND').substring(0, 2).toUpperCase()}
+                                            ${escapeHtml((msg.HoTen || 'ND').substring(0, 2).toUpperCase())}
                                         </div>
                                     </div>
                                 `;
@@ -254,7 +294,9 @@
                     }
 
                     container.innerHTML = html;
-                    container.scrollTop = container.scrollHeight;
+                    if (epCuonXuongCuoi || (coTinMoi && (ganCuoi || dangChoAI))) {
+                        container.scrollTop = container.scrollHeight;
+                    }
                 }
             } catch (err) {
                 console.error("Lỗi tải chat:", err);
@@ -282,7 +324,7 @@
             input.disabled = true;
             btnSend.disabled = true;
             btnSend.classList.add('opacity-50');
-            taiLichSuChat();
+            await taiLichSuChat(true);
 
             try {
                 const res = await fetch('/api/tin-nhan', {
@@ -302,7 +344,7 @@
                 btnSend.disabled = false;
                 btnSend.classList.remove('opacity-50');
                 input.focus();
-                taiLichSuChat();
+                await taiLichSuChat(true);
             }
         }
     </script>

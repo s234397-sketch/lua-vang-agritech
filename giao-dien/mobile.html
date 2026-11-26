@@ -308,15 +308,16 @@
             margin-bottom: 4px;
         }
         .prod-name {
-            font-size: 12.5px;
-            font-weight: 700;
-            line-height: 1.35;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            cursor: pointer;
-        }
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    cursor: pointer;
+}
         .prod-foot {
             display: flex;
             align-items: center;
@@ -412,6 +413,7 @@
             color: var(--muted);
             display: -webkit-box;
             -webkit-line-clamp: 2;
+             line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -743,6 +745,19 @@
             color: var(--text);
             border: 1px solid var(--border);
             border-bottom-left-radius: 4px;
+        }
+        .msg-time {
+            font-size: 10px;
+            margin-top: 4px;
+            display: block;
+        }
+        .msg-row.user .msg-time {
+            color: #047857;
+            text-align: right;
+        }
+        .msg-row.bot .msg-time {
+            color: #9ca3af;
+            text-align: left;
         }
         .chat-quick {
             background: #fff;
@@ -1328,6 +1343,26 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;');
         }
+        function dinhDangNoiDungChat(text) {
+            return escHtml(text || '')
+                .replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+        function dinhDangGioVN(ngay) {
+            if (!ngay) return '';
+            var raw = String(ngay).trim();
+            if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(raw)) {
+                raw = raw.replace(' ', 'T') + '+07:00';
+            }
+            var d = new Date(raw);
+            if (isNaN(d.getTime())) return raw;
+            return d.toLocaleTimeString('vi-VN', {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        }
         function getUserPhone() {
             return currentUser ? (currentUser.phone || currentUser.SoDienThoai || '') : '';
         }
@@ -1384,8 +1419,8 @@
             if (tabName === 'chat') {
                 updateChatGate();
                 if (currentUser && getUserPhone()) {
-                    loadChatMessages();
-                    if (!chatPollInterval) chatPollInterval = setInterval(loadChatMessages, 3500);
+                    loadChatMessages(true);
+                    if (!chatPollInterval) chatPollInterval = setInterval(function() { loadChatMessages(false); }, 3500);
                 }
             } else if (chatPollInterval) {
                 clearInterval(chatPollInterval);
@@ -1727,7 +1762,7 @@
                     document.getElementById('cart-sp-total').textContent = 'Tổng: ' + tongSP.toLocaleString('vi-VN') + 'đ (Cọc 30%: ' + Math.round(tongSP * 0.3).toLocaleString('vi-VN') + 'đ)';
                 }
 
-                // Sản phẩm đã lên đơn (hiển thị chi tiết đầy đủ giống máy tính)
+                // Sản phẩm đã lên đơn
                 var htmlSPDon = '';
                 for (var j = 0; j < spDon.length; j++) {
                     var d = spDon[j];
@@ -1802,7 +1837,7 @@
                     document.getElementById('cart-may-total').textContent = 'Tổng: ' + tongMay.toLocaleString('vi-VN') + 'đ (Cọc 30%: ' + Math.round(tongMay * 0.3).toLocaleString('vi-VN') + 'đ)';
                 }
 
-                // Thuê máy đã lên đơn (hiển thị chi tiết đầy đủ giống máy tính)
+                // Thuê máy đã lên đơn
                 var htmlMayDon = '';
                 for (var n = 0; n < mayDon.length; n++) {
                     var md = mayDon[n];
@@ -1975,7 +2010,7 @@
         }
 
         // 5. CHAT AI (BẮT BUỘC ĐĂNG NHẬP)
-        async function loadChatMessages() {
+        async function loadChatMessages(epCuonXuongCuoi) {
             var phone = getUserPhone();
             if (!phone) return updateChatGate();
             try {
@@ -1991,14 +2026,18 @@
                 var html = '';
                 for (var i = 0; i < msgs.length; i++) {
                     var m = msgs[i], isUser = m.NguoiGui === 'nong-dan';
-                    var label = !isUser ? '<div style="font-size:10px;font-weight:800;color:#d97706;margin-bottom:2px;">' + (m.NoiDung.indexOf('[Trợ lý AI') !== -1 ? 'Trợ Lý AI Lúa Vàng' : 'Admin Lúa Vàng') + '</div>' : '';
-                    html += '<div class="msg-row ' + (isUser ? 'user' : 'bot') + '"><div class="msg-bubble">' + label + escHtml(m.NoiDung || '').replace(/\n/g, '<br>') + '</div></div>';
+                    var gio = dinhDangGioVN(m.NgayGui);
+                    var label = !isUser ? '<div style="font-size:10px;font-weight:800;color:#d97706;margin-bottom:2px;">' + (String(m.NoiDung || '').indexOf('[Trợ lý AI') !== -1 ? 'Trợ Lý AI Lúa Vàng' : 'Admin Lúa Vàng') + '</div>' : '';
+                    var timeHtml = gio ? '<span class="msg-time">' + escHtml(gio) + '</span>' : '';
+                    html += '<div class="msg-row ' + (isUser ? 'user' : 'bot') + '"><div class="msg-bubble">' + label + dinhDangNoiDungChat(m.NoiDung || '') + timeHtml + '</div></div>';
                 }
                 if (dangChoAI) {
                     html += '<div class="msg-row bot"><div class="msg-bubble" style="color:#6b7280;font-style:italic;"><i class="fas fa-spinner fa-spin"></i> Trợ lý AI đang phân tích câu hỏi của bà con...</div></div>';
                 }
                 box.innerHTML = html;
-                box.scrollTop = box.scrollHeight;
+                if (epCuonXuongCuoi || dangChoAI) {
+                    box.scrollTop = box.scrollHeight;
+                }
             } catch (e) { console.error(e); }
         }
 
@@ -2020,7 +2059,7 @@
             input.value = '';
             input.disabled = true;
             document.getElementById('btn-send-chat').disabled = true;
-            loadChatMessages();
+            loadChatMessages(true);
 
             try {
                 var res = await fetch('/api/tin-nhan', {
@@ -2035,7 +2074,7 @@
                 input.disabled = false;
                 document.getElementById('btn-send-chat').disabled = false;
                 input.focus();
-                loadChatMessages();
+                loadChatMessages(true);
             }
         }
 
