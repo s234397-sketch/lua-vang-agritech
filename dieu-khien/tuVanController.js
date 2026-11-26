@@ -33,6 +33,26 @@ const adminOffline = (req, res) => {
     res.json({ success: true });
 };
 
+function layNgayGioVN() {
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    }).formatToParts(now);
+
+    const map = {};
+    for (const p of parts) {
+        if (p.type !== 'literal') map[p.type] = p.value;
+    }
+    return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}:${map.second}`;
+}
+
 function lamSachTinAI(text) {
     return String(text || '')
         .replace(/^🤖 \[Trợ lý AI Lúa Vàng\]:\s*/i, '')
@@ -198,8 +218,9 @@ const guiTinNhan = async (req, res) => {
             .input('hoTen', sql.NVarChar, hoTen || 'Nông dân')
             .input('soDienThoai', sql.VarChar, sdtClean)
             .input('noiDung', sql.NVarChar, noiDungClean)
+            .input('ngayGui', sql.VarChar, layNgayGioVN())
             .query(`INSERT INTO TinNhanTuVan (NguoiGui, HoTen, SoDienThoai, NoiDung, NgayGui) 
-                    VALUES (@nguoiGui, @hoTen, @soDienThoai, @noiDung, GETDATE())`);
+                    VALUES (@nguoiGui, @hoTen, @soDienThoai, @noiDung, @ngayGui)`);
 
         if (nguoiGui === 'nong-dan' && !adminDangOnline()) {
             let noiDungPhanHoi = '';
@@ -209,7 +230,7 @@ const guiTinNhan = async (req, res) => {
                     pool.request()
                         .input('sdt', sql.VarChar, sdtClean)
                         .query(`SELECT TOP 6 NguoiGui, NoiDung FROM TinNhanTuVan 
-                                WHERE SoDienThoai = @sdt ORDER BY NgayGui DESC, Id DESC`)
+                                WHERE SoDienThoai = @sdt ORDER BY Id DESC`)
                 ]);
 
                 const lichSu = ketQua.recordset.reverse().map(m => ({
@@ -229,8 +250,9 @@ const guiTinNhan = async (req, res) => {
                 .input('hoTen', sql.NVarChar, hoTen || 'Nông dân')
                 .input('soDienThoai', sql.VarChar, sdtClean)
                 .input('noiDung', sql.NVarChar, noiDungPhanHoi)
+                .input('ngayGui', sql.VarChar, layNgayGioVN())
                 .query(`INSERT INTO TinNhanTuVan (NguoiGui, HoTen, SoDienThoai, NoiDung, NgayGui) 
-                        VALUES (@nguoiGui, @hoTen, @soDienThoai, @noiDung, GETDATE())`);
+                        VALUES (@nguoiGui, @hoTen, @soDienThoai, @noiDung, @ngayGui)`);
         }
 
         res.json({ success: true, message: 'Gửi tin nhắn thành công!' });
