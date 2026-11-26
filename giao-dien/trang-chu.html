@@ -36,6 +36,154 @@
         }
     </script>
     <script src="thong-bao-ui.js"></script>
+    <style>
+        @keyframes heroReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(22px) scale(0.985);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes floatSlow {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-9px) rotate(2deg);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                opacity: 0.45;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.12);
+            }
+        }
+
+        @keyframes cardEnter {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-animate {
+            animation: heroReveal 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .wheat-float {
+            animation: floatSlow 6s ease-in-out infinite;
+        }
+
+        .glow-pulse {
+            animation: pulseGlow 4.5s ease-in-out infinite;
+        }
+
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition:
+                opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal-item.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dynamic-stagger {
+            opacity: 0;
+            animation: cardEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0ms);
+        }
+
+        .stat-glass-card {
+            transition:
+                transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+
+        .stat-glass-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            background-color: rgba(255, 255, 255, 0.16);
+            border-color: rgba(251, 191, 36, 0.45);
+            box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.35);
+        }
+
+        .modern-lift {
+            transition:
+                transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.32s ease;
+        }
+
+        .modern-lift:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 32px -12px rgba(6, 78, 59, 0.16);
+        }
+
+        .modern-lift:active {
+            transform: translateY(-2px) scale(0.99);
+        }
+
+        .shine-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shine-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 65%;
+            height: 100%;
+            background: linear-gradient(
+                115deg,
+                transparent,
+                rgba(255, 255, 255, 0.38),
+                transparent
+            );
+            transition: left 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+        }
+
+        .shine-btn:hover::after {
+            left: 140%;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .hero-animate,
+            .wheat-float,
+            .glow-pulse,
+            .reveal-item,
+            .dynamic-stagger,
+            .stat-glass-card,
+            .modern-lift,
+            .shine-btn::after {
+                animation: none !important;
+                transition: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-luaBgKem min-h-screen text-gray-800 font-sans flex flex-col">
 
@@ -45,12 +193,11 @@
     <main class="flex-1">
         <!-- 1. HERO BANNER TỔNG QUAN HỆ THỐNG -->
         <section class="max-w-7xl mx-auto px-4 pt-6 pb-4">
-            <div class="agritech-hero relative overflow-hidden rounded-3xl text-white p-7 md:p-12">
-                <!-- Họa tiết trang trí nền -->
-                <div class="absolute -right-12 -bottom-12 text-white/5 text-[220px] pointer-events-none select-none">
+            <div class="agritech-hero hero-animate relative overflow-hidden rounded-3xl text-white p-7 md:p-12 shadow-xl">
+                <div class="wheat-float absolute -right-12 -bottom-12 text-white/5 text-[220px] pointer-events-none select-none">
                     <i class="fa-solid fa-wheat-awn"></i>
                 </div>
-                <div class="absolute top-6 right-10 w-40 h-40 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="glow-pulse absolute top-6 right-10 w-40 h-40 bg-amber-400/15 rounded-full blur-2xl pointer-events-none"></div>
 
                 <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     <div class="lg:col-span-7 space-y-5">
@@ -68,15 +215,15 @@
                         </p>
 
                         <div class="flex flex-wrap items-center gap-3 pt-1">
-                            <a href="/san-pham.html" class="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs md:text-sm shadow-lg transition flex items-center gap-2">
+                            <a href="/san-pham.html" class="shine-btn px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs md:text-sm shadow-lg transition flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
                                 <i class="fa-solid fa-bag-shopping"></i>
                                 <span>Mua vật tư nông nghiệp</span>
                             </a>
-                            <a href="/thue-may.html" class="px-5 py-3 rounded-xl bg-white text-luaGreen hover:bg-emerald-50 font-bold text-xs md:text-sm shadow transition flex items-center gap-2">
+                            <a href="/thue-may.html" class="shine-btn px-5 py-3 rounded-xl bg-white text-luaGreen hover:bg-emerald-50 font-bold text-xs md:text-sm shadow transition flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
                                 <i class="fa-solid fa-tractor text-luaYellow"></i>
                                 <span>Đặt lịch thuê máy ngay</span>
                             </a>
-                            <a href="/tu-van.html" class="px-4 py-3 rounded-xl border border-white/30 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition flex items-center gap-2">
+                            <a href="/tu-van.html" class="px-4 py-3 rounded-xl border border-white/30 hover:bg-white/10 text-white font-semibold text-xs md:text-sm transition flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
                                 <i class="fa-solid fa-robot text-amber-300"></i>
                                 <span>Hỏi Trợ lý AI</span>
                             </a>
@@ -85,7 +232,7 @@
 
                     <!-- Thẻ thống kê trực tiếp từ CSDL -->
                     <div class="lg:col-span-5 grid grid-cols-2 gap-3.5">
-                        <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
+                        <div class="stat-glass-card bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
                             <div class="w-9 h-9 rounded-xl bg-emerald-400/20 text-emerald-300 flex items-center justify-center mb-2.5">
                                 <i class="fa-solid fa-flask-vial"></i>
                             </div>
@@ -93,7 +240,7 @@
                             <p class="text-xs text-emerald-100/80 mt-0.5">Sản phẩm vật tư sẵn kho</p>
                         </div>
 
-                        <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
+                        <div class="stat-glass-card bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
                             <div class="w-9 h-9 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center mb-2.5">
                                 <i class="fa-solid fa-tractor"></i>
                             </div>
@@ -101,7 +248,7 @@
                             <p class="text-xs text-emerald-100/80 mt-0.5">Thiết bị cơ giới phục vụ</p>
                         </div>
 
-                        <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
+                        <div class="stat-glass-card bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
                             <div class="w-9 h-9 rounded-xl bg-sky-400/20 text-sky-300 flex items-center justify-center mb-2.5">
                                 <i class="fa-solid fa-calendar-check"></i>
                             </div>
@@ -109,7 +256,7 @@
                             <p class="text-xs text-emerald-100/80 mt-0.5">Hội thảo & tập huấn</p>
                         </div>
 
-                        <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
+                        <div class="stat-glass-card bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4">
                             <div class="w-9 h-9 rounded-xl bg-rose-400/20 text-rose-300 flex items-center justify-center mb-2.5">
                                 <i class="fa-solid fa-qrcode"></i>
                             </div>
@@ -122,10 +269,10 @@
         </section>
 
         <!-- 2. 4 PHÂN HỆ CHỨC NĂNG CHÍNH CỦA HỆ THỐNG -->
-        <section class="max-w-7xl mx-auto px-4 py-6">
+        <section class="max-w-7xl mx-auto px-4 py-6 reveal-item" data-stagger="90">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <a href="/san-pham.html" class="card-agritech p-5 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-luaGreen group-hover:bg-luaGreen group-hover:text-white transition flex items-center justify-center text-xl mb-4">
+                <a href="/san-pham.html" class="card-agritech modern-lift p-5 group">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-luaGreen group-hover:bg-luaGreen group-hover:text-white group-hover:scale-110 group-hover:-rotate-3 transition duration-300 flex items-center justify-center text-xl mb-4">
                         <i class="fa-solid fa-seedling"></i>
                     </div>
                     <h3 class="font-bold text-gray-800 text-base group-hover:text-luaGreen transition">Vật Tư Nông Nghiệp</h3>
@@ -134,8 +281,8 @@
                     </p>
                 </a>
 
-                <a href="/thue-may.html" class="card-agritech p-5 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-luaYellow group-hover:bg-luaYellow group-hover:text-white transition flex items-center justify-center text-xl mb-4">
+                <a href="/thue-may.html" class="card-agritech modern-lift p-5 group">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-luaYellow group-hover:bg-luaYellow group-hover:text-white group-hover:scale-110 group-hover:-rotate-3 transition duration-300 flex items-center justify-center text-xl mb-4">
                         <i class="fa-solid fa-helicopter"></i>
                     </div>
                     <h3 class="font-bold text-gray-800 text-base group-hover:text-luaYellow transition">Thuê Máy Cơ Giới</h3>
@@ -144,8 +291,8 @@
                     </p>
                 </a>
 
-                <a href="/su-kien.html" class="card-agritech p-5 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition flex items-center justify-center text-xl mb-4">
+                <a href="/su-kien.html" class="card-agritech modern-lift p-5 group">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white group-hover:scale-110 group-hover:-rotate-3 transition duration-300 flex items-center justify-center text-xl mb-4">
                         <i class="fa-solid fa-users-line"></i>
                     </div>
                     <h3 class="font-bold text-gray-800 text-base group-hover:text-blue-600 transition">Hội Thảo & Sự Kiện</h3>
@@ -154,8 +301,8 @@
                     </p>
                 </a>
 
-                <a href="/tu-van.html" class="card-agritech p-5 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition flex items-center justify-center text-xl mb-4">
+                <a href="/tu-van.html" class="card-agritech modern-lift p-5 group">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white group-hover:scale-110 group-hover:-rotate-3 transition duration-300 flex items-center justify-center text-xl mb-4">
                         <i class="fa-solid fa-comments"></i>
                     </div>
                     <h3 class="font-bold text-gray-800 text-base group-hover:text-purple-600 transition">Trợ Lý AI & Chuyên Gia</h3>
@@ -167,15 +314,15 @@
         </section>
 
         <!-- 3. SẢN PHẨM VẬT TƯ NỔI BẬT (DỮ LIỆU ĐỘNG TỪ SQL) -->
-        <section class="max-w-7xl mx-auto px-4 py-6">
+        <section class="max-w-7xl mx-auto px-4 py-6 reveal-item">
             <div class="flex items-end justify-between mb-5">
                 <div>
                     <span class="text-xs font-bold uppercase tracking-wider text-luaGreen bg-emerald-100/80 px-2.5 py-1 rounded-md">Kho vật tư chính hãng</span>
                     <h2 class="text-xl md:text-2xl font-black text-gray-800 mt-2">Sản Phẩm Nông Nghiệp Nổi Bật</h2>
                 </div>
-                <a href="/san-pham.html" class="text-xs md:text-sm font-bold text-luaGreen hover:text-emerald-700 flex items-center gap-1.5">
+                <a href="/san-pham.html" class="text-xs md:text-sm font-bold text-luaGreen hover:text-emerald-700 flex items-center gap-1.5 group">
                     <span>Xem tất cả sản phẩm</span>
-                    <i class="fa-solid fa-arrow-right"></i>
+                    <i class="fa-solid fa-arrow-right transition-transform duration-200 group-hover:translate-x-1"></i>
                 </a>
             </div>
 
@@ -187,15 +334,15 @@
         </section>
 
         <!-- 4. DỊCH VỤ THUÊ MÁY NÔNG NGHIỆP (DỮ LIỆU ĐỘNG TỪ SQL) -->
-        <section class="max-w-7xl mx-auto px-4 py-6">
+        <section class="max-w-7xl mx-auto px-4 py-6 reveal-item">
             <div class="flex items-end justify-between mb-5">
                 <div>
                     <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md">Cơ giới hóa đồng ruộng</span>
                     <h2 class="text-xl md:text-2xl font-black text-gray-800 mt-2">Dịch Vụ Thuê Máy Phổ Biến</h2>
                 </div>
-                <a href="/thue-may.html" class="text-xs md:text-sm font-bold text-luaYellow hover:text-amber-700 flex items-center gap-1.5">
+                <a href="/thue-may.html" class="text-xs md:text-sm font-bold text-luaYellow hover:text-amber-700 flex items-center gap-1.5 group">
                     <span>Xem toàn bộ đội máy</span>
-                    <i class="fa-solid fa-arrow-right"></i>
+                    <i class="fa-solid fa-arrow-right transition-transform duration-200 group-hover:translate-x-1"></i>
                 </a>
             </div>
 
@@ -207,7 +354,7 @@
         </section>
 
         <!-- 5. QUY TRÌNH ĐẶT LỊCH & THANH TOÁN QR TỰ ĐỘNG SEPAY -->
-        <section class="max-w-7xl mx-auto px-4 py-6">
+        <section class="max-w-7xl mx-auto px-4 py-6 reveal-item">
             <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
                 <div class="text-center max-w-2xl mx-auto mb-8">
                     <span class="text-xs font-bold uppercase tracking-wider text-luaGreen bg-emerald-50 px-3 py-1 rounded-full">Minh bạch & Tự động hóa</span>
@@ -218,26 +365,26 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-5 text-xs">
-                    <div class="bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 relative">
-                        <span class="w-7 h-7 rounded-full bg-luaGreen text-white font-black flex items-center justify-center mb-3">1</span>
+                    <div class="modern-lift bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 hover:border-emerald-300 relative">
+                        <span class="w-7 h-7 rounded-full bg-luaGreen text-white font-black flex items-center justify-center mb-3 shadow-sm">1</span>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">Chọn Vật Tư / Ca Thuê</h3>
                         <p class="text-gray-500 leading-relaxed">Chọn sản phẩm hoặc xem lịch trống từng khung giờ của máy nông nghiệp theo ngày mong muốn.</p>
                     </div>
 
-                    <div class="bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 relative">
-                        <span class="w-7 h-7 rounded-full bg-luaGreen text-white font-black flex items-center justify-center mb-3">2</span>
+                    <div class="modern-lift bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 hover:border-emerald-300 relative">
+                        <span class="w-7 h-7 rounded-full bg-luaGreen text-white font-black flex items-center justify-center mb-3 shadow-sm">2</span>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">Giữ Chỗ 10 Phút & Quét QR</h3>
                         <p class="text-gray-500 leading-relaxed">Hệ thống tạm khóa lịch 10 phút và tạo mã VietQR tự động điền sẵn số tiền cọc 30% + mã đơn.</p>
                     </div>
 
-                    <div class="bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 relative">
-                        <span class="w-7 h-7 rounded-full bg-luaYellow text-white font-black flex items-center justify-center mb-3">3</span>
+                    <div class="modern-lift bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 hover:border-amber-300 relative">
+                        <span class="w-7 h-7 rounded-full bg-luaYellow text-white font-black flex items-center justify-center mb-3 shadow-sm">3</span>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">SePay Chốt Đơn Tự Động</h3>
                         <p class="text-gray-500 leading-relaxed">Ngay khi chuyển khoản xong, Webhook SePay tự động xác nhận đơn mà không cần chờ duyệt tay.</p>
                     </div>
 
-                    <div class="bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 relative">
-                        <span class="w-7 h-7 rounded-full bg-luaGreen text-white font-black flex items-center justify-center mb-3">4</span>
+                    <div class="modern-lift bg-luaBgKem/70 rounded-2xl p-5 border border-emerald-100/80 hover:border-emerald-300 relative">
+                        <span class="w-7 h-7 rounded-full bg-luaGreen text-white font-black flex items-center justify-center mb-3 shadow-sm">4</span>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">Phục Vụ Tận Ruộng</h3>
                         <p class="text-gray-500 leading-relaxed">Vật tư giao tận nhà, máy xuống đúng đồng ruộng. Thanh toán 70% còn lại khi nghiệm thu.</p>
                     </div>
@@ -246,9 +393,8 @@
         </section>
 
         <!-- 6. SỰ KIỆN NHÀ NÔNG SẮP TỚI & KÊNH HỖ TRỢ TRỰC TIẾP -->
-        <section class="max-w-7xl mx-auto px-4 pt-4 pb-10">
+        <section class="max-w-7xl mx-auto px-4 pt-4 pb-10 reveal-item">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Danh sách sự kiện sắp tới -->
                 <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-4">
@@ -265,8 +411,7 @@
                     </div>
                 </div>
 
-                <!-- Khối hỗ trợ tư vấn kỹ thuật -->
-                <div class="lg:col-span-5 bg-gradient-to-br from-amber-50 to-emerald-50 rounded-3xl p-6 shadow-sm border border-amber-200/70 flex flex-col justify-between">
+                <div class="lg:col-span-5 modern-lift bg-gradient-to-br from-amber-50 to-emerald-50 rounded-3xl p-6 shadow-sm border border-amber-200/70 flex flex-col justify-between">
                     <div class="space-y-3">
                         <div class="w-12 h-12 rounded-2xl bg-luaGreen text-amber-300 flex items-center justify-center text-2xl shadow">
                             <i class="fa-solid fa-headset"></i>
@@ -293,7 +438,7 @@
                     </div>
 
                     <div class="pt-4">
-                        <a href="/tu-van.html" class="w-full py-3 rounded-xl bg-luaGreen hover:bg-emerald-900 text-white font-bold text-xs shadow flex items-center justify-center gap-2 transition">
+                        <a href="/tu-van.html" class="shine-btn w-full py-3 rounded-xl bg-luaGreen hover:bg-emerald-900 text-white font-bold text-xs shadow flex items-center justify-center gap-2 transition">
                             <i class="fa-solid fa-robot text-amber-300"></i>
                             <span>Mở Phòng Chat Trợ Lý AI & Chuyên Gia</span>
                         </a>
@@ -342,8 +487,34 @@
     </footer>
 
     <script>
+        function khoiTaoHieuUngCuon() {
+            const items = document.querySelectorAll('.reveal-item');
+            if (!('IntersectionObserver' in window)) {
+                items.forEach(el => el.classList.add('is-visible'));
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const delay = Number(entry.target.dataset.stagger || 0);
+                        setTimeout(() => {
+                            entry.target.classList.add('is-visible');
+                        }, delay);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.08,
+                rootMargin: '0px 0px -30px 0px'
+            });
+
+            items.forEach(el => observer.observe(el));
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
-            // Nạp Header dùng chung
+            khoiTaoHieuUngCuon();
+
             fetch('/header.html')
                 .then(response => response.text())
                 .then(data => {
@@ -372,7 +543,6 @@
                 const dsThueMay = resMay.success ? (resMay.data || []) : [];
                 const dsSuKien = resSK.success ? (resSK.data || []) : [];
 
-                // Cập nhật số liệu trên Hero Banner
                 document.getElementById('hero-stat-sp').innerText = `${dsSanPham.length}+`;
                 document.getElementById('hero-stat-may').innerText = `${dsThueMay.length} máy`;
                 document.getElementById('hero-stat-sk').innerText = `${dsSuKien.length} lịch`;
@@ -392,7 +562,7 @@
                 return;
             }
 
-            container.innerHTML = ds.map(sp => {
+            container.innerHTML = ds.map((sp, index) => {
                 const dm = sp.TenDanhMucChuan || sp.DanhMuc || 'Vật tư';
                 const gia = Number(sp.GiaTien || 0).toLocaleString('vi-VN') + ' đ';
                 const dvt = sp.DonViTinh ? ` / ${sp.DonViTinh}` : '';
@@ -407,7 +577,7 @@
                        </div>`;
 
                 return `
-                    <div onclick="window.location.href='/chi-tiet.html?loai=san-pham&id=${sp.MaSanPham}'" class="cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col justify-between group">
+                    <div style="--delay: ${index * 80}ms" onclick="window.location.href='/chi-tiet.html?loai=san-pham&id=${sp.MaSanPham}'" class="dynamic-stagger modern-lift cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col justify-between group">
                         ${imgHtml}
                         <div class="p-4 flex-1 flex flex-col justify-between">
                             <div>
@@ -417,10 +587,10 @@
                             <div class="pt-3 mt-3 border-t border-gray-100">
                                 <p class="text-luaYellow font-black text-base mb-2.5">${gia}<span class="text-xs font-normal text-gray-500">${dvt}</span></p>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <button onclick="event.stopPropagation(); themNhanhVaoGio(${sp.MaSanPham}, '${tenSafe}')" class="bg-emerald-50 hover:bg-emerald-100 text-luaGreen font-bold py-2 rounded-xl text-xs transition">
+                                    <button onclick="event.stopPropagation(); themNhanhVaoGio(${sp.MaSanPham}, '${tenSafe}')" class="bg-emerald-50 hover:bg-emerald-100 text-luaGreen font-bold py-2 rounded-xl text-xs transition active:scale-95">
                                         + Thêm giỏ
                                     </button>
-                                    <a href="/chi-tiet.html?loai=san-pham&id=${sp.MaSanPham}" onclick="event.stopPropagation()" class="bg-luaGreen hover:bg-emerald-900 text-white font-bold py-2 rounded-xl text-xs text-center transition">
+                                    <a href="/chi-tiet.html?loai=san-pham&id=${sp.MaSanPham}" onclick="event.stopPropagation()" class="bg-luaGreen hover:bg-emerald-900 text-white font-bold py-2 rounded-xl text-xs text-center transition active:scale-95">
                                         Chi tiết
                                     </a>
                                 </div>
@@ -438,7 +608,7 @@
                 return;
             }
 
-            container.innerHTML = ds.map(may => {
+            container.innerHTML = ds.map((may, index) => {
                 const loai = may.TenLoaiMayChuan || may.LoaiMay || 'Cơ giới hóa';
                 const gia = Number(may.GiaThue || 0).toLocaleString('vi-VN') + ' đ';
                 const dvt = may.DonViTinh ? ` / ${may.DonViTinh.toLowerCase()}` : ' / công';
@@ -452,7 +622,7 @@
                        </div>`;
 
                 return `
-                    <div onclick="window.location.href='/chi-tiet.html?loai=thue-may&id=${may.MaMay}'" class="cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col justify-between group">
+                    <div style="--delay: ${index * 90}ms" onclick="window.location.href='/chi-tiet.html?loai=thue-may&id=${may.MaMay}'" class="dynamic-stagger modern-lift cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col justify-between group">
                         ${imgHtml}
                         <div class="p-5 flex-1 flex flex-col justify-between">
                             <div>
@@ -465,7 +635,7 @@
                             </div>
                             <div class="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between">
                                 <p class="text-luaYellow font-black text-base">${gia}<span class="text-xs font-normal text-gray-500">${dvt}</span></p>
-                                <a href="/thue-may.html" onclick="event.stopPropagation()" class="px-3.5 py-2 rounded-xl bg-luaGreen hover:bg-emerald-900 text-white font-bold text-xs shadow transition">
+                                <a href="/thue-may.html" onclick="event.stopPropagation()" class="px-3.5 py-2 rounded-xl bg-luaGreen hover:bg-emerald-900 text-white font-bold text-xs shadow transition active:scale-95">
                                     Đặt lịch thuê
                                 </a>
                             </div>
@@ -482,8 +652,8 @@
                 return;
             }
 
-            container.innerHTML = ds.map(sk => `
-                <div class="p-3.5 rounded-2xl bg-luaBgKem/80 border border-gray-100 hover:border-emerald-200 transition flex items-start justify-between gap-3">
+            container.innerHTML = ds.map((sk, index) => `
+                <div style="--delay: ${index * 80}ms" class="dynamic-stagger p-3.5 rounded-2xl bg-luaBgKem/80 border border-gray-100 hover:border-emerald-300 hover:bg-white hover:shadow-sm hover:-translate-y-0.5 transition duration-200 flex items-start justify-between gap-3">
                     <div class="space-y-1">
                         <h3 class="font-bold text-gray-800 text-sm">${sk.TieuDe || 'Hội thảo kỹ thuật nhà nông'}</h3>
                         <div class="flex flex-wrap items-center gap-3 text-[11px] text-gray-500">
@@ -491,7 +661,7 @@
                             <span><i class="fa-solid fa-location-dot text-luaYellow mr-1"></i>${sk.DiaDiem || 'Tại địa phương'}</span>
                         </div>
                     </div>
-                    <a href="/su-kien.html" class="shrink-0 px-3 py-1.5 rounded-xl bg-white border border-emerald-200 text-luaGreen hover:bg-luaGreen hover:text-white font-bold text-xs transition">
+                    <a href="/su-kien.html" class="shrink-0 px-3 py-1.5 rounded-xl bg-white border border-emerald-200 text-luaGreen hover:bg-luaGreen hover:text-white font-bold text-xs transition active:scale-95">
                         Đăng ký
                     </a>
                 </div>
